@@ -317,7 +317,12 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')toggle(false
 /* Ranking, marcas e avaliações — EDITE os dados abaixo */
 var topIds=[1,2,4,5,3,6,9,10];
 var brands=[{n:'Girls in Green',f:'girls-in-green'},{n:'Papelito',f:'papelito'},{n:'Smoking',f:'smoking'},{n:'ZGY Brasil',f:'zgy-brasil'},{n:'Zomo',f:'zomo'},{n:'OCB',f:'ocb'},{n:'Pay-Pay',f:'pay-pay'},{n:'Sadhu',f:'sadhu'}];
-var reviews=[]; /* ex.: {n:'Nome',t:'há 1 semana',x:'Texto da avaliação'} */
+/* Avaliações reais do Google (adicione novas no início: {n:'Nome',t:'há 1 semana',x:'Texto da avaliação'}) */
+var reviews=[
+{n:'Sabrina Duque',t:'Uma semana atrás',x:'Sempre tem tudo que a gente procura, de bebida e tabacaria, eu amo!!!!'},
+{n:'Ulisses Gomes',t:'Uma semana atrás',x:'Cerveja muito gelada, e ótimos produtos de tabacaria'},
+{n:'Leo Batista',t:'Há 2 semanas',x:'A melhor que existe, sou cliente a muitos anos, os proprietários são sensacionais e merecem todo o sucesso do mundo!!'}
+];
 (function(){
   var tr=$('rankTrack');
   topIds.forEach(function(id,i){var x=catalog.filter(function(c){return c.id===id})[0];if(!x)return;
@@ -344,11 +349,16 @@ var reviews=[]; /* ex.: {n:'Nome',t:'há 1 semana',x:'Texto da avaliação'} */
     box.addEventListener('touchstart',function(){track.classList.add('is-paused')},{passive:true});
     ['touchend','touchcancel'].forEach(function(ev){box.addEventListener(ev,function(){track.classList.remove('is-paused')},{passive:true})})}
   slide(document.querySelector('#mq .mq-t'));slide(bt);
-  var r=$('revList');
-  if(!reviews.length){r.innerHTML='<article class="rev-card"><p>Já pediu na Esquina Mix? Conte como foi a sua experiência no Google.</p></article>'}
-  reviews.forEach(function(v){var c=document.createElement('article');c.className='rev-card';
-    c.innerHTML='<header><span class="av"></span><div><strong></strong><small></small></div></header><div class="st">★★★★★</div><p></p>';
-    c.querySelector('.av').textContent=v.n.charAt(0);c.querySelector('strong').textContent=v.n;c.querySelector('small').textContent=v.t;c.querySelector('p').textContent=v.x;r.appendChild(c)});
+  /* Google Reviews: carrossel automático em loop (mesmo motor dos letreiros: esquerda, contínuo, pausa com mouse/toque) */
+  var rt=$('revT'),avc=['#1f8a57','#e7ab2f','#d6204f','#ec1ab5','#3ec8ff'];
+  if(rt){
+    if(!reviews.length){rt.innerHTML='<article class="rev-card"><p>Já pediu na Esquina Mix? Conte como foi a sua experiência no Google.</p></article>'}
+    reviews.forEach(function(v,i){var c=document.createElement('article');c.className='rev-card';
+      c.innerHTML='<header><span class="av" aria-hidden="true"></span><div><strong></strong><small></small></div></header><div class="st" role="img" aria-label="5 de 5 estrelas">★★★★★</div><p></p>';
+      var av=c.querySelector('.av');av.textContent=v.n.charAt(0);av.style.background=avc[i%avc.length];
+      c.querySelector('strong').textContent=v.n;c.querySelector('small').textContent=v.t;c.querySelector('p').textContent=v.x;rt.appendChild(c)});
+    if(reviews.length)slide(rt);
+  }
 })();
 /* Botoes flutuantes: WhatsApp (numero vem da meta esquina-whatsapp) e voltar ao topo */
 (function(){
