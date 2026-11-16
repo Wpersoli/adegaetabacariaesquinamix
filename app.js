@@ -122,7 +122,7 @@ function render(){
   if(!list.length){g.innerHTML='<p class="feat__empty">'+(subF?'Ainda não temos itens em “'+subF.label+'” no cardápio digital. Pergunte pelo WhatsApp!':'Nada encontrado. Tente outra busca.')+'</p>';return}
   list.forEach(function(x){
     var c=document.createElement('article');c.className='prod-card';
-    c.innerHTML='<div class="prod-filete"></div>'+(x.promo?'<span class="prod-tag">Promo</span>':'')+'<div class="prod-img'+(x.img?' prod-img--foto':'')+'"><img src="'+(x.img||'assets/logo.webp')+'" alt="" width="'+(x.img?800:120)+'" height="'+(x.img?800:123)+'" loading="lazy"></div><p class="prod-cat"></p><h3 class="prod-name"></h3><div class="prod-price"></div><button class="prod-buy">Comprar →</button>';
+    c.innerHTML='<div class="prod-filete"></div>'+(x.promo?'<span class="prod-tag">Promo</span>':'')+'<div class="prod-img'+(x.img?' prod-img--foto':'')+'"><img src="'+(x.img||'assets/logo.webp')+'" alt="" width="'+(x.img?800:120)+'" height="'+(x.img?800:120)+'" loading="lazy"></div><p class="prod-cat"></p><h3 class="prod-name"></h3><div class="prod-price"></div><button class="prod-buy">Comprar →</button>';
     c.querySelector('.prod-cat').textContent=names[x.cat];c.querySelector('.prod-name').textContent=x.n;c.querySelector('img').alt=x.img?x.n:'';c.querySelector('.prod-price').textContent=brl(x.p);
     var buy=c.querySelector('.prod-buy');buy.setAttribute('aria-label','Adicionar '+x.n+' à sacola');
     buy.onclick=function(){add(x.id);buy.textContent='Adicionado ✓';clearTimeout(buy.t);buy.t=setTimeout(function(){buy.textContent='Comprar →'},1200)};
@@ -260,7 +260,7 @@ var qt;$('q').addEventListener('input',function(){var v=this.value;clearTimeout(
   $('q').addEventListener('keydown',function(e){if(e.key==='Escape'&&mq.matches&&top.classList.contains('is-search'))searchRow(false)});
   /* menu em tela cheia */
   dr=node('aside','mnav');dr.id='mnav';dr.setAttribute('role','dialog');dr.setAttribute('aria-modal','true');dr.setAttribute('aria-label','Menu de categorias');dr.setAttribute('aria-hidden','true');
-  var hd=node('div','mnav__top'),lg=node('img');lg.src='assets/logo.webp';lg.alt='';lg.width=48;lg.height=49;hd.appendChild(lg);hd.appendChild(node('strong','','Menu'));
+  var hd=node('div','mnav__top'),lg=node('img');lg.src='assets/logo.webp';lg.alt='';lg.width=48;lg.height=48;hd.appendChild(lg);hd.appendChild(node('strong','','Menu'));
   var x=node('button','mnav__x','✕');x.type='button';x.setAttribute('aria-label','Fechar menu');hd.appendChild(x);dr.appendChild(hd);
   var ul=node('ul','mnav__list');dr.appendChild(ul);
   function go(c,sub){close();subF=sub?{label:sub[0],t:sub[1]}:null;setCat(c,true);var el=document.getElementById('cardapio');if(el)el.scrollIntoView()}
@@ -327,7 +327,7 @@ var reviews=[
   var tr=$('rankTrack');
   topIds.forEach(function(id,i){var x=catalog.filter(function(c){return c.id===id})[0];if(!x)return;
     var a=document.createElement('button');a.className='rank-card';
-    a.innerHTML='<b class="rank-n"></b><img src="assets/logo.webp" alt="" width="64" height="65" loading="lazy"><span class="rank-i"><small></small><strong></strong><em></em></span>';
+    a.innerHTML='<b class="rank-n"></b><img src="assets/logo.webp" alt="" width="64" height="64" loading="lazy"><span class="rank-i"><small></small><strong></strong><em></em></span>';
     a.querySelector('.rank-n').textContent=('0'+(i+1)).slice(-2);a.querySelector('small').textContent=names[x.cat];
     a.querySelector('strong').textContent=x.n;a.querySelector('em').textContent=brl(x.p);
     a.setAttribute('aria-label','Adicionar '+x.n+' à sacola');a.onclick=function(){add(x.id)};tr.appendChild(a)});
