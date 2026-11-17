@@ -38,6 +38,11 @@ assert.equal(auth.safeNext('//evil.example/path'), '/');
 assert.equal(auth.safeNext('https://evil.example'), '/');
 assert.equal(auth.maskEmail('cliente@example.com'), 'cl•••@example.com');
 
+const authUi = fs.readFileSync(path.join(root, 'auth.js'), 'utf8');
+assert.ok(authUi.includes('CPF teve apenas os dígitos validados'));
+assert.ok(!authUi.includes('CPF verificado junto à Receita Federal'));
+assert.ok(!authUi.includes('não encontrado na Receita Federal'));
+
 const modernHeaders = auth.requestHeaders(
   { anon: 'sb_publishable_public', service: 'sb_secret_server' },
   { admin: true }
