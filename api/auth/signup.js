@@ -45,6 +45,7 @@ module.exports = async function(req, res) {
     }
     return A.send(res, 202, {pending:true,user:{name,email,cpfStatus:'pending'}});
   } catch (e) {
+    if (e.code === 'user_already_exists' || e.status === 422) return A.send(res,409,{code:'EMAIL_IN_USE'});
     if (e.message === 'METHOD_NOT_ALLOWED') return A.send(res,405,{code:'METHOD_NOT_ALLOWED'});
     if (e.message === 'AUTH_CONFIGURATION_MISSING') return A.send(res,503,{code:'AUTH_CONFIGURATION_MISSING'});
     return A.send(res,503,{code:'UNAVAILABLE',error:'Não foi possível criar sua conta agora.'});
