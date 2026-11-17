@@ -9,6 +9,10 @@ const root = path.resolve(__dirname, '..');
 const javascript = [
   'auth.js',
   'app.js',
+  'catalog.js',
+  'pedido.js',
+  'produtos.js',
+  'preloader.js',
   'auth-confirm.js',
   'lib/esquina-auth.js',
   'api/auth/signup.js',
