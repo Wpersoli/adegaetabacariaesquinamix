@@ -144,8 +144,8 @@ var api={
   resend:function(d){return call('/resend','POST',{email:d.email.trim(),returnTo:d.returnTo})},
   forgotEmail:function(d){return call('/forgot-email','POST',{cpf:onlyDigits(d.cpf),birth:d.birth})},
   logout:function(){return call('/logout','POST')},
-  saveProfile:function(d){return call('/profile','POST',d)},
-  deleteAccount:function(){return call('/delete','POST',{confirm:'ENCERRAR'})},
+  saveProfile:function(d){return call('/session','POST',Object.assign({action:'profile'},d))},
+  deleteAccount:function(){return call('/session','POST',{action:'delete',confirm:'ENCERRAR'})},
   orders:function(){return fetch('/api/orders',{method:'GET',credentials:'same-origin',cache:'no-store',headers:{'X-Requested-With':'esquina'}}).then(function(r){
     return r.json().catch(function(){return{}}).then(function(j){if(r.ok)return j;var e=err(j.code||(r.status===401?'UNAUTH':'UNAVAILABLE'));e.status=r.status;throw e});
   },function(){throw err('OFFLINE')})},
