@@ -195,6 +195,7 @@ function tpl(){
         '<button type="submit" class="au-btn">Entrar</button>'+
         '<button type="button" class="au-link" data-go="forgot">Esqueci minha senha</button>'+
         '<button type="button" class="au-link" data-go="forgotEmail">Esqueci meu e-mail</button>'+
+        '<button type="button" class="au-link" data-act="whatsapp-pending">Preciso de ajuda para confirmar pelo WhatsApp</button>'+
       '</form>'+
     '</section>'+
 
@@ -329,6 +330,7 @@ function build(){
     else if(a==='google')google(t);
     else if(a==='logout')logout(t);
     else if(a==='whatsapp-recovery')whatsappRecovery();
+    else if(a==='whatsapp-pending')whatsappPending();
   });
   /* mascara de CPF e limpeza de erro ao digitar */
   root.addEventListener('input',function(e){
@@ -407,6 +409,13 @@ function whatsappRecovery(){
   phone=phone.replace(/\D/g,'');
   if(!phone){status($('[data-view="forgotEmail"]'),'err','O WhatsApp da loja ainda não foi configurado.');return;}
   var message='Olá! Preciso de ajuda para recuperar o acesso à minha conta da Esquina Mix.';
+  window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(message),'_blank','noopener');
+}
+function whatsappPending(){
+  var phone=(document.querySelector('meta[name="esquina-whatsapp"]')||{}).content||'';
+  phone=phone.replace(/\D/g,'');
+  if(!phone){status($('[data-view="login"]'),'err','O WhatsApp da loja ainda não foi configurado.');return;}
+  var message='Olá! Preciso de ajuda manual para confirmar meu cadastro na Esquina Mix.';
   window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(message),'_blank','noopener');
 }
 function onSubmit(e){
