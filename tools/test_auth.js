@@ -88,7 +88,8 @@ assert.ok(authUi.includes('phone:d.phone'));
 
 const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 assert.match(app, /Sou '\+customer\.name/);
-assert.match(app, /Status da conta/);
+assert.doesNotMatch(app, /customer\.cpfStatus/);
+assert.match(app, /location\.href='\/produtos\?ordem=az'/);
 
 const profileMigration = fs.readFileSync(path.join(root, 'supabase/migrations/20261117180000_customer_profile_edit.sql'), 'utf8');
 assert.match(profileMigration, /update public\.customer_profiles/i);
@@ -103,4 +104,64 @@ const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 assert.match(sw, /u\.pathname\.indexOf\('\/api\/'\)===0/);
 assert.match(sw, /u\.pathname\.indexOf\('\/auth\/'\)===0/);
 
-console.log('Esquina Mix auth: sintaxe JS, CPF, telefone E.164, retorno seguro e verificações RLS aprovadas.');
+
+/* Configuração HMAC: não pode bloquear login/perfil; continua obrigatória para operações com CPF. */
+const envKeys = ['SUPABASE_URL','SUPABASE_PUBLISHABLE_KEY','SUPABASE_SECRET_KEY','SUPABASE_ANON_KEY','SUPABASE_SERVICE_ROLE_KEY','CPF_HASH_SECRET'];
+const previousEnv = Object.fromEntries(envKeys.map((key) => [key, process.env[key]]));
+try {
+  process.env.SUPABASE_URL = 'https://example.supabase.co';
+  process.env.SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_test';
+  process.env.SUPABASE_SECRET_KEY = 'sb_secret_test';
+  delete process.env.SUPABASE_ANON_KEY;
+  delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+  process.env.CPF_HASH_SECRET = '';
+  const configWithoutCpfSecret = auth.config();
+  assert.equal(configWithoutCpfSecret.cpfSecret, '');
+  assert.throws(() => auth.requireCpfSecret(configWithoutCpfSecret), /CPF_HASH_CONFIGURATION_MISSING/);
+  assert.equal(auth.requireCpfSecret({ cpfSecret: 'k'.repeat(32) }), 'k'.repeat(32));
+  assert.throws(() => auth.hash('52998224725', ''), /CPF_HASH_CONFIGURATION_MISSING/);
+} finally {
+  envKeys.forEach((key) => {
+    if (previousEnv[key] === undefined) delete process.env[key];
+    else process.env[key] = previousEnv[key];
+  });
+}
+
+/* Regressões: filtros na ordem solicitada e endereço temporário restrito a um pedido. */
+const requestedCategories = ['Todos','Promoções','Bebidas','Narguile','Headshop','Cigarros e Tabacos'];
+const homeChipBlock = index.match(/<div class="feat__chips" id="chips"[^>]*>([\\s\\S]*?)<\\/div>/);
+assert.ok(homeChipBlock, 'Filtros da home precisam existir');
+const homePositions = requestedCategories.map((label) => homeChipBlock[1].indexOf('>' + label + '</button>'));
+assert.ok(homePositions.every((position) => position >= 0));
+assert.deepEqual(homePositions, [...homePositions].sort((a,b) => a-b));
+assert.equal((homeChipBlock[1].match(/data-cat=/g) || []).length, requestedCategories.length);
+assert.ok(app.includes("[['todos','Todos'],['promo','Promoções'],['bebidas','Bebidas'],['narguile','Narguile'],['headshop','Headshop'],['tabacos','Cigarros e Tabacos']]"));
+assert.doesNotMatch(app, /\\['outros','Outros'\\]/);
+
+const productPage = fs.readFileSync(path.join(root, 'produtos.html'), 'utf8');
+const productChipBlock = productPage.match(/<div class="feat__chips pg-category-chips"[^>]*>([\\s\\S]*?)<\\/div>/);
+assert.ok(productChipBlock, 'Filtros do catálogo precisam existir');
+const productPositions = requestedCategories.map((label) => productChipBlock[1].indexOf('>' + label + '</button>'));
+assert.ok(productPositions.every((position) => position >= 0));
+assert.deepEqual(productPositions, [...productPositions].sort((a,b) => a-b));
+assert.match(productPage, /href="\\/#inicio"[^>]*aria-label="Voltar ao cardápio"/);
+assert.match(productPage, /<a class="on pink" href="\\/#inicio">Início<\\/a>/);
+
+const productJs = fs.readFileSync(path.join(root, 'produtos.js'), 'utf8');
+assert.match(productJs, /location\\.href='\\/produtos\\?ordem=az'/);
+assert.doesNotMatch(productJs, /cpfStatus/);
+
+const checkout = fs.readFileSync(path.join(root, 'pedido.js'), 'utf8');
+assert.match(checkout, /function resetAddressChoice\\(\\)/);
+assert.match(checkout, /function syncAddressUser\\(\\)/);
+assert.match(checkout, /resetAddressChoice\\(\\);/);
+assert.doesNotMatch(checkout, /cpfStatus/);
+
+const signupApi = fs.readFileSync(path.join(root, 'api/auth/signup.js'), 'utf8');
+const completeApi = fs.readFileSync(path.join(root, 'api/auth/complete.js'), 'utf8');
+const forgotEmailApi = fs.readFileSync(path.join(root, 'api/auth/forgot-email.js'), 'utf8');
+assert.match(signupApi, /A\\.requireCpfSecret\\(c\\)/);
+assert.match(completeApi, /A\\.requireCpfSecret\\(c\\)/);
+assert.match(forgotEmailApi, /A\\.requireCpfSecret\\(c\\)/);
+
+console.log('Esquina Mix: autenticação, HMAC isolado, filtros, checkout e navegação validados.');
