@@ -115,6 +115,8 @@ var demo={
   complete:function(){return Promise.reject(err('UNAVAILABLE'))},
   forgot:function(){return Promise.resolve({ok:true})},
   logout:function(){sdel(KS);return Promise.resolve({ok:true})},
+  saveProfile:function(d){var u=sget(KS)||{};u.name=d.name;u.phone=maskPhone(d.phone);u.birth=d.birth;u.address=d.address;sset(KS,u);return Promise.resolve({user:u})},
+  deleteAccount:function(){sdel(KS);return Promise.resolve({ok:true})},
   orders:function(){return Promise.resolve({orders:(sget(KO)||[]).slice().reverse()})},
   addOrder:function(o){var l=sget(KO)||[],now=new Date().toISOString();l.push({id:'d'+Date.now(),code:o.code,status:'recebido',items:o.items,total:o.total,pay:o.pay,changeFor:o.changeFor,createdAt:now,updatedAt:now});sset(KO,l.slice(-50));return Promise.resolve({ok:true})}
 };
@@ -142,6 +144,8 @@ var api={
   resend:function(d){return call('/resend','POST',{email:d.email.trim(),returnTo:d.returnTo})},
   forgotEmail:function(d){return call('/forgot-email','POST',{cpf:onlyDigits(d.cpf),birth:d.birth})},
   logout:function(){return call('/logout','POST')},
+  saveProfile:function(d){return call('/profile','POST',d)},
+  deleteAccount:function(){return call('/delete','POST',{confirm:'ENCERRAR'})},
   orders:function(){return fetch('/api/orders',{method:'GET',credentials:'same-origin',cache:'no-store',headers:{'X-Requested-With':'esquina'}}).then(function(r){
     return r.json().catch(function(){return{}}).then(function(j){if(r.ok)return j;var e=err(j.code||(r.status===401?'UNAUTH':'UNAVAILABLE'));e.status=r.status;throw e});
   },function(){throw err('OFFLINE')})},
@@ -285,10 +289,25 @@ function tpl(){
       '<div class="au-acc"><span class="au-av" id="a-av" aria-hidden="true"></span><div><strong id="a-name"></strong><small id="a-mail"></small></div></div>'+
       '<p class="au-st" role="status" aria-live="polite"></p>'+
       '<div class="au-acts">'+
-        '<button type="button" class="au-btn" data-act="orders" data-acc="menu">Pedidos</button>'+
+        '<button type="button" class="au-btn" data-act="profile" data-acc="always">Editar meus dados</button>'+
+        '<button type="button" class="au-btn au-btn--ghost" data-act="orders" data-acc="menu">Pedidos</button>'+
         '<button type="button" class="au-btn au-btn--ghost" data-act="logout" data-acc="menu">Sair da conta</button>'+
         '<button type="button" class="au-btn" data-act="close" data-acc="fresh">Fechar</button>'+
       '</div>'+
+    '</section>'+
+ 
+    '<section data-view="profile" hidden>'+
+      '<p class="au-lead">Mantenha seus dados atualizados. O endereço salvo será sugerido automaticamente nos próximos pedidos.</p>'+
+      '<p class="au-st" role="status" aria-live="polite"></p>'+
+      '<form class="au-form" id="auProfileForm" novalidate>'+
+        '<div class="au-f"><label for="auProfileName">Nome completo</label><input id="auProfileName" name="name" type="text" maxlength="120" autocomplete="name" required></div>'+
+        '<div class="au-f"><label for="auProfilePhone">Telefone / WhatsApp</label><input id="auProfilePhone" name="phone" type="tel" inputmode="tel" maxlength="19" autocomplete="tel" required></div>'+
+        '<div class="au-f"><label for="auProfileBirth">Data de nascimento</label><input id="auProfileBirth" name="birth" type="date" required><p class="au-hint">A data deve continuar compatível com os dados de identificação da conta. Apenas maiores de 18 anos podem manter cadastro.</p></div>'+
+        '<div class="au-f"><label for="auProfileAddress">Endereço padrão de entrega</label><textarea id="auProfileAddress" name="address" rows="3" maxlength="300" placeholder="Rua, número, complemento, bairro e cidade"></textarea><p class="au-hint">Este endereço fica salvo na conta e será usado como sugestão. Você ainda poderá informar outro endereço em um pedido específico.</p></div>'+
+        '<button type="submit" class="au-btn">Salvar alterações</button>'+
+      '</form>'+
+      '<div class="au-danger"><strong>Encerrar conta</strong><p>Esta ação exclui permanentemente sua conta e o histórico associado. Não poderá ser desfeita.</p><button type="button" class="au-btn au-btn--danger" data-act="delete-account">Encerrar minha conta</button></div>'+
+      '<button type="button" class="au-btn au-btn--ghost" data-go="account">Voltar à minha conta</button>'+
     '</section>'+
 
     /* PEDIDOS (andamento em tempo real + historico) */
@@ -303,7 +322,7 @@ function tpl(){
 }
 
 /* ---------- controle de telas ---------- */
-var TITLES={login:'Entrar',signup:'Criar conta',complete:'Concluir cadastro',forgot:'Recuperar senha',forgotEmail:'Recuperar e-mail',account:'Minha conta',orders:'Meus pedidos'};
+var TITLES={login:'Entrar',signup:'Criar conta',complete:'Concluir cadastro',forgot:'Recuperar senha',forgotEmail:'Recuperar e-mail',account:'Minha conta',profile:'Meus dados',orders:'Meus pedidos'};
 function status(sec,type,txt){var s=$('.au-st',sec);if(!s)return;s.className='au-st'+(type?' is-'+type:'');s.textContent=txt||''}
 function fieldErr(el,txt){
   var e=document.getElementById(el.id+'-e');
@@ -324,6 +343,7 @@ function setView(v,focus){
   $('#au-t').textContent=TITLES[v]||'Entrar';
   var sec=$('[data-view="'+v+'"]');clearAll(sec);
   if(v==='account')paintAccount();
+  if(v==='profile')paintProfile();
   if(v==='orders')startOrders();
   card.scrollTop=0;
   if(focus!==false){
@@ -337,7 +357,30 @@ function paintAccount(){
   $('#a-name').textContent=user.name||'';
   $('#a-mail').textContent=user.email||'';
   /* logo apos entrar/cadastrar: so "Fechar"; ao reabrir a conta: "Pedidos" e "Sair da conta" */
-  $$('.au-acts [data-acc]').forEach(function(b){b.hidden=b.getAttribute('data-acc')!==(fresh?'fresh':'menu')});
+  $('.au-acts [data-acc]').forEach(function(b){var mode=b.getAttribute('data-acc');b.hidden=mode!=='always'&&mode!==(fresh?'fresh':'menu')});
+}
+function paintProfile(){
+  var f=$('#auProfileForm');if(!f||!user)return;
+  f.elements.name.value=user.name||'';
+  f.elements.phone.value=maskPhone(user.phone||'');
+  f.elements.birth.value=user.birth||'';
+  f.elements.address.value=user.address||'';
+}
+function saveProfile(form){
+  if(busy)return;
+  var d={name:form.elements.name.value.trim().replace(/\s+/g,' '),phone:form.elements.phone.value,birth:form.elements.birth.value,address:form.elements.address.value.trim()};
+  if(d.name.length<5||d.name.split(/\s+/).length<2){status(form.parentNode,'err','Informe nome e sobrenome.');form.elements.name.focus();return}
+  if(V.phone(d.phone)){status(form.parentNode,'err','Informe um telefone válido com DDD.');form.elements.phone.focus();return}
+  if(V.birth(d.birth)){status(form.parentNode,'err',V.birth(d.birth));form.elements.birth.focus();return}
+  if(d.address.length>300){status(form.parentNode,'err','O endereço deve ter até 300 caracteres.');return}
+  lock(form,true,'Salvando…');
+  A.saveProfile(d).then(function(r){user=r.user||Object.assign({},user,{name:d.name,phone:d.phone,birth:d.birth,address:d.address});paintBtn();paintAccount();status(form.parentNode,'ok','Seus dados foram atualizados com sucesso.');},function(e){fail(form,e)}).then(function(){lock(form,false)});
+}
+function deleteAccount(t){
+  if(busy||!user)return;
+  if(!window.confirm('Deseja realmente encerrar sua conta? Seus dados e histórico de pedidos serão excluídos permanentemente.'))return;
+  busy=true;t.disabled=true;t.textContent='Encerrando…';
+  A.deleteAccount().then(function(){user=null;paintBtn();close();},function(e){status($('[data-view="profile"]'),'err',MSG[e.code]||'Não foi possível encerrar a conta. Tente novamente.');}).then(function(){busy=false;t.disabled=false;t.textContent='Encerrar minha conta'});
 }
 function paintBtn(){
   try{document.dispatchEvent(new CustomEvent('esquina:user',{detail:user}))}catch(e){}
@@ -370,6 +413,8 @@ function build(){
     else if(a==='google')google(t);
     else if(a==='logout')logout(t);
     else if(a==='orders')setView('orders');
+    else if(a==='profile')setView('profile');
+    else if(a==='delete-account')deleteAccount(t);
     else if(a==='cancel-completion'&&view==='complete')logout(t);
     else if(a==='resend')resendConfirmation(t);
     else if(a==='whatsapp-recovery')whatsappRecovery();
@@ -382,7 +427,7 @@ function build(){
     if(i.name==='phone')i.value=maskPhone(i.value);
     if(i.getAttribute('aria-invalid')==='true'||(i.type==='checkbox'&&document.getElementById(i.id+'-e').textContent))fieldErr(i,'');
   });
-  root.addEventListener('submit',onSubmit);
+  root.addEventListener('submit',function(e){if(e.target&&e.target.id==='auProfileForm'){e.preventDefault();saveProfile(e.target);return}onSubmit(e)});
   root.addEventListener('keydown',onKey);
 }
 
