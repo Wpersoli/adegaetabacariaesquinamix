@@ -64,7 +64,7 @@ Não use curingas amplos. Adicione apenas os endereços que realmente serão usa
 A migração aplicada está em **supabase/migrations/202611160001_esquina_auth.sql**.
 
 Ela cria:
-- **public.customer_profiles**: nome, nascimento e consentimento, com RLS para o próprio usuário;
+- **public.customer_profiles**: nome, nascimento, consentimento e telefone E.164 (com estado separado de verificação), com RLS para o próprio usuário;
 - **private.customer_identity**: guarda somente HMAC-SHA256 do CPF e a data de nascimento;
 - **private.email_lookup_attempts**: limita tentativas de recuperação por IP e CPF;
 - RPCs de cadastro e localização de identidade executáveis exclusivamente pelo servidor.
@@ -73,7 +73,10 @@ O CPF nunca é salvo em texto puro. O segredo HMAC fica exclusivamente em variá
 
 ## 4. Segurança e fluxo de conta
 
-- Cadastro por e-mail exige nome, e-mail, CPF válido matematicamente, data de nascimento, maioridade, senha e consentimento.
+- Cadastro por e-mail exige nome, e-mail, telefone com DDD, CPF válido matematicamente, data de nascimento, maioridade, senha e consentimento.
+- Cadastro Google exige telefone com DDD, CPF, data de nascimento e consentimento na etapa de conclusão.
+- O telefone é armazenado normalizado em E.164 (+55...) como dado obrigatório de contato. Sem API paga de WhatsApp/SMS, não há envio de OTP; `phone_verified_at` permanece NULL e a interface informa que o telefone não foi verificado.
+- A confirmação de e-mail continua sendo o método de ativação da conta.
 - A conta só libera sessão após confirmar o e-mail.
 - Sessões são mantidas em cookies HttpOnly, SameSite=Lax e Secure em execução de Produção.
 - A chave secreta Supabase é usada somente pelos endpoints server-side em `/api/auth/*`.
