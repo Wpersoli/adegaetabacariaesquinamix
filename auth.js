@@ -163,7 +163,7 @@ function field(id,label,attrs,v,hint){
 function consent(id,txt){
   return '<div class="au-f"><label class="au-chk" for="'+id+'"><input type="checkbox" id="'+id+'" data-v="consent" aria-describedby="'+id+'-e"><span>'+txt+'</span></label><p class="au-err" id="'+id+'-e"></p></div>';
 }
-var CPFHINT=MODE==='api'?'Um CPF por conta, validado junto à Receita Federal.':'Um CPF por conta.';
+var CPFHINT=MODE==='api'?'Um CPF por conta. O site verifica os dígitos e guarda apenas um código protegido; não consulta a Receita Federal.':'Um CPF por conta.';
 var CPFATTR='name="cpf" type="text" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00"';
 var BIRTHATTR='name="birth" type="date" autocomplete="bday" min="1900-01-01"';
 var CONSENT='Autorizo o uso do meu CPF e dos meus dados para validar minha identidade e evitar contas duplicadas, conforme a LGPD. Declaro ter 18 anos ou mais.';
@@ -440,7 +440,7 @@ function google(t){
     status(sec,'info','O login com Google será ativado quando o servidor de autenticação for conectado. Por enquanto, use o e-mail.');
     return;
   }
-  location.assign(API+'/google');
+  location.assign(API+'/google?next='+encodeURIComponent(location.pathname+location.search+location.hash));
 }
 function logout(t){
   if(busy)return;busy=true;t.disabled=true;
