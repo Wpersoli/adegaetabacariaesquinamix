@@ -18,6 +18,7 @@ module.exports = async function(req, res) {
     if (!A.validBirth(birth)) return A.send(res, 400, {code:'UNDERAGE_OR_INVALID_BIRTH'});
     if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) return A.send(res, 400, {code:'WEAK_PASSWORD'});
     if (d.consent !== true) return A.send(res, 400, {code:'CONSENT_REQUIRED'});
+    A.requireCpfSecret(c);
     const redirect = A.confirmationUrl(c, d.returnTo);
     const created = await A.sbFetch(c, '/auth/v1/signup?redirect_to=' + encodeURIComponent(redirect), {
       method:'POST',
@@ -51,6 +52,7 @@ module.exports = async function(req, res) {
     if (e.code === 'user_already_exists' || e.status === 422) return A.send(res,409,{code:'EMAIL_IN_USE'});
     if (e.message === 'METHOD_NOT_ALLOWED') return A.send(res,405,{code:'METHOD_NOT_ALLOWED'});
     if (e.message === 'AUTH_CONFIGURATION_MISSING') return A.send(res,503,{code:'AUTH_CONFIGURATION_MISSING'});
+    if (e.message === 'CPF_HASH_CONFIGURATION_MISSING') return A.send(res,503,{code:'CPF_HASH_CONFIGURATION_MISSING'});
     return A.send(res,503,{code:'UNAVAILABLE',error:'Não foi possível criar sua conta agora.'});
   }
 };
