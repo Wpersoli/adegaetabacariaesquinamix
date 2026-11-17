@@ -74,8 +74,7 @@ window.addEventListener('storage',function(e){if(e.key==='emCart'){readCart();sy
     var c=window.EsquinaAuth&&window.EsquinaAuth.user;if(!c||!c.name)return;
     e.preventDefault();
     var m='Ol\u00e1! Sou '+c.name+'. Vim pelo card\u00e1pio digital da Esquina Mix.';
-    if(c.cpfStatus)m+=' Status da conta: '+(c.cpfStatus==='verified'?'verificada':'em valida\u00e7\u00e3o')+'.';
-    window.open('https://wa.me/'+num+'?text='+encodeURIComponent(m),'_blank','noopener')})
+        window.open('https://wa.me/'+num+'?text='+encodeURIComponent(m),'_blank','noopener')})
 })();
 
 /* ---------- Filtros ---------- */
