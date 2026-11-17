@@ -8,6 +8,7 @@ const auth = require('../lib/esquina-auth');
 const root = path.resolve(__dirname, '..');
 const javascript = [
   'auth.js',
+  'app.js',
   'auth-confirm.js',
   'lib/esquina-auth.js',
   'api/auth/signup.js',
@@ -45,6 +46,13 @@ assert.match(migration, /cpf_hash text not null unique/i);
 assert.equal((migration.match(/as \$\$/g) || []).length, 2);
 assert.equal((migration.match(/\$\$;/g) || []).length, 2);
 assert.match(migration, /p_cpf_hash !~ '\^\[0-9a-f\]\{64\}\
+
+const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
+assert.match(app, /Cliente: '\+customer\.name/);
+assert.match(app, /Status da conta/);
+
+const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+assert.match(index, /name="esquina-auth" content="api"/);
 
 const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 assert.match(sw, /u\.pathname\.indexOf\('\/api\/'\)===0/);
