@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Todos os produtos | Esquina Mix — Adega e Tabacaria</title>
+<meta name="description" content="Veja todos os produtos da Esquina Mix em Guarulhos: bebidas, cigarros e tabacos, headshop, narguile e mais. Filtre por categoria e preço e peça pelo WhatsApp.">
+<meta name="theme-color" content="#ec1ab5">
+<!-- WhatsApp comercial: DDI+DDD+número, só dígitos (mesmo número da página inicial) -->
+<meta name="esquina-whatsapp" content="5511917221039">
+<meta name="esquina-auth" content="api">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="canonical" href="https://adegaetabacariaesquinamix.vercel.app/produtos">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Esquina Mix">
+<meta property="og:title" content="Todos os produtos | Esquina Mix — Adega e Tabacaria">
+<meta property="og:description" content="Bebidas, cigarros e tabacos, headshop, narguile e mais. Filtre por categoria e preço e peça pelo WhatsApp.">
+<meta property="og:url" content="https://adegaetabacariaesquinamix.vercel.app/produtos">
+<meta property="og:image" content="https://adegaetabacariaesquinamix.vercel.app/assets/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="auth.css">
+<link rel="stylesheet" href="produtos.css">
+</head>
+<body class="pg-page">
+<a class="skip" href="#lista">Pular para os produtos</a>
+
+<header class="pg-top">
+  <div class="pg-top__in">
+    <a class="brand" href="index.html" aria-label="Esquina Mix — página inicial">
+      <img src="assets/logo.webp" width="100" height="100" alt="Logo Adega e Tabacaria Esquina Mix">
+      <span class="brand-t"><b>ESQUINA</b><b>MIX</b><small>Adega · Tabacaria</small></span>
+    </a>
+    <a class="pg-back" href="index.html#cardapio" aria-label="Voltar ao cardápio"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span>Voltar ao cardápio</span></a>
+    <div class="actions">
+      <button class="ico" id="accountBtn" type="button" aria-label="Entrar ou criar conta" aria-haspopup="dialog" aria-expanded="false" aria-controls="authModal"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+      <button class="ico" id="cartBtn" type="button" aria-label="Abrir sacola"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 8h14l-1 12H6zM9 8a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="2"/></svg><em id="badge">0</em></button>
+    </div>
+  </div>
+</header>
+
+<main class="pg">
+  <div class="wrap">
+    <div class="feat__head">
+      <div><p class="feat__eyebrow">// catálogo completo</p><h1 class="feat__title">Todos os produtos da <span class="hl">esquina</span></h1></div>
+    </div>
+
+    <div class="pg-layout">
+      <button class="pg-filtbtn" id="filtBtn" type="button" aria-expanded="false" aria-controls="filters"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span id="filtBtnTx">Filtros</span></button>
+
+      <aside class="pg-filters" id="filters" aria-label="Filtros de produtos">
+        <div class="pg-f">
+          <label class="pg-f__t" for="pq">Buscar</label>
+          <input class="pg-in" id="pq" type="search" placeholder="Ex.: seda, whisky, carvão" autocomplete="off">
+        </div>
+
+        <div class="pg-f" role="group" aria-labelledby="fcat">
+          <p class="pg-f__t" id="fcat">Categorias</p>
+          <div class="pg-chips" id="cats"></div>
+        </div>
+
+        <div class="pg-f" role="group" aria-labelledby="fprice">
+          <p class="pg-f__t" id="fprice">Preço</p>
+          <div class="pg-chips" id="prices"></div>
+          <div class="pg-range">
+            <label class="pg-range__f"><span>De R$</span><input class="pg-in" id="pmin" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Preço mínimo em reais"></label>
+            <label class="pg-range__f"><span>Até R$</span><input class="pg-in" id="pmax" type="text" inputmode="decimal" placeholder="sem limite" autocomplete="off" aria-label="Preço máximo em reais"></label>
+          </div>
+        </div>
+
+        <div class="pg-f">
+          <label class="pg-f__t" for="psort">Ordenar</label>
+          <select class="pg-in" id="psort"><option value="rel">Relevância</option><option value="asc">Menor preço</option><option value="desc">Maior preço</option><option value="az">A–Z</option></select>
+        </div>
+
+        <button class="pg-clear" id="clear" type="button" hidden>Limpar filtros</button>
+      </aside>
+
+      <section class="pg-res" id="lista" aria-label="Lista de produtos" tabindex="-1">
+        <p class="pg-count" id="count" role="status" aria-live="polite"></p>
+        <div class="pg-grid" id="grid"></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer id="contato"><div class="wrap">
+  <div class="ft">
+    <div class="ft-brand"><img src="assets/logo.webp" width="100" height="100" alt="Esquina Mix" loading="lazy"><p>Adega e tabacaria com cardápio digital. Escolha, adicione à sacola e peça pelo WhatsApp.</p>
+      <div class="soc"><a href="https://www.instagram.com/esquinamix2025/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/></svg></a><a href="https://wa.me/5511917221039" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.5z"/></svg></a><a href="https://www.google.com/maps/search/?api=1&amp;query=Adega+e+Tabacaria+Esquina+Mix%2C+R.+S%C3%A3o+Francisco%2C+285%2C+Guarulhos" target="_blank" rel="noopener" aria-label="Google Maps"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></a></div></div>
+    <div><h3>Navegue</h3><a href="index.html">Início</a><a href="index.html#cardapio">Cardápio</a><a href="index.html#ranking">Mais vendidos</a><a href="index.html#avaliacoes">Avaliações</a></div>
+    <div><h3>Atendimento</h3><a href="https://wa.me/5511917221039" target="_blank" rel="noopener">Fale conosco</a><a href="https://www.instagram.com/esquinamix2025/" target="_blank" rel="noopener">Instagram</a><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Adega+e+Tabacaria+Esquina+Mix%2C+R.+S%C3%A3o+Francisco%2C+285%2C+Guarulhos" target="_blank" rel="noopener">Como chegar</a></div>
+    <div><h3>Loja</h3><p><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.5z"/></svg><a href="https://wa.me/5511917221039" target="_blank" rel="noopener">(11) 91722-1039</a></p><p><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/></svg><span>R. São Francisco, 285 – Vila Galvão, Guarulhos – SP, 07071-010</span></p><p class="hrs"><b>Horário:</b> aberto até 02:00 · reabre às 10:00</p></div>
+  </div>
+  <div class="ft-bot"><span>© Esquina Mix — Adega e Tabacaria · Guarulhos</span><span>Venda proibida para menores de 18 · Beba com responsabilidade</span></div>
+</div></footer>
+
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt" hidden>
+  <header><h2 id="dt">Sua sacola</h2><button id="closeCart" type="button" aria-label="Fechar">✕</button></header>
+  <ul id="items"></ul>
+  <div class="total"><span>Total</span><b id="total">R$ 0,00</b></div>
+  <button class="wa" id="send" type="button">Enviar pedido pelo WhatsApp</button>
+</aside>
+<div class="veil" id="veil" hidden></div>
+
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gt">
+  <div class="gate-box"><img src="assets/logo.webp" width="120" height="120" alt="Esquina Mix">
+    <h2 id="gt">Você tem 18 anos ou mais?</h2>
+    <p>Este cardápio apresenta bebidas alcoólicas e produtos de tabacaria.</p>
+    <div><button class="yes" id="yes" type="button">Sim, tenho 18+</button><button class="no" id="no" type="button">Não tenho</button></div>
+    <p id="deny" hidden>Acesso permitido somente para maiores de 18 anos.</p>
+  </div>
+</div>
+
+<a class="fab fab--wa" id="waFab" href="https://wa.me/5511917221039?text=Ol%C3%A1!%20Vim%20pelo%20card%C3%A1pio%20digital%20da%20Esquina%20Mix." target="_blank" rel="noopener" aria-label="Falar no WhatsApp"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.2 7.8c-.4.4-.7 1-.5 1.8.5 1.9 2.6 4.3 5 5.2.9.3 1.5.1 1.9-.3l.5-.8c.1-.2 0-.4-.2-.5l-1.5-.7c-.2-.1-.4 0-.5.1l-.5.6c-1-.4-2-1.4-2.4-2.3l.6-.6c.1-.1.2-.3.1-.5L10.4 7.9c-.2-.3-.9-.4-1.2-.1z" fill="currentColor"/></svg></a>
+
+<script src="catalog.js" defer></script>
+<script src="produtos.js" defer></script>
+<script src="auth.js" defer></script>
+</body>
+</html>

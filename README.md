@@ -3,7 +3,9 @@
 Cardapio digital responsivo, sem framework e sem dependencias de build.
 
 ## Estrutura
-- `index.html`: estrutura da pagina; `styles.css`: estilos; `app.js`: catalogo, busca, sacola e envio por WhatsApp.
+- `index.html`: estrutura da pagina; `styles.css`: estilos; `app.js`: busca, sacola e envio por WhatsApp.
+- `catalog.js`: **catalogo de produtos** (unica fonte, lida pela home e pela pagina de produtos). Para incluir/editar produto, mexa so neste arquivo.
+- `produtos.html` + `produtos.css` + `produtos.js`: pagina "Todos os produtos" (botao "Ver tudo" da home) com filtros por categoria (Promocoes, Bebidas, Cigarros e Tabacos, Headshop, Narguile, Outros), faixa de preco (atalhos + minimo/maximo), busca e ordenacao. Usa a mesma sacola (`emCart`), o mesmo login e o mesmo portao +18 da home. Aceita link direto: `produtos.html?cat=bebidas&min=10&max=50&ordem=asc`.
 - `assets/hero-desktop.webp` / `hero-mobile.webp`: banners do hero. `assets/og-image.jpg`: imagem de compartilhamento (1200x630).
 - `design-src/`: artes-fonte (logo HD etc.). Fica no Git, mas NAO vai para o site (`.vercelignore`).
 - `assets/marcas/`: logos da secao "Frota oficial" (letreiro borda a borda, loop para a esquerda). Para incluir/remover marca, edite o array `brands` em `app.js` e adicione o `.webp` nessa pasta.
@@ -17,7 +19,7 @@ Cardapio digital responsivo, sem framework e sem dependencias de build.
 - Elementos funcionais adicionados: barra de avisos com ticker animado, botao flutuante do WhatsApp, barra fixa de sacola no mobile, favoritos (coracao) por produto e microanimacao de "Adicionado" no botao de compra.
 
 ## Configuracoes pendentes
-1. Substituir os itens demonstrativos em `catalog` (`app.js`) pelos produtos, descricoes e precos reais.
+1. Substituir os itens demonstrativos em `catalog.js` pelos produtos, descricoes e precos reais (categorias: `bebidas`, `tabacos`, `headshop`, `narguile`, `outros`; `promo:1` marca como promocao; `img:` e opcional).
 2. Numero do WhatsApp: fica na tag `<meta name="esquina-whatsapp">` do `index.html` (DDI + DDD + numero, so digitos) e nos links `wa.me` da pagina.
 3. Revisar os textos de `Atendimento` no rodape e no ticker (horario de funcionamento, bairro/regiao de entrega).
 
@@ -43,7 +45,7 @@ Projeto estatico. Basta conectar a branch `main` na Vercel; nao requer comando d
 ## Fotos de produtos
 - `assets/produtos/`: fotos padronizadas (800x800, fundo branco, WebP). No `catalog` do `app.js`, use `img:'assets/produtos/arquivo.webp'`.
 - `tools/coletar_imagens.py`: coleta e padroniza novas fotos (requer Pillow). Confirme os direitos de uso das imagens antes de publicar.
-- Os precos dos itens com foto (ids 12+) sao EXEMPLO e precisam ser substituidos pelos reais.
+- Os precos dos itens com foto (ids 12+) e dos itens novos (ids 40 a 119, ainda sem foto: usam a logo) sao EXEMPLO e precisam ser substituidos pelos reais.
 
 ## App instalável (PWA)
 - `manifest.webmanifest` + `sw.js` + `assets/icon-*.png`: o site pode ser instalado como app/atalho.
