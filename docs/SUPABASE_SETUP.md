@@ -1,100 +1,124 @@
-# Esquina Mix — ativação da autenticação Supabase
+# Esquina Mix — configuração da autenticação Supabase
 
-## Estado desta implementação
+## Estado atual
 
-O fluxo foi preparado em uma branch isolada. A produção não foi alterada.
-A ativação real depende de um projeto Supabase exclusivo e das variáveis privadas da Vercel.
+- Projeto Supabase: **adega-mix**
+- Project ref: **rduwcxzegiffqgnnbhis**
+- Região: **South America (São Paulo), sa-east-1**
+- Organização: **Wpersoli's Org**, plano **Free**.
+- Estado do banco: **ACTIVE_HEALTHY**.
+- Migração `esquina_auth` aplicada e verificada.
+- Tabelas confirmadas: `public.customer_profiles`, `private.customer_identity` e `private.email_lookup_attempts`; RLS habilitado nas três.
+- A branch de integração continua isolada. Nenhuma alteração foi publicada na Produção.
 
-## 1. Organização paga exclusiva (recomendado)
+**Limite do plano Free:** mantenha no máximo dois projetos ativos na organização. `trotebox-prod` foi solicitado para pausa e `valora-credito` continua preservado. Não reative o projeto pausado enquanto `adega-mix` estiver ativo sem antes rever o limite do plano.
 
-**Não atualize Wpersoli's Org diretamente.** Ela contém os projetos existentes **trotebox-prod** e **valora-credito**. Como o plano é aplicado à organização inteira, todos os projetos nela passam a seguir a assinatura paga e seus custos de compute. Para mantê-los intactos no Free, crie uma organização separada chamada **Esquina Mix** e escolha o plano **Pro** para essa nova organização.
+## 1. Preview Vercel (somente branch)
 
-Preço público consultado em 16/11/2026: Pro a partir de **US$ 25/mês**, com o primeiro projeto incluído. A franquia de compute de US$ 10 cobre um projeto no tamanho Micro padrão. O uso acima das franquias pode gerar custos adicionais; os valores finais e eventuais tributos/conversão aparecem no checkout e na fatura. Mantenha o spend cap ativado. Consulte https://supabase.com/pricing e https://supabase.com/docs/guides/platform/billing-faq.
+A implantação da integração está isolada na branch **feature/supabase-auth-esquina-mix**. O endereço de Preview da branch é:
 
-Passos:
-1. Abra https://supabase.com/dashboard/new e crie a organização **Esquina Mix**.
-2. Escolha **Pro** para essa organização e confira o valor final apresentado pelo Supabase antes de concluir o pagamento.
-3. Não altere o plano de **Wpersoli's Org** e não pause, exclua ou transfira **trotebox-prod** ou **valora-credito**.
-4. Depois que a nova organização aparecer na conexão Supabase, crie nela o projeto **esquina-mix-auth** na região São Paulo (**sa-east-1**).
+**https://adegaetabacariaesquinamix-git-feature-7c866c-wpersolis-projects.vercel.app**
 
-Supabase não oferece, nesta conexão, uma ação para criar organizações ou alterar assinaturas. Essa etapa de cobrança precisa ser concluída pelo proprietário no Dashboard. O restante — criação do projeto, migração, chaves, configuração e testes — pode continuar pela integração depois que a nova organização estiver disponível.
-
-## 2. Aplicar o banco
-
-No SQL Editor do novo projeto, execute o conteúdo de:
-
-**supabase/migrations/202611160001_esquina_auth.sql**
-
-O script cria:
-- **public.customer_profiles**, com RLS para cada cliente consultar/alterar apenas o próprio nome;
-- **private.customer_identity**, que guarda somente HMAC-SHA256 do CPF e data de nascimento;
-- **private.email_lookup_attempts**, para limitar tentativas de recuperação;
-- RPCs restritas a **service_role** para cadastrar e localizar identidade.
-
-O CPF nunca é salvo em texto puro. A chave HMAC fica exclusivamente no servidor Vercel.
-
-## 3. Configurar Supabase Auth
-
-Em Authentication → Providers → Email:
-- habilite Email;
-- habilite confirmação de e-mail;
-- mantenha a confirmação obrigatória antes de criar sessão;
-- configure SMTP de produção antes de abrir o cadastro ao público (o serviço SMTP padrão pode ter limites de envio).
-
-Em Authentication → URL Configuration:
-- Site URL: **https://adegaetabacariaesquinamix.vercel.app**
-- Redirect URL: **https://adegaetabacariaesquinamix.vercel.app/auth/confirm.html****
-- Para testes locais, adicione somente a origem local que realmente será usada.
-
-O template “Confirm signup” deve usar **{{ .ConfirmationURL }}** para que o Supabase respeite o redirect_to enviado pela aplicação. O link de recuperação também usa a rota **/auth/confirm.html?mode=recovery**.
-
-## 4. Variáveis privadas na Vercel
-
-Cadastre em Project → Settings → Environment Variables, para Production e Preview quando necessário:
+As variáveis já preparadas no Preview são `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `CPF_HASH_SECRET` e `SITE_URL`, vinculadas à branch de integração. A chave administrativa ainda precisa ser cadastrada:
 
 | Nome | Valor |
 |---|---|
-| SUPABASE_URL | URL do projeto Supabase |
-| SUPABASE_PUBLISHABLE_KEY | Chave publishable (sb_publishable_...) ou, em instalações antigas, SUPABASE_ANON_KEY |
-| SUPABASE_SERVICE_ROLE_KEY | Legacy JWT da chave service_role em Project Settings → API Keys — somente servidor |
-| CPF_HASH_SECRET | Segredo aleatório com pelo menos 32 bytes (ex.: gere com openssl rand -hex 32) |
-| SITE_URL | https://adegaetabacariaesquinamix.vercel.app |
-| NODE_ENV | production |
+| `SUPABASE_URL` | `https://rduwcxzegiffqgnnbhis.supabase.co` |
+| `SUPABASE_PUBLISHABLE_KEY` | Chave publishable `sb_publishable_...` do projeto |
+| `SUPABASE_SECRET_KEY` | Chave secreta `sb_secret_...` do projeto; **somente servidor** |
+| `CPF_HASH_SECRET` | Segredo aleatório de pelo menos 32 bytes; somente servidor |
+| `SITE_URL` | URL de Preview acima, sem barra final |
 
-Nunca coloque **SUPABASE_SERVICE_ROLE_KEY** ou **CPF_HASH_SECRET** em HTML, JavaScript do navegador, GitHub ou variáveis NEXT_PUBLIC_*.
-Use **.env.example** apenas como modelo. Não commite um .env real.
+Em Vercel → Project → Settings → Environment Variables, cadastre `SUPABASE_SECRET_KEY` no ambiente **Preview**, limitado à branch `feature/supabase-auth-esquina-mix`. Marque a variável como **Sensitive/Encrypted**. Não use prefixos `NEXT_PUBLIC_` e não compartilhe a chave por chat.
+
+O código aceita a nova chave `SUPABASE_SECRET_KEY` (formato `sb_secret_...`) e mantém compatibilidade temporária com a antiga `SUPABASE_SERVICE_ROLE_KEY` (JWT legado). Para novos projetos, prefira a chave secreta atual do Supabase. Consulte a [documentação oficial de API keys](https://supabase.com/docs/guides/getting-started/api-keys).
+
+**Produção não deve receber essas variáveis ainda.** Primeiro valide a integração no Preview, e só depois prepare as variáveis de Production e a publicação do PR.
+
+## 2. Supabase Auth — ativação no Dashboard
+
+No projeto `adega-mix`, abra Authentication:
+
+### E-mail
+
+Em **Authentication → Providers → Email**:
+- habilite o provedor Email;
+- habilite **Confirm email** para exigir confirmação antes do primeiro login;
+- mantenha a confirmação obrigatória;
+- configure um SMTP próprio antes de abrir o cadastro ao público. O serviço de e-mail padrão pode ter limites de envio.
+
+O template **Confirm signup** deve preservar o link `{{ .ConfirmationURL }}`, para que o Supabase respeite o `redirect_to` enviado pela aplicação. O template de recuperação também deve usar o link de confirmação do Supabase.
+
+### URLs permitidas
+
+Em **Authentication → URL Configuration**:
+- Site URL de Produção: `https://adegaetabacariaesquinamix.vercel.app`
+- Adicione às Redirect URLs permitidas:
+  - `https://adegaetabacariaesquinamix.vercel.app/auth/confirm.html`
+  - `https://adegaetabacariaesquinamix-git-feature-7c866c-wpersolis-projects.vercel.app/auth/confirm.html`
+
+Não use curingas amplos. Adicione apenas os endereços que realmente serão usados.
+
+## 3. Modelo do banco
+
+A migração aplicada está em **supabase/migrations/202611160001_esquina_auth.sql**.
+
+Ela cria:
+- **public.customer_profiles**: nome, nascimento e consentimento, com RLS para o próprio usuário;
+- **private.customer_identity**: guarda somente HMAC-SHA256 do CPF e a data de nascimento;
+- **private.email_lookup_attempts**: limita tentativas de recuperação por IP e CPF;
+- RPCs de cadastro e localização de identidade executáveis exclusivamente pelo servidor.
+
+O CPF nunca é salvo em texto puro. O segredo HMAC fica exclusivamente em variável de servidor da Vercel.
+
+## 4. Segurança e fluxo de conta
+
+- Cadastro por e-mail exige nome, e-mail, CPF válido matematicamente, data de nascimento, maioridade, senha e consentimento.
+- A conta só libera sessão após confirmar o e-mail.
+- Sessões são mantidas em cookies HttpOnly, SameSite=Lax e Secure em execução de Produção.
+- A chave secreta Supabase é usada somente pelos endpoints server-side em `/api/auth/*`.
+- Os schemas/tabelas privadas não concedem acesso a `anon` ou `authenticated`; o acesso administrativo é exclusivo ao servidor.
+- A validação do CPF verifica os dígitos. **Não consulta a Receita Federal** nem comprova identidade perante o governo.
 
 ## 5. WhatsApp manual
 
-O botão usa a meta já existente **esquina-whatsapp** no index.html. A mensagem abre uma conversa manual com a loja; não envia mensagens automáticas nem confirma cadastro por conta própria. A confirmação automática disponível nesta entrega é por e-mail.
+O botão usa a meta existente **esquina-whatsapp** no `index.html`. Abre a conversa manual com a loja; não envia mensagens automáticas e não confirma cadastro sozinho. A confirmação automática desta arquitetura é por e-mail.
 
-Se a loja decidir aceitar validação humana como alternativa ao e-mail, o atendente precisará verificar o cliente fora do site e aprovar a conta por um procedimento administrativo protegido. Não se deve marcar e-mails como confirmados apenas porque alguém clicou em um link público de WhatsApp.
+Atendimento humano pelo WhatsApp pode orientar o cliente, mas não deve aprovar identidade ou marcar e-mail como confirmado por meio de link público.
 
-## 6. Google OAuth
+## 6. Google OAuth (opcional)
 
-O botão Google permanece no layout. Para ativá-lo, configure Google em Authentication → Providers → Google e cadastre o callback do Supabase no Google Cloud:
+Para ativar Google:
+1. Configure Google em **Authentication → Providers → Google**.
+2. Cadastre no Google Cloud o callback:
+   `https://rduwcxzegiffqgnnbhis.supabase.co/auth/v1/callback`
+3. Adicione também as Redirect URLs Vercel da seção 2.
+4. Faça um teste completo no Preview antes de liberar em Produção.
 
-**https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback**
+Sem as credenciais OAuth do Google, esse método não concluirá login.
 
-Sem essas credenciais no Supabase, o botão não concluirá login.
+## 7. Testes obrigatórios antes de Produção
 
-## 7. Testes de aceite antes de publicar
-
-1. Cadastro válido cria usuário sem sessão e envia confirmação.
+1. Cadastro válido cria usuário pendente e envia e-mail.
 2. Login antes da confirmação é recusado.
-3. Link expirado ou reutilizado não autentica.
+3. Link expirado/reutilizado não autentica.
 4. Link válido cria cookies HttpOnly e retorna à rota original.
-5. Login válido recupera perfil e nome.
-6. Logout revoga sessão e limpa cookies.
-7. Recuperação de senha permite definir uma nova senha.
+5. Login confirmado recupera perfil e nome.
+6. Logout invalida a sessão e limpa cookies.
+7. Recuperação de senha permite cadastrar nova senha.
 8. Recuperação de e-mail mascara o endereço e limita tentativas.
-9. CPF duplicado é rejeitado sem armazenar CPF em texto puro.
-10. Perfil não pode ser lido por outro usuário (RLS).
-11. API e rota de confirmação nunca entram no cache do Service Worker.
+9. CPF duplicado é rejeitado sem salvar o número em texto puro.
+10. Outro usuário não consegue ler ou alterar o perfil alheio.
+11. API e página de confirmação não entram no cache do Service Worker.
+12. Catálogo, busca, filtros, favoritos, carrinho, responsividade, animações, mapa, PWA e WhatsApp manual continuam funcionando como antes.
 
-## 8. Limites conhecidos
+## 8. Critério de publicação
 
-- Não existe integração automática com WhatsApp Business nesta arquitetura; o canal é atendimento manual.
-- A recuperação de e-mail usa CPF + nascimento e limitação de tentativas. Antes de produção, avalie um fator adicional de verificação de posse (por exemplo, confirmação por WhatsApp feita pelo atendente).
-- A validação matemática do CPF não consulta a Receita Federal. Não alegar validação governamental sem contratar e integrar um provedor autorizado.
-- Google OAuth depende de credenciais externas.
+Não mesclar o PR nem alterar Produção até:
+- configurar `SUPABASE_SECRET_KEY` no Preview;
+- confirmar Email provider e URLs de redirect no Supabase;
+- configurar SMTP de teste;
+- concluir os testes de cadastro, confirmação, login, sessão, logout e recuperação;
+- validar visualmente desktop, tablet e mobile e testar as funcionalidades já existentes.
+
+A ativação de Google OAuth pode ser concluída depois, desde que o botão não seja apresentado como funcional antes de configurar as credenciais.
