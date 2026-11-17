@@ -66,33 +66,100 @@ returns void
 language plpgsql
 security invoker
 set search_path = pg_catalog, public, private
-as $$
+as $
+declare
+  v_existing_hash text;
 begin
   if p_user_id is null
      or p_full_name is null
      or char_length(trim(p_full_name)) < 5
      or p_birth_date is null
-     or p_cpf_hash !~ '^[0-9a-f]{64}$' then
+     or p_cpf_hash !~ '^[0-9a-f]{64}
+
+create or replace function public.lookup_customer_identity(
+  p_cpf_hash text,
+  p_birth_date date,
+  p_ip_hash text
+)
+returns uuid
+language plpgsql
+security invoker
+set search_path = pg_catalog, public, private
+as $$
+declare
+  v_user_id uuid;
+  v_ip_count integer;
+  v_cpf_count integer;
+begin
+  if p_cpf_hash !~ '^[0-9a-f]{64}$'
+     or p_ip_hash !~ '^[0-9a-f]{64}$'
+     or p_birth_date is null then
+    return null;
+  end if;
+
+  delete from private.email_lookup_attempts
+    where created_at < now() - interval '1 day';
+
+  insert into private.email_lookup_attempts (ip_hash, cpf_hash)
+    values (p_ip_hash, p_cpf_hash);
+
+  select count(*) into v_ip_count
+    from private.email_lookup_attempts
+    where ip_hash = p_ip_hash and created_at > now() - interval '15 minutes';
+
+  select count(*) into v_cpf_count
+    from private.email_lookup_attempts
+    where cpf_hash = p_cpf_hash and created_at > now() - interval '15 minutes';
+
+  if v_ip_count > 10 or v_cpf_count > 3 then
+    return null;
+  end if;
+
+  select user_id into v_user_id
+    from private.customer_identity
+    where cpf_hash = p_cpf_hash and birth_date = p_birth_date
+    limit 1;
+
+  return v_user_id;
+end;
+$$;
+
+revoke all on function public.register_customer_profile(uuid, text, date, text) from public, anon, authenticated;
+revoke all on function public.lookup_customer_identity(text, date, text) from public, anon, authenticated;
+grant execute on function public.register_customer_profile(uuid, text, date, text) to service_role;
+grant execute on function public.lookup_customer_identity(text, date, text) to service_role;
+
+comment on table public.customer_profiles is 'Dados básicos do perfil Esquina Mix; acesso limitado ao próprio usuário via RLS.';
+comment on table private.customer_identity is 'Índice privado de identidade; CPF armazenado somente como HMAC-SHA256.';
+comment on function public.lookup_customer_identity(text, date, text) is 'Busca de e-mail com limitação por IP e CPF; execução exclusiva service_role.';
+ then
     raise exception 'INVALID_PROFILE' using errcode = '22023';
+  end if;
+
+  select cpf_hash into v_existing_hash
+    from private.customer_identity
+    where user_id = p_user_id
+    for update;
+
+  if v_existing_hash is not null and v_existing_hash <> p_cpf_hash then
+    raise exception 'CPF_ALREADY_REGISTERED' using errcode = '23505';
   end if;
 
   insert into public.customer_profiles (user_id, full_name, birth_date)
   values (p_user_id, trim(p_full_name), p_birth_date)
   on conflict (user_id) do update
     set full_name = excluded.full_name,
-        birth_date = excluded.birth_date,
         updated_at = now();
 
-  insert into private.customer_identity (user_id, cpf_hash, birth_date)
-  values (p_user_id, p_cpf_hash, p_birth_date)
-  on conflict (user_id) do update
-    set cpf_hash = excluded.cpf_hash,
-        birth_date = excluded.birth_date;
+  if v_existing_hash is null then
+    insert into private.customer_identity (user_id, cpf_hash, birth_date)
+    values (p_user_id, p_cpf_hash, p_birth_date);
+  end if;
 exception
   when unique_violation then
     raise exception 'CPF_IN_USE' using errcode = '23505';
 end;
-$$;
+$;
 
 create or replace function public.lookup_customer_identity(
   p_cpf_hash text,
