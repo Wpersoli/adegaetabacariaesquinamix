@@ -23,6 +23,7 @@ module.exports = async function(req, res) {
     });
     const user = created.user || created;
     if (!user || !user.id) return A.send(res, 409, {code:'SIGNUP_FAILED'});
+    if (Array.isArray(user.identities) && user.identities.length === 0) return A.send(res, 409, {code:'EMAIL_IN_USE'});
     if (created.session || user.email_confirmed_at || user.confirmed_at) {
       await A.deleteAuthUser(c, user.id);
       return A.send(res, 503, {code:'EMAIL_CONFIRMATION_NOT_ENFORCED'});
