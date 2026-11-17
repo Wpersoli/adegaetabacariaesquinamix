@@ -78,10 +78,3 @@ A integração está isolada na branch **feature/supabase-auth-esquina-mix** e n
 - O Service Worker ignora a API de autenticação e a rota de confirmação.
 
 Consulte **docs/SUPABASE_SETUP.md** para as variáveis Vercel, configuração de e-mail, URLs de redirecionamento e critérios de teste. Não mescle o PR nem altere as variáveis de Produção antes de concluir os testes de aceite.
-
-## Auditoria final de responsividade (nov/2026)
-- Testado de 320 a 2560px (18 larguras): sem rolagem horizontal. Grade do catálogo fluida (2 colunas até 480px; depois `auto-fill`, chegando a 7–8 colunas em telas muito largas via `--wrap-max`).
-- Alvos de toque de 44px em celular/tablet, fontes mínimas de 10–11px, barra inferior, faixa rosa e cartão do mapa ajustados para 320px.
-- "Mais vendidos" usa a foto do produto quando existe; subcategorias sem itens aparecem esmaecidas (continuam clicáveis).
-- `.vercelignore` evita publicar `design-src/`, `supabase/`, `docs/`, `tools/` e README. `VERSAO` do `sw.js` = v13.
-- Pendentes (dependem de você): banners em maior resolução (celular ~1200×1800; desktop 2880+ de largura), trocar itens demo (ids 1–11) e preços de exemplo, auto-hospedar fontes (.woff2).

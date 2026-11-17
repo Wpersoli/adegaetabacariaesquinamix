@@ -23,7 +23,7 @@ const check = (cond, msg) => { cond ? ok++ : (bad++, console.log('   ✗ ' + msg
       const R = s => { const e = document.querySelector(s); if (!e) return null; const cs = getComputedStyle(e); if (cs.display === 'none' || cs.visibility === 'hidden') return null; const r = e.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, r: r.right }; };
       const nav = [...document.querySelectorAll('#nav > button')].map(e => e.getBoundingClientRect());
       return { menu: R('#menuBtn'), brand: R('.brand img'), brandT: R('.brand-t'), search: R('.search'), sBtn: R('#searchBtn'),
-        acc: R('#accountBtn'), cart: R('#cartBtn'), nav: R('#nav'), navItems: nav.map(r => ({ l: r.left, r: r.right, t: Math.round(r.top) })),
+        acc: R('.actions a.ico'), cart: R('#cartBtn'), nav: R('#nav'), navItems: nav.map(r => ({ l: r.left, r: r.right, t: Math.round(r.top) })),
         overflow: document.documentElement.scrollWidth > innerWidth, vw: innerWidth, top: R('.top') };
     });
     check(!r.overflow, 'rolagem horizontal na pagina');
