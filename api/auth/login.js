@@ -15,6 +15,7 @@ module.exports = async function(req,res) {
   } catch(e) {
     if(e.message==='METHOD_NOT_ALLOWED') return A.send(res,405,{code:'METHOD_NOT_ALLOWED'});
     if(e.message==='AUTH_CONFIGURATION_MISSING') return A.send(res,503,{code:'AUTH_CONFIGURATION_MISSING'});
+    if(e.code==='email_not_confirmed') return A.send(res,403,{code:'EMAIL_NOT_VERIFIED'});
     return A.send(res,e.status===400||e.status===401||e.status===403?401:503,{code:e.status===400||e.status===401||e.status===403?'BAD_CREDENTIALS':'UNAVAILABLE'});
   }
 };
