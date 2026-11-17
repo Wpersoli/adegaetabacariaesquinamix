@@ -74,7 +74,7 @@ assert.equal((migration.match(/\$\$;/g) || []).length, 2);
 assert.ok(migration.includes("p_cpf_hash !~ '^[0-9a-f]{64}$'"));
 assert.ok(migration.includes('v_existing_hash is not null and v_existing_hash <> p_cpf_hash'));
 
-const phoneMigration = fs.readFileSync(path.join(root, 'supabase/migrations/202611170001_customer_phone_required.sql'), 'utf8');
+const phoneMigration = fs.readFileSync(path.join(root, 'supabase/migrations/20261117031101_customer_phone_required.sql'), 'utf8');
 assert.match(phoneMigration, /phone_e164 text/i);
 assert.match(phoneMigration, /phone_verified_at timestamptz/i);
 assert.ok(phoneMigration.includes('drop function if exists public.register_customer_profile(uuid, text, date, text)'));
