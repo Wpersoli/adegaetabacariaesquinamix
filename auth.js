@@ -127,6 +127,7 @@ var api={
   login:function(d){return call('/login','POST',{email:d.email.trim(),password:d.password})},
   complete:function(d){return call('/complete','POST',{cpf:onlyDigits(d.cpf),birth:d.birth,consent:true})},
   forgot:function(d){return call('/forgot','POST',{email:d.email.trim()})},
+  resend:function(d){return call('/resend','POST',{email:d.email.trim(),returnTo:d.returnTo})},
   forgotEmail:function(d){return call('/forgot-email','POST',{cpf:onlyDigits(d.cpf),birth:d.birth})},
   logout:function(){return call('/logout','POST')}
 };
@@ -194,6 +195,7 @@ function tpl(){
         '<p class="au-st" role="status" aria-live="polite"></p>'+
         '<button type="submit" class="au-btn">Entrar</button>'+
         '<button type="button" class="au-link" data-go="forgot">Esqueci minha senha</button>'+
+        '<button type="button" class="au-link" data-act="resend">Reenviar confirmação de e-mail</button>'+
         '<button type="button" class="au-link" data-go="forgotEmail">Esqueci meu e-mail</button>'+
         '<button type="button" class="au-link" data-act="whatsapp-pending">Preciso de ajuda para confirmar pelo WhatsApp</button>'+
       '</form>'+
@@ -329,6 +331,7 @@ function build(){
     if(a==='close')close();
     else if(a==='google')google(t);
     else if(a==='logout')logout(t);
+    else if(a==='resend')resendConfirmation(t);
     else if(a==='whatsapp-recovery')whatsappRecovery();
     else if(a==='whatsapp-pending')whatsappPending();
   });
@@ -403,6 +406,13 @@ function fail(form,e){
 function signedIn(u,sec,welcome){
   user=u;paintBtn();setView('account');
   status($('[data-view="account"]'),'ok',welcome);
+}
+function resendConfirmation(t){
+  if(busy)return;
+  var sec=$('[data-view="login"]'),email=$('[name="email"]',sec).value.trim();
+  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(email)){status(sec,'err','Informe seu e-mail para reenviar a confirmação.');$('[name="email"]',sec).focus();return;}
+  busy=true;t.disabled=true;var old=t.textContent;t.textContent='Enviando…';
+  A.resend({email:email,returnTo:location.pathname+location.search+location.hash}).then(function(){status(sec,'ok','Se o cadastro estiver pendente, enviaremos um novo link de confirmação.');},function(){status(sec,'err','Não foi possível reenviar agora. Tente novamente ou fale com a loja.');}).then(function(){busy=false;t.disabled=false;t.textContent=old;});
 }
 function whatsappRecovery(){
   var phone=(document.querySelector('meta[name="esquina-whatsapp"]')||{}).content||'';
