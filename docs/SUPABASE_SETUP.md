@@ -11,7 +11,7 @@
 - Tabelas confirmadas: `public.customer_profiles`, `private.customer_identity` e `private.email_lookup_attempts`; RLS habilitado nas três.
 - A branch de integração continua isolada. Nenhuma alteração foi publicada na Produção.
 
-**Limite do plano Free:** mantenha no máximo dois projetos ativos na organização. `trotebox-prod` foi solicitado para pausa e `valora-credito` continua preservado. Não reative o projeto pausado enquanto `adega-mix` estiver ativo sem antes rever o limite do plano.
+**Limite do plano Free:** mantenha no máximo dois projetos ativos na organização. `trotebox-prod` está pausado (INACTIVE) e `valora-credito` continua ativo e preservado. Não reative o projeto pausado enquanto `adega-mix` estiver ativo sem antes rever o limite do plano.
 
 ## 1. Preview Vercel (somente branch)
 
