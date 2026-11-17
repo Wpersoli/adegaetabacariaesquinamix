@@ -339,3 +339,8 @@ html #esquinaLoader.pl--show .pl__txt i:nth-child(3){animation-delay:.4s !import
   html #esquinaLoader.pl--show .pl__mug{animation-name:plShakeSoft !important;animation-duration:.9s !important}
   html #esquinaLoader.pl--show .pl__slosh{animation-duration:.9s !important}
 }
+
+
+/* Ajuste solicitado: sem halo atrás do logotipo; conjunto caneca/barra no rodapé. */
+.pl__glow{display:none!important;animation:none!important}
+.pl__load{position:absolute;left:0;right:0;bottom:clamp(22px,6vh,64px);margin-inline:auto}

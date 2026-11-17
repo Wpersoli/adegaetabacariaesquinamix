@@ -153,8 +153,9 @@
   <section class="feat" id="cardapio" aria-labelledby="title"><div class="wrap">
     <div class="feat__head"><div><p class="feat__eyebrow">// cardápio digital</p><h2 class="feat__title" id="title">Em destaque na <span class="hl">esquina</span></h2></div><a class="feat__cta" href="produtos.html">Ver tudo →</a></div>
     <div class="feat__chips" id="chips"><button class="feat-chip is-active" data-cat="todos">Todos</button><button class="feat-chip is-warn" data-cat="promo">Promoções</button><button class="feat-chip" data-cat="narguile">Narguile</button><button class="feat-chip" data-cat="headshop">Headshop</button><button class="feat-chip" data-cat="tabacos">Cigarros e Tabacos</button><button class="feat-chip" data-cat="bebidas">Bebidas</button></div>
-    <div class="feat__tools"><div class="facets" id="facets" role="group" aria-label="Filtros do catálogo"></div><label class="sort"><span>Ordenar</span><select id="sort" aria-label="Ordenar produtos"><option value="rel">Relevância</option><option value="asc">Menor preço</option><option value="desc">Maior preço</option><option value="az">A–Z</option></select></label></div>
+    <div class="feat__tools"><div class="facets" id="facets" role="group" aria-label="Filtros do catálogo"></div><label class="sort"><span>Ordenar</span><select id="sort" aria-label="Ordenar produtos"><option value="rel">Relevância</option><option value="asc">Menor preço</option><option value="desc">Maior preço</option><option value="az" selected>A–Z</option></select></label></div>
     <div class="feat__grid" id="grid" aria-live="polite"></div>
+    <nav class="home-pages" id="homePages" aria-label="Paginação do cardápio" hidden></nav>
   </div></section>
 
   <section class="rank" id="ranking" aria-labelledby="rk"><div class="wrap">
@@ -256,6 +257,21 @@
   <div class="rm__map"><iframe id="rmFrame" title="Mapa da rota ao vivo até a Esquina Mix" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
   <footer class="rm__foot"><button type="button" class="btn" id="rmRefresh">Atualizar rota</button><a class="btn alt" id="rmOpen" href="https://www.google.com/maps/dir/?api=1&amp;destination=Adega+e+Tabacaria+Esquina+Mix%2C+R.+S%C3%A3o+Francisco%2C+285%2C+Guarulhos" target="_blank" rel="noopener">Abrir no Google Maps ↗</a></footer>
 </div>
+
+
+<aside class="home-filter" id="homeFilter" aria-label="Filtros do cardápio" aria-hidden="true">
+  <div class="home-filter__head"><h2>Filtros</h2><button type="button" id="homeFilterClose" aria-label="Fechar filtros">×</button></div>
+  <div class="home-filter__body">
+    <label class="home-filter__label" for="homeFilterSearch">Buscar</label><input id="homeFilterSearch" class="home-filter__input" type="search" placeholder="Ex.: seda, whisky, carvão">
+    <p class="home-filter__label">Categorias</p><div class="home-filter__chips" id="homeFilterCats"></div>
+    <p class="home-filter__label">Preço</p><div class="home-filter__chips" id="homeFilterPrices"></div>
+    <button type="button" class="home-filter__clear" id="homeFilterClear">Limpar filtros</button>
+  </div>
+</aside>
+<button class="home-filter-tab" id="homeFilterToggle" type="button" aria-controls="homeFilter" aria-expanded="false" aria-label="Abrir filtros">
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+</button>
+<div class="home-filter-veil" id="homeFilterVeil" hidden></div>
 
 <script src="preloader.js" defer></script>
 <script src="catalog.js" defer></script>

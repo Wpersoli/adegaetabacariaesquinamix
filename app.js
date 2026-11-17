@@ -21,7 +21,7 @@ $('no').onclick=function(){$('deny').hidden=false};
 
 /* Catálogo */
 /* Filtro inteligente: tags automaticas a partir do nome (ou x.t:['Tag'] no catalogo), busca tolerante e preco em linguagem natural ("ipa ate 9") */
-var sel={},sortBy='rel',subF=null;
+var sel={},sortBy='az',subF=null,homePage=1,homePer=20;
 var ZERO=/zero alcool|sem alcool|0\.0/,T=function(re){return function(x,s){return re.test(s)}};
 /* Filtros fixos, na ordem em que aparecem. Cada item entra automaticamente pelo nome ou manualmente com t:['Nome do filtro'] no catalogo */
 var CH=[['Ofertas',function(x){return !!x.promo}],
@@ -42,7 +42,7 @@ var CH=[['Ofertas',function(x){return !!x.promo}],
 ['Destilados',T(/whisk|vodka|\bgin\b|cachaca|pinga|tequila|busca brisa/)],
 ['Aperitivos',T(/aperitivo|campari|aperol/)],
 ['Sucos e Chás',T(/\bsuco|cha gelado|cha verde|ice tea|leao/)]];
-var PR=[['Até R$ 5',-1,5],['De R$ 5 a 10',5,10]];
+var PR=[['Até R$ 10',-1,10],['R$ 10 a 30',10,30],['R$ 30 a 60',30,60],['R$ 60 a 120',60,120],['Acima de R$ 120',120,999999]];
 
 /* Menu suspenso do topo: subcategorias (filtram o catalogo do proprio site). Cada item entra pelo nome ou manualmente com t:['Nome do item'] */
 var S=function(label,re,ex){return[label,function(x,s){return(re.test(s)&&!(ex&&ex.test(s)))||(x.t||[]).indexOf(label)>-1}]};
@@ -76,16 +76,19 @@ function render(){
     return okCat&&(!subF||subF.t(x,norm(x.n)))&&(q.mx==null||x.p<=q.mx)&&(q.mn==null||x.p>=q.mn)&&q.w.every(function(t){return tokenMatch(t,wordsOf(x))})});
   facets(base,q);
   var list=base.filter(matchSel);
-  if(sortBy==='asc')list.sort(function(a,b){return a.p-b.p});else if(sortBy==='desc')list.sort(function(a,b){return b.p-a.p});else if(sortBy==='az')list.sort(function(a,b){return a.n.localeCompare(b.n,'pt-BR')});
+  if(sortBy==='asc')list.sort(function(a,b){return a.p-b.p});else if(sortBy==='desc')list.sort(function(a,b){return b.p-a.p});else if(sortBy==='az')list.sort(function(a,b){return a.n.localeCompare(b.n,'pt-BR',{sensitivity:'base'})});
   var g=$('grid');g.textContent='';
-  if(!list.length){g.innerHTML='<p class="feat__empty">'+(subF?'Ainda não temos itens em “'+subF.label+'” no cardápio digital. Pergunte pelo WhatsApp!':'Nada encontrado. Tente outra busca.')+'</p>';return}
-  list.forEach(function(x){
+  var totalPages=Math.max(1,Math.ceil(list.length/homePer));if(homePage>totalPages)homePage=totalPages;
+  var pageItems=list.slice((homePage-1)*homePer,homePage*homePer);
+  if(!list.length){g.innerHTML='<p class="feat__empty">'+(subF?'Ainda não temos itens em “'+subF.label+'” no cardápio digital. Pergunte pelo WhatsApp!':'Nada encontrado. Tente outra busca.')+'</p>';drawHomePages(1);return}
+  pageItems.forEach(function(x){
     var c=document.createElement('article');c.className='prod-card';
     c.innerHTML='<div class="prod-filete"></div>'+(x.promo?'<span class="prod-tag">Promo</span>':'')+'<div class="prod-img'+(x.img?' prod-img--foto':'')+'"><img src="'+(x.img||'assets/logo.webp')+'" alt="" width="'+(x.img?800:120)+'" height="'+(x.img?800:120)+'" loading="lazy"></div><p class="prod-cat"></p><h3 class="prod-name"></h3><div class="prod-price"></div><button class="prod-buy">Comprar →</button>';
     c.querySelector('.prod-cat').textContent=names[x.cat];c.querySelector('.prod-name').textContent=x.n;c.querySelector('img').alt=x.img?x.n:'';c.querySelector('.prod-price').textContent=brl(x.p);
     var buy=c.querySelector('.prod-buy');buy.setAttribute('aria-label','Adicionar '+x.n+' à sacola');
     buy.onclick=function(){add(x.id);buy.textContent='Adicionado ✓';clearTimeout(buy.t);buy.t=setTimeout(function(){buy.textContent='Comprar →'},1200)};
-    g.appendChild(c)})}
+    g.appendChild(c)});drawHomePages(totalPages)}
+function drawHomePages(total){var box=$('homePages');if(!box)return;box.textContent='';box.hidden=total<=1;if(total<=1)return;for(var i=1;i<=total;i++){var b=document.createElement('button');b.type='button';b.textContent=i;if(i===homePage)b.setAttribute('aria-current','page');b.onclick=function(){homePage=+this.textContent;render();document.getElementById('cardapio').scrollIntoView({behavior:'smooth',block:'start'})};box.appendChild(b)}}
 
 /* Sacola */
 function add(id){cart[id]=Math.min((cart[id]||0)+1,99);sync();document.dispatchEvent(new Event('cart:add'));if($('badge').animate)$('badge').animate([{transform:'scale(1.5)'},{transform:'scale(1)'}],{duration:250})}
@@ -118,16 +121,28 @@ $('send').onclick=function(){
   if(!num)return;window.open('https://wa.me/'+num+'?text='+encodeURIComponent(l.join('\n')),'_blank','noopener')};
 
 /* Navegação e busca */
-function setCat(c,keep){cat=c;if(!keep)subF=null;
+function setCat(c,keep){homePage=1;cat=c;if(!keep)subF=null;
   [].forEach.call(document.querySelectorAll('#nav button'),function(x){x.classList.toggle('on',x.dataset.cat===c&&c!=='todos'?true:(c==='todos'&&x.textContent.trim()==='Início'))});
   [].forEach.call($('chips').children,function(x){x.classList.toggle('is-active',x.dataset.cat===c)});
   var on=document.querySelector('#nav button.on');if(on&&on.scrollIntoView)on.scrollIntoView({inline:'center',block:'nearest'});
   render()}
 $('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;setCat(b.dataset.cat);document.getElementById('cardapio').scrollIntoView()});
 $('chips').addEventListener('click',function(e){var b=e.target.closest('button');if(b)setCat(b.dataset.cat)});
-$('facets').addEventListener('click',function(e){var b=e.target.closest('button');if(!b||b.dataset.i==null)return;var sb=(SUBS[cat]||[])[+b.dataset.i];if(!sb)return;subF=(subF&&subF.label===sb[0])?null:{label:sb[0],t:sb[1]};render()});
-$('sort').addEventListener('change',function(){sortBy=this.value;render()});
-var qt;$('q').addEventListener('input',function(){var v=this.value;clearTimeout(qt);qt=setTimeout(function(){term=v;render()},120)});
+$('facets').addEventListener('click',function(e){homePage=1;var b=e.target.closest('button');if(!b||b.dataset.i==null)return;var sb=(SUBS[cat]||[])[+b.dataset.i];if(!sb)return;subF=(subF&&subF.label===sb[0])?null:{label:sb[0],t:sb[1]};render()});
+$('sort').addEventListener('change',function(){sortBy=this.value;homePage=1;render()});
+var qt;$('q').addEventListener('input',function(){var v=this.value;clearTimeout(qt);qt=setTimeout(function(){term=v;homePage=1;render()},120)});
+
+/* Painel lateral de filtros persistente na home */
+(function(){
+ var panel=$('homeFilter'),toggle=$('homeFilterToggle'),close=$('homeFilterClose'),veil=$('homeFilterVeil'),cats=$('homeFilterCats'),prices=$('homeFilterPrices'),search=$('homeFilterSearch');if(!panel||!toggle)return;
+ function open(on){panel.classList.toggle('is-open',on);panel.setAttribute('aria-hidden',on?'false':'true');toggle.setAttribute('aria-expanded',on?'true':'false');toggle.setAttribute('aria-label',on?'Fechar filtros':'Abrir filtros');veil.hidden=!on;if(on){search.value=$('q').value;search.focus()}}
+ function draw(){cats.textContent='';[['todos','Todos'],['promo','Promoções'],['bebidas','Bebidas'],['tabacos','Cigarros e Tabacos'],['headshop','Headshop'],['narguile','Narguile'],['outros','Outros']].forEach(function(c){var b=document.createElement('button');b.type='button';b.className='feat-chip'+(cat===c[0]?' is-active':'')+(c[0]==='promo'?' is-warn':'');b.textContent=c[1];b.onclick=function(){setCat(c[0]);homePage=1;draw()};cats.appendChild(b)});
+ prices.textContent='';PR.forEach(function(r,i){var b=document.createElement('button');b.type='button';b.className='feat-chip'+(sel['p:'+i]?' is-active':'');b.textContent=r[0];b.onclick=function(){Object.keys(sel).forEach(function(k){if(k.indexOf('p:')===0)delete sel[k]});if(!b.classList.contains('is-active'))sel['p:'+i]=true;homePage=1;render();draw()};prices.appendChild(b)})}
+ toggle.addEventListener('click',function(){open(!panel.classList.contains('is-open'))});close.addEventListener('click',function(){open(false)});veil.addEventListener('click',function(){open(false)});document.addEventListener('keydown',function(e){if(e.key==='Escape')open(false)});
+ search.addEventListener('input',function(){ $('q').value=this.value;term=this.value;homePage=1;render() });
+ $('homeFilterClear').addEventListener('click',function(){sel={};subF=null;cat='todos';term='';$('q').value='';search.value='';homePage=1;setCat('todos');render();draw()});
+ draw();
+})();
 
 /* Auto-preenchimento da busca do topo: sugere produtos pelas iniciais (tolera erro de digitacao e entende "ipa ate 9") */
 (function(){

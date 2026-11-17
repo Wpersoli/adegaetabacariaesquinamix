@@ -12,8 +12,8 @@ var names={narguile:'Narguile',headshop:'Headshop',tabacos:'Cigarros e tabacos',
 /* Filtros disponíveis */
 var CATS=[['todos','Todos'],['promo','Promoções'],['bebidas','Bebidas'],['tabacos','Cigarros e Tabacos'],['headshop','Headshop'],['narguile','Narguile'],['outros','Outros']];
 var PRICES=[['Até R$ 10',null,10],['R$ 10 a 30',10,30],['R$ 30 a 60',30,60],['R$ 60 a 120',60,120],['Acima de R$ 120',120,null]];
-var PER=30;   /* produtos por página */
-var st={cat:'todos',min:null,max:null,q:'',sort:'rel',page:1};
+var PER=20;   /* limite solicitado: no máximo 20 produtos por página */
+var st={cat:'todos',min:null,max:null,q:'',sort:'az',page:1};
 
 /* ---------- Faixa etária (mesma regra da home) ---------- */
 var gate=$('gate');
@@ -103,7 +103,7 @@ function card(x){
 
 function render(){
   var list=badRange()?[]:filtered(false);
-  if(st.sort==='asc')list.sort(function(a,b){return a.p-b.p});else if(st.sort==='desc')list.sort(function(a,b){return b.p-a.p});else if(st.sort==='az')list.sort(function(a,b){return a.n.localeCompare(b.n,'pt-BR')});
+  if(st.sort==='asc')list.sort(function(a,b){return a.p-b.p});else if(st.sort==='desc')list.sort(function(a,b){return b.p-a.p});else if(st.sort==='az')list.sort(function(a,b){return a.n.localeCompare(b.n,'pt-BR',{sensitivity:'base'} )});
   drawChips();
   var total=list.length,pages=Math.max(1,Math.ceil(total/PER));
   if(st.page>pages)st.page=pages;if(st.page<1)st.page=1;
@@ -195,7 +195,7 @@ function setFilters(open,silent){
     fveil.hidden=!open;
     if(open&&!fLocked){fLocked=true;fLast=document.activeElement;lock(fp,true);setTimeout(function(){$('filtClose').focus()},60)}
     else if(!open&&fLocked){fLocked=false;lock(fp,false);if(fLast&&fLast.focus)fLast.focus();fLast=null}}}
-function initFilters(){setFilters(mqD.matches?load('emFiltMin')!=='1':false,true)}
+function initFilters(){setFilters(false,true)}
 if(mqD.addEventListener)mqD.addEventListener('change',initFilters);else mqD.addListener(initFilters);
 fb.addEventListener('click',function(){setFilters(!fOpen)});
 $('filtClose').addEventListener('click',function(){setFilters(false)});
