@@ -707,3 +707,8 @@ html.rm-open{overflow:hidden}
 
 /* Com a sacola aberta, as abas laterais de filtros não ficam por cima da gaveta */
 body:has(.drawer:not([hidden])) .home-filter-tab,body:has(.drawer:not([hidden])) .pg-tab{display:none!important}
+
+/* Sacola: nome do cliente logado ("Pedido de <primeiro nome>") */
+.ck__who{margin:0;font:500 15px/1.3 "DM Sans",sans-serif;color:var(--cream)}
+.ck__who b{color:var(--gold);font-weight:700}
+.ck__who[hidden]{display:none!important}

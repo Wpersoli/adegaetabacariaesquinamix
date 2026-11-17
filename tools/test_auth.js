@@ -21,7 +21,9 @@ const javascript = [
   'api/auth/forgot-email.js',
   'api/auth/complete.js',
   'api/auth/password.js',
-  'api/auth/google.js'
+  'api/auth/google.js',
+  'api/orders/index.js',
+  'api/orders/status.js'
 ];
 
 for (const file of javascript) {
@@ -42,7 +44,9 @@ assert.equal(auth.safeNext('https://evil.example'), '/');
 assert.equal(auth.maskEmail('cliente@example.com'), 'cl•••@example.com');
 
 const authUi = fs.readFileSync(path.join(root, 'auth.js'), 'utf8');
-assert.ok(authUi.includes('CPF teve apenas os dígitos validados'));
+// a mensagem sobre o CPF foi removida da tela "Minha conta" a pedido da loja
+assert.ok(!authUi.includes('CPF teve apenas os dígitos validados'));
+assert.ok(!authUi.includes('Telefone de contato: '));
 assert.ok(!authUi.includes('CPF verificado junto à Receita Federal'));
 assert.ok(!authUi.includes('não encontrado na Receita Federal'));
 

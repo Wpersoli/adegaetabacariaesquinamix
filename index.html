@@ -235,6 +235,12 @@
     </div>
     <ul id="items"></ul>
     <div class="ck" id="checkout" hidden>
+      <div class="ck__f" id="ckNameBox">
+        <label class="ck__lbl" for="ckName">Seu nome <b aria-hidden="true">*</b></label>
+        <input class="ck__in" id="ckName" type="text" autocomplete="given-name" maxlength="60" placeholder="Como podemos te chamar?" required aria-describedby="ckNameErr">
+        <p class="ck__err" id="ckNameErr" role="alert" hidden></p>
+      </div>
+      <p class="ck__who" id="ckWho" hidden>Pedido de <b id="ckWhoName"></b></p>
       <div class="ck__f">
         <label class="ck__lbl" for="ckPhone">Seu telefone (WhatsApp) <b aria-hidden="true">*</b></label>
         <input class="ck__in" id="ckPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="(11) 99999-9999" required aria-describedby="ckPhoneErr">

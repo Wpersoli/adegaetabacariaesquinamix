@@ -14,8 +14,8 @@ if(!btn)return;
 
 var meta=document.querySelector('meta[name="esquina-auth"]');
 var MODE=meta&&meta.getAttribute('content')==='api'?'api':'demo';
-var API='/api/auth',KU='esquina.auth.users',KS='esquina.auth.session',MINAGE=18;
-var user=null,root=null,card=null,view='login',lastFocus=null,busy=false;
+var API='/api/auth',KU='esquina.auth.users',KS='esquina.auth.session',KO='esquina.auth.orders',MINAGE=18;
+var user=null,root=null,card=null,view='login',lastFocus=null,busy=false,fresh=false,ordTimer=0,ordBusy=false,ordSeq=0;
 
 /* ---------- utilidades ---------- */
 function sget(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
@@ -114,7 +114,9 @@ var demo={
   },
   complete:function(){return Promise.reject(err('UNAVAILABLE'))},
   forgot:function(){return Promise.resolve({ok:true})},
-  logout:function(){sdel(KS);return Promise.resolve({ok:true})}
+  logout:function(){sdel(KS);return Promise.resolve({ok:true})},
+  orders:function(){return Promise.resolve({orders:(sget(KO)||[]).slice().reverse()})},
+  addOrder:function(o){var l=sget(KO)||[],now=new Date().toISOString();l.push({id:'d'+Date.now(),code:o.code,status:'recebido',items:o.items,total:o.total,pay:o.pay,changeFor:o.changeFor,createdAt:now,updatedAt:now});sset(KO,l.slice(-50));return Promise.resolve({ok:true})}
 };
 
 /* ---------- adaptador API (servidor) ---------- */
@@ -139,7 +141,13 @@ var api={
   forgot:function(d){return call('/forgot','POST',{email:d.email.trim()})},
   resend:function(d){return call('/resend','POST',{email:d.email.trim(),returnTo:d.returnTo})},
   forgotEmail:function(d){return call('/forgot-email','POST',{cpf:onlyDigits(d.cpf),birth:d.birth})},
-  logout:function(){return call('/logout','POST')}
+  logout:function(){return call('/logout','POST')},
+  orders:function(){return fetch('/api/orders',{method:'GET',credentials:'same-origin',cache:'no-store',headers:{'X-Requested-With':'esquina'}}).then(function(r){
+    return r.json().catch(function(){return{}}).then(function(j){if(r.ok)return j;var e=err(j.code||(r.status===401?'UNAUTH':'UNAVAILABLE'));e.status=r.status;throw e});
+  },function(){throw err('OFFLINE')})},
+  addOrder:function(o){return fetch('/api/orders',{method:'POST',credentials:'same-origin',keepalive:true,headers:{'Content-Type':'application/json','X-Requested-With':'esquina'},body:JSON.stringify(o)}).then(function(r){
+    return r.json().catch(function(){return{}}).then(function(j){if(r.ok)return j;var e=err(j.code||'UNAVAILABLE');e.status=r.status;throw e});
+  },function(){throw err('OFFLINE')})}
 };
 var A=MODE==='api'?api:demo;
 
@@ -275,9 +283,19 @@ function tpl(){
     /* MINHA CONTA */
     '<section data-view="account" hidden>'+
       '<div class="au-acc"><span class="au-av" id="a-av" aria-hidden="true"></span><div><strong id="a-name"></strong><small id="a-mail"></small></div></div>'+
-      '<p class="au-note" id="a-note"></p>'+
       '<p class="au-st" role="status" aria-live="polite"></p>'+
-      '<button type="button" class="au-btn au-btn--ghost" data-act="logout">Sair da conta</button>'+
+      '<div class="au-acts">'+
+        '<button type="button" class="au-btn" data-act="orders" data-acc="menu">Pedidos</button>'+
+        '<button type="button" class="au-btn au-btn--ghost" data-act="logout" data-acc="menu">Sair da conta</button>'+
+        '<button type="button" class="au-btn" data-act="close" data-acc="fresh">Fechar</button>'+
+      '</div>'+
+    '</section>'+
+
+    /* PEDIDOS (andamento em tempo real + historico) */
+    '<section data-view="orders" hidden>'+
+      '<p class="au-st" role="status" aria-live="polite"></p>'+
+      '<div class="ord" id="o-box" aria-live="polite"></div>'+
+      '<button type="button" class="au-btn au-btn--ghost" data-go="account">Voltar</button>'+
     '</section>'+
 
     (MODE==='demo'?'<p class="au-demo">Modo demonstração: os dados ficam salvos só neste aparelho e o CPF ainda não é consultado na Receita Federal.</p>':'')+
@@ -285,7 +303,7 @@ function tpl(){
 }
 
 /* ---------- controle de telas ---------- */
-var TITLES={login:'Entrar',signup:'Criar conta',complete:'Concluir cadastro',forgot:'Recuperar senha',forgotEmail:'Recuperar e-mail',account:'Minha conta'};
+var TITLES={login:'Entrar',signup:'Criar conta',complete:'Concluir cadastro',forgot:'Recuperar senha',forgotEmail:'Recuperar e-mail',account:'Minha conta',orders:'Meus pedidos'};
 function status(sec,type,txt){var s=$('.au-st',sec);if(!s)return;s.className='au-st'+(type?' is-'+type:'');s.textContent=txt||''}
 function fieldErr(el,txt){
   var e=document.getElementById(el.id+'-e');
@@ -297,6 +315,7 @@ function clearAll(sec){$$('[data-v]',sec).forEach(function(i){fieldErr(i,'')});s
 
 function setView(v,focus){
   if(v==='login'&&user)v='account';
+  if(view==='orders'&&v!=='orders')stopOrders();
   view=v;
   $$('[data-view]').forEach(function(s){s.hidden=s.getAttribute('data-view')!==v});
   var tabs=v==='login'||v==='signup';
@@ -305,10 +324,11 @@ function setView(v,focus){
   $('#au-t').textContent=TITLES[v]||'Entrar';
   var sec=$('[data-view="'+v+'"]');clearAll(sec);
   if(v==='account')paintAccount();
+  if(v==='orders')startOrders();
   card.scrollTop=0;
   if(focus!==false){
     var fine=window.matchMedia&&matchMedia('(hover:hover) and (pointer:fine)').matches;   /* no celular nao abre o teclado sozinho */
-    var f=v==='account'?$('[data-act="logout"]',sec):(fine?$('input:not([type=checkbox])',sec):$('#au-t'));
+    var f=v==='account'?$$('.au-acts [data-act]',sec).filter(function(x){return !x.hidden})[0]:(fine?$('input:not([type=checkbox])',sec):$('#au-t'));
     if(f)f.focus({preventScroll:true});
   }
 }
@@ -316,9 +336,11 @@ function paintAccount(){
   $('#a-av').textContent=(user.name||'?').trim().charAt(0).toUpperCase();
   $('#a-name').textContent=user.name||'';
   $('#a-mail').textContent=user.email||'';
-  $('#a-note').textContent=(user.phone?'Telefone de contato: '+user.phone+' (não verificado). ':'Telefone ainda não informado. ')+(user.cpfStatus==='verified'?'O CPF teve apenas os dígitos validados matematicamente; não há consulta à Receita Federal.':(MODE==='demo'?'Conta de demonstração salva só neste aparelho.':'Seu CPF está em verificação.'));
+  /* logo apos entrar/cadastrar: so "Fechar"; ao reabrir a conta: "Pedidos" e "Sair da conta" */
+  $$('.au-acts [data-acc]').forEach(function(b){b.hidden=b.getAttribute('data-acc')!==(fresh?'fresh':'menu')});
 }
 function paintBtn(){
+  try{document.dispatchEvent(new CustomEvent('esquina:user',{detail:user}))}catch(e){}
   btn.classList.toggle('is-in',!!user);
   btn.setAttribute('aria-label',user?'Minha conta — '+user.name:'Entrar ou criar conta');
   btn.title=user?'Minha conta':'Entrar ou criar conta';
@@ -347,6 +369,7 @@ function build(){
     if(a==='close')close();
     else if(a==='google')google(t);
     else if(a==='logout')logout(t);
+    else if(a==='orders')setView('orders');
     else if(a==='cancel-completion'&&view==='complete')logout(t);
     else if(a==='resend')resendConfirmation(t);
     else if(a==='whatsapp-recovery')whatsappRecovery();
@@ -378,10 +401,11 @@ function onKey(e){
   else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
 }
 
-function open(v){
+function open(v,isFresh){
   build();
   lastFocus=document.activeElement;
   var target=v||(user?(user.needsCpf||user.needsPhone?'complete':'account'):'login');
+  if(target==='account')fresh=!!isFresh;
   root.hidden=false;
   document.documentElement.classList.add('au-lock');
   btn.setAttribute('aria-expanded','true');
@@ -389,6 +413,7 @@ function open(v){
 }
 function close(){
   if(!root||root.hidden)return;
+  stopOrders();fresh=false;
   root.hidden=true;
   document.documentElement.classList.remove('au-lock');
   btn.setAttribute('aria-expanded','false');
@@ -424,7 +449,7 @@ function fail(form,e){
 function signedIn(u,sec,welcome){
   user=u;paintBtn();
   if(user.needsCpf||user.needsPhone){setView('complete');status($('[data-view="complete"]'),'info','Para concluir, informe seu telefone de contato e os dados solicitados.');return;}
-  setView('account');status($('[data-view="account"]'),'ok',welcome);
+  fresh=true;setView('account');status($('[data-view="account"]'),'ok',welcome);
 }
 function resendConfirmation(t){
   if(busy)return;
@@ -493,6 +518,96 @@ function logout(t){
   });
 }
 
+/* ---------- pedidos: andamento em tempo real + historico ---------- */
+var STEPS=[['recebido','Recebido'],['em_preparo','Em preparo'],['pronto','Pronto'],['entregue','Entregue']];
+var STL={recebido:'Pedido recebido',em_preparo:'Em preparo',pronto:'Pronto',entregue:'Entregue',cancelado:'Cancelado'};
+var ordSig='';
+function brl(v){return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function fdate(iso){
+  try{return new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(iso)).replace(',',' às')}catch(e){return ''}
+}
+function h(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+function isOpenOrder(o){return o.status!=='entregue'&&o.status!=='cancelado'}
+function orderBody(o){
+  var f=document.createDocumentFragment();
+  if(isOpenOrder(o)){
+    var idx=0;STEPS.forEach(function(st,i){if(st[0]===o.status)idx=i});
+    var ol=h('ol','ord__steps');
+    STEPS.forEach(function(st,i){
+      var li=h('li',i<idx?'is-done':(i===idx?'is-now':''),st[1]);
+      if(i===idx)li.setAttribute('aria-current','step');
+      ol.appendChild(li);
+    });
+    f.appendChild(ol);
+  }
+  var ul=h('ul','ord__items');
+  (o.items||[]).forEach(function(x){ul.appendChild(h('li',null,(x.q||1)+'× '+(x.n||'Item')))});
+  f.appendChild(ul);
+  var pay=o.pay?(' · '+o.pay+(o.changeFor?' (troco para '+brl(o.changeFor)+')':'')):'';
+  f.appendChild(h('p','ord__tot','Total '+brl(o.total)+pay));
+  return f;
+}
+function orderHead(o){
+  var top=h('span','ord__top');
+  top.appendChild(h('strong',null,'Pedido Nº '+(o.code||'—')));
+  top.appendChild(h('span','ord__badge is-'+o.status,STL[o.status]||o.status));
+  var wrap=h('span','ord__hd');
+  wrap.appendChild(top);
+  wrap.appendChild(h('small',null,fdate(o.createdAt)));
+  return wrap;
+}
+function renderOrders(list){
+  var box=$('#o-box');if(!box)return;
+  var open=list.filter(isOpenOrder),past=list.filter(function(o){return !isOpenOrder(o)});
+  box.textContent='';
+  box.appendChild(h('p','ord__live','Atualizando automaticamente'));
+  if(!list.length){
+    box.appendChild(h('p','ord__empty','Você ainda não fez pedidos por aqui. Os pedidos enviados pela sacola, com você logado, aparecem neste painel.'));
+    return;
+  }
+  box.appendChild(h('h3','ord__h','Em andamento'));
+  if(!open.length)box.appendChild(h('p','ord__none','Nenhum pedido em andamento.'));
+  open.forEach(function(o){
+    var c=h('article','ord__card is-open');
+    c.appendChild(orderHead(o));c.appendChild(orderBody(o));box.appendChild(c);
+  });
+  box.appendChild(h('h3','ord__h','Histórico'));
+  if(!past.length)box.appendChild(h('p','ord__none','Seus pedidos finalizados aparecem aqui.'));
+  past.forEach(function(o){
+    var d=h('details','ord__card'),sm=h('summary','ord__sum');
+    sm.appendChild(orderHead(o));d.appendChild(sm);d.appendChild(orderBody(o));box.appendChild(d);
+  });
+}
+function loadOrders(quiet){
+  if(ordBusy||!user)return;
+  ordBusy=true;var my=ordSeq,sec=$('[data-view="orders"]');
+  if(!quiet)status(sec,'info','Carregando seus pedidos…');
+  A.orders().then(function(r){
+    ordBusy=false;
+    if(my!==ordSeq||view!=='orders')return;
+    var list=(r&&r.orders)||[],sig=JSON.stringify(list.map(function(o){return[o.id,o.status,o.updatedAt]}));
+    status(sec,'','');
+    if(sig!==ordSig){ordSig=sig;renderOrders(list)}
+  },function(e){
+    ordBusy=false;
+    if(my!==ordSeq||view!=='orders')return;
+    if(e&&e.status===401){user=null;paintBtn();setView('login');status($('[data-view="login"]'),'err','Sua sessão expirou. Entre novamente.');return}
+    if(!ordSig)status(sec,'err',MSG[e&&e.code]||'Não foi possível carregar seus pedidos agora. Tente novamente em instantes.');
+  });
+}
+function startOrders(){
+  stopOrders();ordSig='';
+  var box=$('#o-box');if(box)box.textContent='';
+  loadOrders(false);
+  ordTimer=setInterval(function(){if(!document.hidden)loadOrders(true)},8000);
+}
+function stopOrders(){clearInterval(ordTimer);ordTimer=0;ordSeq++;ordBusy=false}
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&view==='orders'&&root&&!root.hidden)loadOrders(true)});
+function recordOrder(o){
+  if(!user)return Promise.reject(err('UNAUTH'));
+  return A.addOrder(o).then(function(r){if(view==='orders'&&root&&!root.hidden)loadOrders(true);return r});
+}
+
 /* ---------- inicio ---------- */
 btn.addEventListener('click',function(){open()});
 paintBtn();
@@ -501,8 +616,8 @@ A.me().then(function(r){
   /* volta do Google: se faltar CPF, abre direto a tela de conclusao */
   if(MODE==='api'&&/[?&]auth=/.test(location.search)){
     try{var u=new URL(location.href);u.searchParams.delete('auth');history.replaceState(null,'',u.pathname+u.search+u.hash)}catch(e){}
-    if(user)open(user.needsCpf||user.needsPhone?'complete':'account');
+    if(user)open(user.needsCpf||user.needsPhone?'complete':'account',true);
   }
 });
-window.EsquinaAuth={open:open,close:close,mode:MODE,get user(){return user}};
+window.EsquinaAuth={open:open,close:close,recordOrder:recordOrder,mode:MODE,get user(){return user}};
 })();
