@@ -146,8 +146,8 @@ var MSG={
   UNDERAGE_OR_INVALID_BIRTH:'Cadastro permitido apenas para maiores de 18 anos.',
   CPF_IN_USE:'Este CPF já possui cadastro. Entre na sua conta ou recupere a senha.',
   EMAIL_IN_USE:'Este e-mail já possui cadastro. Entre na sua conta.',
-  CPF_INVALID:'CPF inválido ou não encontrado na Receita Federal.',
-  CPF_NOT_MATCH:'Os dados não conferem com o CPF informado na Receita Federal.',
+  CPF_INVALID:'CPF inválido. Confira os dígitos informados.',
+  CPF_NOT_MATCH:'Os dados informados não conferem. Verifique e tente novamente.',
   UNDERAGE:'Cadastro permitido apenas para maiores de 18 anos.',
   RATE_LIMIT:'Muitas tentativas. Aguarde alguns minutos e tente de novo.',
   OFFLINE:'Sem conexão com a internet. Verifique e tente novamente.',
@@ -300,7 +300,7 @@ function paintAccount(){
   $('#a-av').textContent=(user.name||'?').trim().charAt(0).toUpperCase();
   $('#a-name').textContent=user.name||'';
   $('#a-mail').textContent=user.email||'';
-  $('#a-note').textContent=user.cpfStatus==='verified'?'CPF verificado junto à Receita Federal.':(MODE==='demo'?'Conta de demonstração salva só neste aparelho.':'Seu CPF está em verificação.');
+  $('#a-note').textContent=user.cpfStatus==='verified'?'Cadastro completo. O CPF teve apenas os dígitos validados; não há consulta à Receita Federal.':(MODE==='demo'?'Conta de demonstração salva só neste aparelho.':'Seu CPF está em verificação.');
 }
 function paintBtn(){
   btn.classList.toggle('is-in',!!user);
