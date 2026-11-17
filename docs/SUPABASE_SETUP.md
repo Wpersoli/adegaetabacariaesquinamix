@@ -5,10 +5,19 @@
 O fluxo foi preparado em uma branch isolada. A produção não foi alterada.
 A ativação real depende de um projeto Supabase exclusivo e das variáveis privadas da Vercel.
 
-## 1. Criar o projeto
+## 1. Organização paga exclusiva (recomendado)
 
-Crie um projeto Supabase chamado **esquina-mix-auth** na região São Paulo (**sa-east-1**).
-A organização atual atingiu o limite de dois projetos ativos no plano gratuito. Não reutilize **trotebox-prod** ou **valora-credito**. É necessário liberar uma vaga ou atualizar o plano.
+**Não atualize Wpersoli's Org diretamente.** Ela contém os projetos existentes **trotebox-prod** e **valora-credito**. Como o plano é aplicado à organização inteira, todos os projetos nela passam a seguir a assinatura paga e seus custos de compute. Para mantê-los intactos no Free, crie uma organização separada chamada **Esquina Mix** e escolha o plano **Pro** para essa nova organização.
+
+Preço público consultado em 16/11/2026: Pro a partir de **US$ 25/mês**, com o primeiro projeto incluído. A franquia de compute de US$ 10 cobre um projeto no tamanho Micro padrão. O uso acima das franquias pode gerar custos adicionais; os valores finais e eventuais tributos/conversão aparecem no checkout e na fatura. Mantenha o spend cap ativado. Consulte https://supabase.com/pricing e https://supabase.com/docs/guides/platform/billing-faq.
+
+Passos:
+1. Abra https://supabase.com/dashboard/new e crie a organização **Esquina Mix**.
+2. Escolha **Pro** para essa organização e confira o valor final apresentado pelo Supabase antes de concluir o pagamento.
+3. Não altere o plano de **Wpersoli's Org** e não pause, exclua ou transfira **trotebox-prod** ou **valora-credito**.
+4. Depois que a nova organização aparecer na conexão Supabase, crie nela o projeto **esquina-mix-auth** na região São Paulo (**sa-east-1**).
+
+Supabase não oferece, nesta conexão, uma ação para criar organizações ou alterar assinaturas. Essa etapa de cobrança precisa ser concluída pelo proprietário no Dashboard. O restante — criação do projeto, migração, chaves, configuração e testes — pode continuar pela integração depois que a nova organização estiver disponível.
 
 ## 2. Aplicar o banco
 
