@@ -47,8 +47,8 @@ Cadastre em Project → Settings → Environment Variables, para Production e Pr
 |---|---|
 | SUPABASE_URL | URL do projeto Supabase |
 | SUPABASE_PUBLISHABLE_KEY | Chave publishable (sb_publishable_...) ou, em instalações antigas, SUPABASE_ANON_KEY |
-| SUPABASE_SERVICE_ROLE_KEY | Secret/service-role key do projeto — somente servidor |
-| CPF_HASH_SECRET | Segredo aleatório com pelo menos 32 caracteres |
+| SUPABASE_SERVICE_ROLE_KEY | Legacy JWT da chave service_role em Project Settings → API Keys — somente servidor |
+| CPF_HASH_SECRET | Segredo aleatório com pelo menos 32 bytes (ex.: gere com openssl rand -hex 32) |
 | SITE_URL | https://adegaetabacariaesquinamix.vercel.app |
 | NODE_ENV | production |
 
