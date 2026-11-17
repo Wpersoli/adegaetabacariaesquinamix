@@ -8,11 +8,13 @@ module.exports = async function(req, res) {
     const name = String(d.name || '').trim().replace(/\s+/g, ' ');
     const email = String(d.email || '').trim().toLowerCase();
     const cpf = A.digits(d.cpf);
+    const phone = A.normalizePhone(d.phone);
     const birth = String(d.birth || '');
     const password = String(d.password || '');
     if (name.length < 5 || name.split(' ').length < 2) return A.send(res, 400, {code:'INVALID_NAME'});
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return A.send(res, 400, {code:'INVALID_EMAIL'});
     if (!A.validCpf(cpf)) return A.send(res, 400, {code:'CPF_INVALID'});
+    if (!phone) return A.send(res, 400, {code:'PHONE_INVALID'});
     if (!A.validBirth(birth)) return A.send(res, 400, {code:'UNDERAGE_OR_INVALID_BIRTH'});
     if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) return A.send(res, 400, {code:'WEAK_PASSWORD'});
     if (d.consent !== true) return A.send(res, 400, {code:'CONSENT_REQUIRED'});
@@ -35,7 +37,8 @@ module.exports = async function(req, res) {
           p_user_id:user.id,
           p_full_name:name,
           p_birth_date:birth,
-          p_cpf_hash:A.hash(cpf,c.cpfSecret)
+          p_cpf_hash:A.hash(cpf,c.cpfSecret),
+          p_phone_e164:phone
         }
       });
     } catch (e) {
