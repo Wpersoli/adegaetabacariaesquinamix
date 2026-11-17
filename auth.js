@@ -166,7 +166,7 @@ var MSG={
   NO_CRYPTO:'Este navegador não suporta o recurso seguro necessário. Use uma versão atualizada.',
   STORAGE:'Não foi possível salvar neste aparelho (armazenamento bloqueado).'
 };
-var FIELD={CPF_IN_USE:'cpf',CPF_INVALID:'cpf',CPF_NOT_MATCH:'cpf',EMAIL_IN_USE:'email',UNDERAGE:'birth'};
+var FIELD={CPF_IN_USE:'cpf',CPF_INVALID:'cpf',CPF_NOT_MATCH:'cpf',EMAIL_IN_USE:'email',UNDERAGE:'birth',PHONE_INVALID:'phone'};
 
 /* ---------- marcação do modal ---------- */
 var EYE='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -220,6 +220,7 @@ function tpl(){
         field('s-name','Nome completo','name="name" type="text" autocomplete="name" placeholder="Nome e sobrenome"','name')+
         field('s-email','E-mail','name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="voce@email.com"','email')+
         field('s-phone','Telefone com DDD','name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="(11) 99999-9999"','phone')+
+        '<p class="au-hint">Telefone obrigatório para contato da loja. Não enviaremos código por WhatsApp.</p>'+
         '<div class="au-row">'+
           field('s-cpf','CPF',CPFATTR,'cpf')+
           field('s-birth','Nascimento',BIRTHATTR,'birth')+
@@ -237,6 +238,7 @@ function tpl(){
       '<p class="au-lead">Falta pouco! Para concluir o cadastro com o Google, informe seu telefone de contato, CPF e data de nascimento.</p>'+
       '<form class="au-form" data-form="complete" novalidate>'+
         field('c-phone','Telefone com DDD','name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="(11) 99999-9999"','phone')+
+        '<p class="au-hint">Telefone obrigatório para contato da loja. Não enviaremos código por WhatsApp.</p>'+
         '<div class="au-row">'+field('c-cpf','CPF',CPFATTR,'cpf')+field('c-birth','Nascimento',BIRTHATTR,'birth')+'</div>'+
         '<p class="au-hint">'+CPFHINT+'</p>'+
         consent('c-ok',CONSENT)+
@@ -313,7 +315,7 @@ function paintAccount(){
   $('#a-av').textContent=(user.name||'?').trim().charAt(0).toUpperCase();
   $('#a-name').textContent=user.name||'';
   $('#a-mail').textContent=user.email||'';
-  $('#a-note').textContent=(user.phone?'Telefone de contato: '+user.phone+' (não verificado). ':'Telefone ainda não informado. ')+(user.cpfStatus==='verified'?'CPF validado matematicamente; não há consulta à Receita Federal.':(MODE==='demo'?'Conta de demonstração salva só neste aparelho.':'Seu CPF está em verificação.'));
+  $('#a-note').textContent=(user.phone?'Telefone de contato: '+user.phone+' (não verificado). ':'Telefone ainda não informado. ')+(user.cpfStatus==='verified'?'O CPF teve apenas os dígitos validados matematicamente; não há consulta à Receita Federal.':(MODE==='demo'?'Conta de demonstração salva só neste aparelho.':'Seu CPF está em verificação.'));
 }
 function paintBtn(){
   btn.classList.toggle('is-in',!!user);
