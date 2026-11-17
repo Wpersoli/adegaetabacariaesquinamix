@@ -56,14 +56,25 @@ Projeto estatico. Basta conectar a branch `main` na Vercel; nao requer comando d
 - **Validar:** `npm i -D playwright && npx playwright install chromium`, depois `python -m http.server 8080` e `node tools/validar_responsivo.js http://localhost:8080` (11 larguras, de 320 a 1920px).
 
 ## Login e cadastro (botão de usuário no cabeçalho)
-Arquivos: `auth.css`, `auth.js` e o botão `#accountBtn` no `index.html`. Abre um painel responsivo (cartão no desktop, painel que sobe da base no celular) com: Entrar, Criar conta, Concluir cadastro (após Google), Recuperar senha e Minha conta.
-- **Cadastro por e-mail:** nome, e-mail, CPF (máscara + validação dos dígitos), nascimento (só maiores de 18) e senha (mín. 8, letras e números), com consentimento LGPD. **1 CPF = 1 conta.**
-- **Google:** botão "Entrar/Cadastrar com Google" (fluxo por redirecionamento). Quem entra pelo Google informa CPF e nascimento na tela "Concluir cadastro".
-- **Modo** (meta `esquina-auth` no `<head>`): `demo` (padrão, só neste navegador; NÃO é seguro nem consulta a Receita) ou `api` (usa o servidor). **Para produção troque para `api`.**
-- **Contrato do servidor** (`/api/auth`, JSON, cookie de sessão httpOnly+Secure+SameSite, header `X-Requested-With: esquina`):
-  - `POST /signup {name,email,cpf,birth,password,consent}` → 201 `{user}`; erros `{code}`: `CPF_IN_USE`, `EMAIL_IN_USE`, `CPF_INVALID`, `CPF_NOT_MATCH`, `UNDERAGE`, `RATE_LIMIT`
-  - `POST /login {email,password}` → 200 `{user}` | 401 `{code:"BAD_CREDENTIALS"}`
-  - `POST /complete {cpf,birth,consent}` (conta Google sem CPF) · `POST /forgot {email}` (sempre 200) · `POST /logout`
-  - `GET /me` → `{user:{name,email,cpfStatus,needsCpf?}}` ou 401 · `GET /google` → redireciona ao Google; o callback grava a sessão e volta para `/?auth=google`
-  - No servidor: validar o CPF na base do governo (ex.: Serpro Datavalid ou provedor de KYC), guardar só o hash do CPF com índice único, senha com argon2/bcrypt, limitar tentativas.
-- Para a CSP do `vercel.json` não é preciso liberar nada: o Google usa redirecionamento e as chamadas vão para o mesmo domínio.
+
+Arquivos: `auth.css`, `auth.js`, `auth-confirm.js`, `auth-confirm.css` e endpoints em `api/auth/`. O painel mantém as telas Entrar, Criar conta, Concluir cadastro, Recuperar senha, Recuperar e-mail e Minha conta.
+
+- Cadastro por e-mail e conclusão de cadastro Google: nome, e-mail, telefone com DDD (obrigatório), CPF (validação matemática dos dígitos), nascimento, maioridade e consentimento.
+- O telefone é salvo em formato internacional E.164 como contato da loja. Não é enviado código por WhatsApp e o número permanece marcado como não verificado; a ativação da conta continua dependendo da confirmação por e-mail.
+- A conta exige confirmação por e-mail antes de liberar sessão.
+- Recuperação de senha por e-mail; recuperação de e-mail com CPF + nascimento, máscara de endereço e limitação de tentativas.
+- Google OAuth está preparado no código, mas depende da configuração do provedor Google no Supabase.
+- WhatsApp é atendimento manual. Não envia mensagens automaticamente nem aprova contas.
+
+## Autenticação Supabase
+
+A integração está isolada na branch **feature/supabase-auth-esquina-mix** e no PR [#1](https://github.com/Wpersoli/adegaetabacariaesquinamix/pull/1). A Produção não foi alterada.
+
+- Projeto Supabase: **adega-mix**, região São Paulo (`sa-east-1`), plano Free.
+- Migração `esquina_auth` aplicada; tabelas de perfil e identidade verificadas com RLS.
+- O CPF não é armazenado em texto puro: o servidor guarda apenas HMAC-SHA256.
+- A validação confirma somente os dígitos do CPF; não consulta a Receita Federal.
+- Cookies de sessão HttpOnly e SameSite=Lax; Secure em ambientes de Produção.
+- O Service Worker ignora a API de autenticação e a rota de confirmação.
+
+Consulte **docs/SUPABASE_SETUP.md** para as variáveis Vercel, configuração de e-mail, URLs de redirecionamento e critérios de teste. Não mescle o PR nem altere as variáveis de Produção antes de concluir os testes de aceite.

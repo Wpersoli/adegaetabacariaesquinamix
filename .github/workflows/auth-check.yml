@@ -1,0 +1,22 @@
+name: Validate Esquina Mix auth
+on:
+  push:
+    branches:
+      - feature/supabase-auth-esquina-mix
+  pull_request:
+    branches:
+      - main
+jobs:
+  auth-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check patch whitespace
+        run: git diff --check origin/main...HEAD
+      - name: Run auth static and unit checks
+        run: node tools/test_auth.js

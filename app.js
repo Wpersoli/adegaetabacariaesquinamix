@@ -152,6 +152,9 @@ $('send').onclick=function(){
   var l=['*Pedido — Esquina Mix*'],t=0;
   catalog.forEach(function(x){var q=cart[x.id];if(q){l.push(q+'x '+x.n+' — '+brl(q*x.p));t+=q*x.p}});
   l.push('*Total: '+brl(t)+'*');
+  var customer=window.EsquinaAuth&&window.EsquinaAuth.user;
+  if(customer&&customer.name)l.push('*Cliente: '+customer.name+'*');
+  if(customer&&customer.cpfStatus)l.push('Status da conta: '+(customer.cpfStatus==='verified'?'verificada':'em validação'));
   var m=document.querySelector('meta[name="esquina-whatsapp"]'),num=((m&&m.content)||'').replace(/\D/g,'');
   if(!num)return;window.open('https://wa.me/'+num+'?text='+encodeURIComponent(l.join('\n')),'_blank','noopener')};
 
@@ -363,7 +366,17 @@ var reviews=[
 /* Botoes flutuantes: WhatsApp (numero vem da meta esquina-whatsapp) e voltar ao topo */
 (function(){
   var wa=$('waFab'),up=$('toTop'),mm=document.querySelector('meta[name="esquina-whatsapp"]'),num=((mm&&mm.content)||'').replace(/\D/g,'');
-  if(wa&&num)wa.href='https://wa.me/'+num+'?text='+encodeURIComponent('Ol\u00e1! Vim pelo card\u00e1pio digital da Esquina Mix.');
+  if(wa&&num){
+    wa.href='https://wa.me/'+num+'?text='+encodeURIComponent('Ol\u00e1! Vim pelo card\u00e1pio digital da Esquina Mix.');
+    wa.addEventListener('click',function(e){
+      var customer=window.EsquinaAuth&&window.EsquinaAuth.user;
+      if(!customer||!customer.name)return;
+      e.preventDefault();
+      var message='Ol\u00e1! Sou '+customer.name+'. Vim pelo card\u00e1pio digital da Esquina Mix.';
+      if(customer.cpfStatus)message+=' Status da conta: '+(customer.cpfStatus==='verified'?'verificada':'em valida\u00e7\u00e3o')+'.';
+      window.open('https://wa.me/'+num+'?text='+encodeURIComponent(message),'_blank','noopener');
+    });
+  }
   if(!up)return;
   var on=false,busy=false;
   function upd(){busy=false;var s=(window.pageYOffset||document.documentElement.scrollTop||0)>400;if(s!==on){on=s;up.classList.toggle('is-on',s)}}

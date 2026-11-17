@@ -30,6 +30,15 @@ function maskCpf(v){
   var d=onlyDigits(v).slice(0,11);
   return d.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
 }
+function maskPhone(v){
+  var d=onlyDigits(v);
+  if(d.indexOf('55')===0&&d.length>11)d=d.slice(2);
+  d=d.slice(0,11);
+  if(d.length<=2)return d?'('+d:d;
+  if(d.length<=6)return '('+d.slice(0,2)+') '+d.slice(2);
+  if(d.length<=10)return '('+d.slice(0,2)+') '+d.slice(2,6)+'-'+d.slice(6);
+  return '('+d.slice(0,2)+') '+d.slice(2,7)+'-'+d.slice(7);
+}
 function cpfOk(c){
   c=onlyDigits(c);
   if(c.length!==11||/^(\d)\1{10}$/.test(c))return false;
@@ -53,6 +62,7 @@ function todayIso(){var n=new Date(),p=function(x){return('0'+x).slice(-2)};retu
 var V={
   name:function(v){v=v.trim();return v.length>=5&&v.split(/\s+/).length>=2?'':'Informe nome e sobrenome.'},
   email:function(v){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim())?'':'Informe um e-mail válido.'},
+  phone:function(v){var d=onlyDigits(v);if(d.indexOf('55')===0&&d.length>11)d=d.slice(2);return /^(?:[1-9][0-9])(?:[2-9][0-9]{7,8})$/.test(d)?'':'Informe um telefone válido com DDD.'},
   cpf:function(v){return cpfOk(v)?'':'CPF inválido. Confira os 11 números.'},
   birth:function(v){
     var a=ageOf(v);
@@ -87,9 +97,9 @@ var demo={
       if(users.some(function(u){return u.email===em}))throw err('EMAIL_IN_USE');
       var salt=rnd();
       return pbk(d.password,salt).then(function(ph){
-        users.push({email:em,name:d.name.trim(),cpf:ch,birth:d.birth,salt:salt,pw:ph,at:Date.now()});
+        users.push({email:em,name:d.name.trim(),phone:maskPhone(d.phone),cpf:ch,birth:d.birth,salt:salt,pw:ph,at:Date.now()});
         if(!sset(KU,users))throw err('STORAGE');
-        var u={name:d.name.trim(),email:em,cpfStatus:'pending'};sset(KS,u);return{user:u};
+        var u={name:d.name.trim(),email:em,phone:maskPhone(d.phone),phoneVerified:false,cpfStatus:'pending'};sset(KS,u);return{user:u};
       });
     });
   },
@@ -99,7 +109,7 @@ var demo={
     if(!u)return Promise.reject(err('BAD_CREDENTIALS'));
     return pbk(d.password,u.salt).then(function(ph){
       if(ph!==u.pw)throw err('BAD_CREDENTIALS');
-      var s={name:u.name,email:u.email,cpfStatus:'pending'};sset(KS,s);return{user:s};
+      var s={name:u.name,email:u.email,phone:u.phone||'',phoneVerified:false,cpfStatus:'pending'};sset(KS,s);return{user:s};
     });
   },
   complete:function(){return Promise.reject(err('UNAVAILABLE'))},
@@ -123,20 +133,32 @@ function call(path,method,body){
 }
 var api={
   me:function(){return call('/me','GET').catch(function(){return{user:null}})},
-  signup:function(d){return call('/signup','POST',{name:d.name.trim(),email:d.email.trim(),cpf:onlyDigits(d.cpf),birth:d.birth,password:d.password,consent:true})},
+  signup:function(d){return call('/signup','POST',{name:d.name.trim(),email:d.email.trim(),phone:d.phone,cpf:onlyDigits(d.cpf),birth:d.birth,password:d.password,consent:true,returnTo:d.returnTo})},
   login:function(d){return call('/login','POST',{email:d.email.trim(),password:d.password})},
-  complete:function(d){return call('/complete','POST',{cpf:onlyDigits(d.cpf),birth:d.birth,consent:true})},
+  complete:function(d){return call('/complete','POST',{phone:d.phone,cpf:onlyDigits(d.cpf),birth:d.birth,consent:true})},
   forgot:function(d){return call('/forgot','POST',{email:d.email.trim()})},
+  resend:function(d){return call('/resend','POST',{email:d.email.trim(),returnTo:d.returnTo})},
+  forgotEmail:function(d){return call('/forgot-email','POST',{cpf:onlyDigits(d.cpf),birth:d.birth})},
   logout:function(){return call('/logout','POST')}
 };
 var A=MODE==='api'?api:demo;
 
 var MSG={
   BAD_CREDENTIALS:'E-mail ou senha incorretos.',
+  EMAIL_NOT_VERIFIED:'Seu e-mail ainda não foi confirmado. Abra o link enviado para concluir o cadastro.',
+  CPF_IN_USE:'Este CPF já possui cadastro. Entre na sua conta ou recupere o acesso.',
+  EMAIL_CONFIRMATION_NOT_ENFORCED:'A confirmação de e-mail precisa ser ativada nas configurações do serviço.',
+  AUTH_CONFIGURATION_MISSING:'O serviço de contas ainda está em configuração. Tente novamente mais tarde.',
+  INVALID_NAME:'Informe nome e sobrenome.',
+  INVALID_EMAIL:'Informe um e-mail válido.',
+  PHONE_INVALID:'Informe um telefone válido com DDD.',
+  WEAK_PASSWORD:'Use no mínimo 8 caracteres, com letras e números.',
+  CONSENT_REQUIRED:'É necessário aceitar o uso dos dados para concluir o cadastro.',
+  UNDERAGE_OR_INVALID_BIRTH:'Cadastro permitido apenas para maiores de 18 anos.',
   CPF_IN_USE:'Este CPF já possui cadastro. Entre na sua conta ou recupere a senha.',
   EMAIL_IN_USE:'Este e-mail já possui cadastro. Entre na sua conta.',
-  CPF_INVALID:'CPF inválido ou não encontrado na Receita Federal.',
-  CPF_NOT_MATCH:'Os dados não conferem com o CPF informado na Receita Federal.',
+  CPF_INVALID:'CPF inválido. Confira os dígitos informados.',
+  CPF_NOT_MATCH:'Os dados informados não conferem. Verifique e tente novamente.',
   UNDERAGE:'Cadastro permitido apenas para maiores de 18 anos.',
   RATE_LIMIT:'Muitas tentativas. Aguarde alguns minutos e tente de novo.',
   OFFLINE:'Sem conexão com a internet. Verifique e tente novamente.',
@@ -144,7 +166,7 @@ var MSG={
   NO_CRYPTO:'Este navegador não suporta o recurso seguro necessário. Use uma versão atualizada.',
   STORAGE:'Não foi possível salvar neste aparelho (armazenamento bloqueado).'
 };
-var FIELD={CPF_IN_USE:'cpf',CPF_INVALID:'cpf',CPF_NOT_MATCH:'cpf',EMAIL_IN_USE:'email',UNDERAGE:'birth'};
+var FIELD={CPF_IN_USE:'cpf',CPF_INVALID:'cpf',CPF_NOT_MATCH:'cpf',EMAIL_IN_USE:'email',UNDERAGE:'birth',PHONE_INVALID:'phone'};
 
 /* ---------- marcação do modal ---------- */
 var EYE='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -158,7 +180,7 @@ function field(id,label,attrs,v,hint){
 function consent(id,txt){
   return '<div class="au-f"><label class="au-chk" for="'+id+'"><input type="checkbox" id="'+id+'" data-v="consent" aria-describedby="'+id+'-e"><span>'+txt+'</span></label><p class="au-err" id="'+id+'-e"></p></div>';
 }
-var CPFHINT=MODE==='api'?'Um CPF por conta, validado junto à Receita Federal.':'Um CPF por conta.';
+var CPFHINT=MODE==='api'?'Um CPF por conta. O site verifica os dígitos e guarda apenas um código protegido; não consulta a Receita Federal.':'Um CPF por conta.';
 var CPFATTR='name="cpf" type="text" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00"';
 var BIRTHATTR='name="birth" type="date" autocomplete="bday" min="1900-01-01"';
 var CONSENT='Autorizo o uso do meu CPF e dos meus dados para validar minha identidade e evitar contas duplicadas, conforme a LGPD. Declaro ter 18 anos ou mais.';
@@ -184,6 +206,9 @@ function tpl(){
         '<p class="au-st" role="status" aria-live="polite"></p>'+
         '<button type="submit" class="au-btn">Entrar</button>'+
         '<button type="button" class="au-link" data-go="forgot">Esqueci minha senha</button>'+
+        '<button type="button" class="au-link" data-act="resend">Reenviar confirmação de e-mail</button>'+
+        '<button type="button" class="au-link" data-go="forgotEmail">Esqueci meu e-mail</button>'+
+        '<button type="button" class="au-link" data-act="whatsapp-pending">Preciso de ajuda para confirmar pelo WhatsApp</button>'+
       '</form>'+
     '</section>'+
 
@@ -194,6 +219,8 @@ function tpl(){
       '<form class="au-form" data-form="signup" novalidate>'+
         field('s-name','Nome completo','name="name" type="text" autocomplete="name" placeholder="Nome e sobrenome"','name')+
         field('s-email','E-mail','name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="voce@email.com"','email')+
+        field('s-phone','Telefone com DDD','name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="(11) 99999-9999"','phone')+
+        '<p class="au-hint">Telefone obrigatório para contato da loja. Não enviaremos código por WhatsApp.</p>'+
         '<div class="au-row">'+
           field('s-cpf','CPF',CPFATTR,'cpf')+
           field('s-birth','Nascimento',BIRTHATTR,'birth')+
@@ -208,8 +235,10 @@ function tpl(){
 
     /* CONCLUIR CADASTRO (apos Google) */
     '<section data-view="complete" hidden>'+
-      '<p class="au-lead">Falta pouco! Para concluir o cadastro com o Google, informe seu CPF e sua data de nascimento.</p>'+
+      '<p class="au-lead">Falta pouco! Para concluir o cadastro com o Google, informe seu telefone de contato, CPF e data de nascimento.</p>'+
       '<form class="au-form" data-form="complete" novalidate>'+
+        field('c-phone','Telefone com DDD','name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="(11) 99999-9999"','phone')+
+        '<p class="au-hint">Telefone obrigatório para contato da loja. Não enviaremos código por WhatsApp.</p>'+
         '<div class="au-row">'+field('c-cpf','CPF',CPFATTR,'cpf')+field('c-birth','Nascimento',BIRTHATTR,'birth')+'</div>'+
         '<p class="au-hint">'+CPFHINT+'</p>'+
         consent('c-ok',CONSENT)+
@@ -229,6 +258,19 @@ function tpl(){
       '</form>'+
     '</section>'+
 
+    /* RECUPERAR E-MAIL */
+    '<section data-view="forgotEmail" hidden>'+
+      '<p class="au-lead">Informe seu CPF e sua data de nascimento. Se os dados forem localizados, mostraremos apenas uma versão protegida do e-mail. Se precisar de ajuda, fale diretamente com a equipe da loja.</p>'+
+      '<form class="au-form" data-form="forgotEmail" novalidate>'+
+        field('fe-cpf','CPF',CPFATTR,'cpf')+
+        field('fe-birth','Nascimento',BIRTHATTR,'birth')+
+        '<p class="au-st" role="status" aria-live="polite"></p>'+
+        '<button type="submit" class="au-btn">Localizar meu e-mail</button>'+
+        '<button type="button" class="au-link" data-act="whatsapp-recovery">Preciso de ajuda pelo WhatsApp</button>'+
+        '<button type="button" class="au-link" data-go="login">Voltar para entrar</button>'+
+      '</form>'+
+    '</section>'+
+
     /* MINHA CONTA */
     '<section data-view="account" hidden>'+
       '<div class="au-acc"><span class="au-av" id="a-av" aria-hidden="true"></span><div><strong id="a-name"></strong><small id="a-mail"></small></div></div>'+
@@ -242,7 +284,7 @@ function tpl(){
 }
 
 /* ---------- controle de telas ---------- */
-var TITLES={login:'Entrar',signup:'Criar conta',complete:'Concluir cadastro',forgot:'Recuperar senha',account:'Minha conta'};
+var TITLES={login:'Entrar',signup:'Criar conta',complete:'Concluir cadastro',forgot:'Recuperar senha',forgotEmail:'Recuperar e-mail',account:'Minha conta'};
 function status(sec,type,txt){var s=$('.au-st',sec);if(!s)return;s.className='au-st'+(type?' is-'+type:'');s.textContent=txt||''}
 function fieldErr(el,txt){
   var e=document.getElementById(el.id+'-e');
@@ -273,7 +315,7 @@ function paintAccount(){
   $('#a-av').textContent=(user.name||'?').trim().charAt(0).toUpperCase();
   $('#a-name').textContent=user.name||'';
   $('#a-mail').textContent=user.email||'';
-  $('#a-note').textContent=user.cpfStatus==='verified'?'CPF verificado junto à Receita Federal.':(MODE==='demo'?'Conta de demonstração salva só neste aparelho.':'Seu CPF está em verificação.');
+  $('#a-note').textContent=(user.phone?'Telefone de contato: '+user.phone+' (não verificado). ':'Telefone ainda não informado. ')+(user.cpfStatus==='verified'?'O CPF teve apenas os dígitos validados matematicamente; não há consulta à Receita Federal.':(MODE==='demo'?'Conta de demonstração salva só neste aparelho.':'Seu CPF está em verificação.'));
 }
 function paintBtn(){
   btn.classList.toggle('is-in',!!user);
@@ -304,11 +346,15 @@ function build(){
     if(a==='close')close();
     else if(a==='google')google(t);
     else if(a==='logout')logout(t);
+    else if(a==='resend')resendConfirmation(t);
+    else if(a==='whatsapp-recovery')whatsappRecovery();
+    else if(a==='whatsapp-pending')whatsappPending();
   });
   /* mascara de CPF e limpeza de erro ao digitar */
   root.addEventListener('input',function(e){
     var i=e.target;if(!i.matches('input'))return;
     if(i.name==='cpf')i.value=maskCpf(i.value);
+    if(i.name==='phone')i.value=maskPhone(i.value);
     if(i.getAttribute('aria-invalid')==='true'||(i.type==='checkbox'&&document.getElementById(i.id+'-e').textContent))fieldErr(i,'');
   });
   root.addEventListener('submit',onSubmit);
@@ -333,7 +379,7 @@ function onKey(e){
 function open(v){
   build();
   lastFocus=document.activeElement;
-  var target=v||(user?(user.needsCpf?'complete':'account'):'login');
+  var target=v||(user?(user.needsCpf||user.needsPhone?'complete':'account'):'login');
   root.hidden=false;
   document.documentElement.classList.add('au-lock');
   btn.setAttribute('aria-expanded','true');
@@ -374,8 +420,30 @@ function fail(form,e){
   else status(form.parentNode,'err',msg);
 }
 function signedIn(u,sec,welcome){
-  user=u;paintBtn();setView('account');
-  status($('[data-view="account"]'),'ok',welcome);
+  user=u;paintBtn();
+  if(user.needsCpf||user.needsPhone){setView('complete');status($('[data-view="complete"]'),'info','Para concluir, informe seu telefone de contato e os dados solicitados.');return;}
+  setView('account');status($('[data-view="account"]'),'ok',welcome);
+}
+function resendConfirmation(t){
+  if(busy)return;
+  var sec=$('[data-view="login"]'),email=$('[name="email"]',sec).value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){status(sec,'err','Informe seu e-mail para reenviar a confirmação.');$('[name="email"]',sec).focus();return;}
+  busy=true;t.disabled=true;var old=t.textContent;t.textContent='Enviando…';
+  A.resend({email:email,returnTo:location.pathname+location.search+location.hash}).then(function(){status(sec,'ok','Se o cadastro estiver pendente, enviaremos um novo link de confirmação.');},function(){status(sec,'err','Não foi possível reenviar agora. Tente novamente ou fale com a loja.');}).then(function(){busy=false;t.disabled=false;t.textContent=old;});
+}
+function whatsappRecovery(){
+  var phone=(document.querySelector('meta[name="esquina-whatsapp"]')||{}).content||'';
+  phone=phone.replace(/\D/g,'');
+  if(!phone){status($('[data-view="forgotEmail"]'),'err','O WhatsApp da loja ainda não foi configurado.');return;}
+  var message='Olá! Preciso de ajuda para recuperar o acesso à minha conta da Esquina Mix.';
+  window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(message),'_blank','noopener');
+}
+function whatsappPending(){
+  var phone=(document.querySelector('meta[name="esquina-whatsapp"]')||{}).content||'';
+  phone=phone.replace(/\D/g,'');
+  if(!phone){status($('[data-view="login"]'),'err','O WhatsApp da loja ainda não foi configurado.');return;}
+  var message='Olá! Preciso de ajuda manual para confirmar meu cadastro na Esquina Mix.';
+  window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(message),'_blank','noopener');
 }
 function onSubmit(e){
   e.preventDefault();
@@ -387,13 +455,24 @@ function onSubmit(e){
     A.login(d).then(function(r){lock(form,false);signedIn(r.user,form,'Login realizado. Bem-vindo de volta!')},function(x){lock(form,false);fail(form,x)});
   }else if(name==='signup'){
     lock(form,true,'Criando conta…');
-    A.signup(d).then(function(r){lock(form,false);signedIn(r.user,form,'Conta criada com sucesso. Bem-vindo à Esquina Mix!')},function(x){lock(form,false);fail(form,x)});
+    d.returnTo=location.pathname+location.search+location.hash;
+    A.signup(d).then(function(r){
+      lock(form,false);
+      if(r&&r.pending){setView('login');status($('[data-view="login"]'),'ok','Cadastro iniciado. Enviamos um link de confirmação para seu e-mail. Abra o link para ativar a conta e retornar ao site.');}
+      else signedIn(r.user,form,'Conta criada com sucesso. Bem-vindo à Esquina Mix!');
+    },function(x){lock(form,false);fail(form,x)});
   }else if(name==='complete'){
     lock(form,true,'Validando…');
     A.complete(d).then(function(r){lock(form,false);signedIn(r.user,form,'Cadastro concluído!')},function(x){lock(form,false);fail(form,x)});
   }else if(name==='forgot'){
     lock(form,true,'Enviando…');
     A.forgot(d).then(function(){lock(form,false);status(form.parentNode,'ok','Se o e-mail estiver cadastrado, você receberá as instruções em instantes.')},function(x){lock(form,false);fail(form,x)});
+  }else if(name==='forgotEmail'){
+    lock(form,true,'Consultando…');
+    A.forgotEmail(d).then(function(r){
+      lock(form,false);
+      status(form.parentNode,'ok',r&&r.emailMasked?'E-mail localizado: '+r.emailMasked+'. Se não reconhecer o endereço, solicite ajuda pelo WhatsApp da loja.':'Não foi possível localizar o e-mail com os dados informados. Confira os dados ou fale com a loja pelo WhatsApp.');
+    },function(x){lock(form,false);fail(form,x)});
   }
 }
 function google(t){
@@ -402,7 +481,7 @@ function google(t){
     status(sec,'info','O login com Google será ativado quando o servidor de autenticação for conectado. Por enquanto, use o e-mail.');
     return;
   }
-  location.assign(API+'/google');
+  location.assign(API+'/google?next='+encodeURIComponent(location.pathname+location.search+location.hash));
 }
 function logout(t){
   if(busy)return;busy=true;t.disabled=true;
@@ -420,7 +499,7 @@ A.me().then(function(r){
   /* volta do Google: se faltar CPF, abre direto a tela de conclusao */
   if(MODE==='api'&&/[?&]auth=/.test(location.search)){
     try{var u=new URL(location.href);u.searchParams.delete('auth');history.replaceState(null,'',u.pathname+u.search+u.hash)}catch(e){}
-    if(user)open(user.needsCpf?'complete':'account');
+    if(user)open(user.needsCpf||user.needsPhone?'complete':'account');
   }
 });
 window.EsquinaAuth={open:open,close:close,mode:MODE,get user(){return user}};
