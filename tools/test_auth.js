@@ -87,7 +87,7 @@ assert.ok(authUi.includes('Telefone com DDD'));
 assert.ok(authUi.includes('phone:d.phone'));
 
 const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
-assert.match(app, /Sou  '\+customer\.name/);
+assert.match(app, /Sou '\+customer\.name/);
 assert.match(app, /Status da conta/);
 
 const profileMigration = fs.readFileSync(path.join(root, 'supabase/migrations/20261117180000_customer_profile_edit.sql'), 'utf8');
