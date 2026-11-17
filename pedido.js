@@ -14,6 +14,7 @@ var r2=function(v){return Math.round(v*100)/100};
 var PHONE_RE=/^[1-9][0-9][2-9][0-9]{7,8}$/;
 var KP='emPhone',KN='emName';
 var st={pay:'',change:'',phoneTouched:false,nameTouched:false,addressMode:'saved',total:0,count:0};
+var addressUserId=null;
 
 /* ---------- telefone ---------- */
 function phoneDigits(v){var d=String(v||'').replace(/\D/g,'');if(d.indexOf('55')===0&&d.length>11)d=d.slice(2);return d.slice(0,11)}
@@ -84,7 +85,7 @@ function selectedAddress(){
 }
 
 $('ckName').addEventListener('input',function(){st.nameTouched=true;this.removeAttribute('aria-invalid');$('ckNameErr').hidden=true});
-document.addEventListener('esquina:user',function(){paintWho();paintAddress()});
+document.addEventListener('esquina:user',function(){paintWho();syncAddressUser()});
 $('ckPhone').addEventListener('input',function(){st.phoneTouched=true;this.value=maskPhone(this.value);this.removeAttribute('aria-invalid');$('ckPhoneErr').hidden=true});
 $('checkout').addEventListener('change',function(e){
   var t=e.target;if(!t||t.type!=='radio')return;
@@ -133,7 +134,6 @@ function build(items,phone,changeFor,stp,address){
   l.push('Nome: '+(custName()||'Não informado'));
   l.push('Telefone: '+maskPhone(phone));
   l.push('Endereço de entrega: '+(address||'Não informado'));
-  if(u&&u.cpfStatus)l.push('Conta: '+(u.cpfStatus==='verified'?'verificada':'em validação'));
   l.push(LINE,'*ITENS*');
   items.forEach(function(x,i){var sub=r2(x.q*x.p);total=r2(total+sub);qty+=x.q;
     l.push(('0'+(i+1)).slice(-2)+') '+x.q+'x '+x.n,'      '+x.q+' × '+brl(x.p)+' = *'+brl(sub)+'*')});
@@ -166,6 +166,8 @@ function send(items){
   var u=user();if(!(u&&u.name))save(KN,nm);
   var stp=stamp();
   window.open('https://wa.me/'+num+'?text='+encodeURIComponent(build(items,ph,changeFor,stp,address)),'_blank','noopener');
+  /* O endereço alternativo pertence somente ao pedido enviado; não deve reaparecer no próximo checkout. */
+  resetAddressChoice();
   /* cliente logado: guarda o pedido para acompanhar em "Pedidos" (não bloqueia nem altera o envio pelo WhatsApp) */
   if(u&&window.EsquinaAuth&&window.EsquinaAuth.recordOrder){
     try{window.EsquinaAuth.recordOrder({code:stp.num,items:items.map(function(x){return{n:x.n,q:x.q,p:x.p}}),total:total,pay:st.pay,changeFor:changeFor||null,phone:ph}).catch(function(){})}catch(e){}}}
