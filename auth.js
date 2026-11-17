@@ -295,7 +295,7 @@ function tpl(){
         '<button type="button" class="au-btn" data-act="close" data-acc="fresh">Fechar</button>'+
       '</div>'+
     '</section>'+
- 
+
     '<section data-view="profile" hidden>'+
       '<p class="au-lead">Mantenha seus dados atualizados. O endereço salvo será sugerido automaticamente nos próximos pedidos.</p>'+
       '<p class="au-st" role="status" aria-live="polite"></p>'+
