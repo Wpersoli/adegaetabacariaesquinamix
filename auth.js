@@ -410,7 +410,7 @@ function signedIn(u,sec,welcome){
 function resendConfirmation(t){
   if(busy)return;
   var sec=$('[data-view="login"]'),email=$('[name="email"]',sec).value.trim();
-  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(email)){status(sec,'err','Informe seu e-mail para reenviar a confirmação.');$('[name="email"]',sec).focus();return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){status(sec,'err','Informe seu e-mail para reenviar a confirmação.');$('[name="email"]',sec).focus();return;}
   busy=true;t.disabled=true;var old=t.textContent;t.textContent='Enviando…';
   A.resend({email:email,returnTo:location.pathname+location.search+location.hash}).then(function(){status(sec,'ok','Se o cadastro estiver pendente, enviaremos um novo link de confirmação.');},function(){status(sec,'err','Não foi possível reenviar agora. Tente novamente ou fale com a loja.');}).then(function(){busy=false;t.disabled=false;t.textContent=old;});
 }
