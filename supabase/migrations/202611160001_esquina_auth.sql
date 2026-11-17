@@ -8,6 +8,7 @@ create table if not exists public.customer_profiles (
   user_id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null check (char_length(full_name) between 5 and 120),
   birth_date date not null,
+  consent_at timestamptz not null default now(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -145,8 +146,8 @@ comment on function public.lookup_customer_identity(text, date, text) is 'Busca 
     raise exception 'CPF_ALREADY_REGISTERED' using errcode = '23505';
   end if;
 
-  insert into public.customer_profiles (user_id, full_name, birth_date)
-  values (p_user_id, trim(p_full_name), p_birth_date)
+  insert into public.customer_profiles (user_id, full_name, birth_date, consent_at)
+  values (p_user_id, trim(p_full_name), p_birth_date, now())
   on conflict (user_id) do update
     set full_name = excluded.full_name,
         updated_at = now();
