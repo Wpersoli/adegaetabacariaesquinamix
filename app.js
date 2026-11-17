@@ -350,7 +350,6 @@ var reviews=[
       if(!customer||!customer.name)return;
       e.preventDefault();
       var message='Ol\u00e1! Sou '+customer.name+'. Vim pelo card\u00e1pio digital da Esquina Mix.';
-      if(customer.cpfStatus)message+=' Status da conta: '+(customer.cpfStatus==='verified'?'verificada':'em valida\u00e7\u00e3o')+'.';
       window.open('https://wa.me/'+num+'?text='+encodeURIComponent(message),'_blank','noopener');
     });
   }
