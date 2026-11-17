@@ -38,6 +38,24 @@ assert.equal(auth.safeNext('//evil.example/path'), '/');
 assert.equal(auth.safeNext('https://evil.example'), '/');
 assert.equal(auth.maskEmail('cliente@example.com'), 'cl•••@example.com');
 
+const modernHeaders = auth.requestHeaders(
+  { anon: 'sb_publishable_public', service: 'sb_secret_server' },
+  { admin: true }
+);
+assert.equal(modernHeaders.apikey, 'sb_secret_server');
+assert.equal(modernHeaders.Authorization, undefined);
+const legacyHeaders = auth.requestHeaders(
+  { anon: 'eyJlegacyAnon', service: 'eyJlegacyServiceRole' },
+  { admin: true }
+);
+assert.equal(legacyHeaders.apikey, 'eyJlegacyServiceRole');
+assert.equal(legacyHeaders.Authorization, 'Bearer eyJlegacyServiceRole');
+const userHeaders = auth.requestHeaders(
+  { anon: 'sb_publishable_public', service: 'sb_secret_server' },
+  { token: 'user-access-token' }
+);
+assert.equal(userHeaders.Authorization, 'Bearer user-access-token');
+
 const migration = fs.readFileSync(path.join(root, 'supabase/migrations/202611160001_esquina_auth.sql'), 'utf8');
 assert.match(migration, /enable row level security/i);
 assert.match(migration, /cpf_hash text not null unique/i);
