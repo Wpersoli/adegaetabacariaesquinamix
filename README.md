@@ -77,4 +77,3 @@ A integração está isolada na branch **feature/supabase-auth-esquina-mix** e n
 - O Service Worker ignora a API de autenticação e a rota de confirmação.
 
 Consulte **docs/SUPABASE_SETUP.md** para as variáveis Vercel, configuração de e-mail, URLs de redirecionamento e critérios de teste. Não mescle o PR nem altere as variáveis de Produção antes de concluir os testes de aceite.
-
