@@ -56,6 +56,7 @@ create index if not exists email_lookup_attempts_cpf_time_idx
 alter table private.email_lookup_attempts enable row level security;
 revoke all on private.email_lookup_attempts from public, anon, authenticated;
 grant all on private.email_lookup_attempts to service_role;
+grant usage, select on sequence private.email_lookup_attempts_id_seq to service_role;
 
 create or replace function public.register_customer_profile(
   p_user_id uuid,
