@@ -133,3 +133,11 @@ a.mnav__a{text-decoration:none}
 /* Botão "Voltar ao topo" desta página (sem a barra inferior da home, fica logo acima do WhatsApp) */
 .pg-page .fab--top{bottom:calc(max(16px,env(safe-area-inset-bottom,0px)) + 70px)}
 @media(max-width:600px){.pg-page .fab--top{bottom:calc(max(14px,env(safe-area-inset-bottom,0px)) + 66px)}}
+
+/* Filtros em destaque logo abaixo do título do catálogo */
+.pg-category-chips{margin:0 0 22px;gap:9px}
+.pg-category-chips .feat-chip{min-height:38px;padding:9px 15px;border-width:2px;font-size:12px}
+@media(max-width:700px){
+  .pg-category-chips{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;margin:0 0 16px;scroll-snap-type:x proximity;scrollbar-width:thin}
+  .pg-category-chips .feat-chip{flex:0 0 auto;scroll-snap-align:start}
+}
