@@ -220,9 +220,119 @@ html:has(#esquinaPreloader){overflow:hidden;animation:plUnlock .01s linear 6.9s 
   .pl__txt{margin-top:12px}
 }
 
-/* ---------- movimento reduzido: só o logo, calmo, e sai ---------- */
+/* ---------- movimento reduzido ----------
+   O styles.css do site desliga TODAS as animações quando o sistema pede "reduzir movimento"
+   (muito comum no Windows/desktop). Para a abertura não sumir nesses aparelhos, as animações dela
+   são reativadas aqui (especificidade maior + !important), numa versão mais suave:
+   logo só com fade (sem zoom/giro) e caneca balançando devagar. */
 @media (prefers-reduced-motion:reduce){
-  .pl,.pl__glow,.pl__logo{animation:none}
-  .pl__glow{opacity:.8}
-  .pl__load{display:none}
+  html #esquinaPreloader{animation:plFailsafe .01s linear 6.8s forwards !important}
+  html #esquinaPreloader .pl__glow{animation:plGlow var(--logo-t) ease both !important}
+  html #esquinaPreloader .pl__logo{animation:plLogo var(--logo-t) ease both !important}
+  html #esquinaPreloader .pl__load{animation:plLoadIn .55s cubic-bezier(.2,.8,.2,1) var(--load-d) both !important}
+  html #esquinaPreloader .pl__fill{animation:plFill var(--fill-t) linear var(--fill-d) forwards !important}
+  html #esquinaPreloader .pl__edge{animation:plBlob 1.1s ease-in-out infinite alternate !important}
+  html #esquinaPreloader .pl__bub{animation:plBubble 1.8s ease-in infinite !important}
+  html #esquinaPreloader .pl__bub:nth-of-type(1){animation-delay:.1s !important}
+  html #esquinaPreloader .pl__bub:nth-of-type(2){animation-duration:1.4s !important;animation-delay:.7s !important}
+  html #esquinaPreloader .pl__bub:nth-of-type(3){animation-duration:2.2s !important;animation-delay:.4s !important}
+  html #esquinaPreloader .pl__bub:nth-of-type(4){animation-duration:1.6s !important;animation-delay:1s !important}
+  html #esquinaPreloader .pl__bub:nth-of-type(5){animation-duration:2s !important;animation-delay:.2s !important}
+  html #esquinaPreloader .pl__bub:nth-of-type(6){animation-duration:1.5s !important;animation-delay:.9s !important}
+  html #esquinaPreloader .pl__bub:nth-of-type(7){animation-duration:2.4s !important;animation-delay:.5s !important}
+  html #esquinaPreloader .pl__mug{animation:plShake .5s ease-in-out infinite !important}
+  html #esquinaPreloader .pl__slosh{animation:plSlosh .5s ease-in-out infinite alternate !important}
+  html #esquinaPreloader .pl__level{animation:plLevel var(--fill-t) linear var(--fill-d) both !important}
+  html #esquinaPreloader .pl__w1{animation:plWaveSvg .9s linear infinite !important}
+  html #esquinaPreloader .pl__w2{animation:plWaveSvg 1.4s linear infinite reverse !important}
+  html #esquinaPreloader .pl__sb{animation:plSb 1.9s ease-in infinite !important}
+  html #esquinaPreloader .pl__sb:nth-of-type(2){animation-delay:.5s !important;animation-duration:1.5s !important}
+  html #esquinaPreloader .pl__sb:nth-of-type(3){animation-delay:1s !important;animation-duration:2.2s !important}
+  html #esquinaPreloader .pl__sb:nth-of-type(4){animation-delay:.3s !important;animation-duration:1.7s !important}
+  html #esquinaPreloader .pl__sb:nth-of-type(5){animation-delay:1.3s !important}
+  html #esquinaPreloader .pl__dome{animation:plDome calc(var(--fill-t)*.25) cubic-bezier(.2,1.4,.4,1) calc(var(--fill-d) + var(--fill-t)*.4) both !important}
+  html #esquinaPreloader .pl__bob{animation:plBob 1.3s ease-in-out infinite alternate !important}
+  html #esquinaPreloader .pl__splash{animation:plSplash 1.3s ease-out calc(var(--fill-d) + var(--fill-t)*.5) infinite both !important}
+  html #esquinaPreloader .pl__txt i{animation:plDot 1.2s infinite both !important}
+  html #esquinaPreloader .pl__txt i:nth-child(2){animation-delay:.2s !important}
+  html #esquinaPreloader .pl__txt i:nth-child(3){animation-delay:.4s !important}
+  html #esquinaPreloader .pl__logo{animation-name:plLogoSoft !important}
+  html #esquinaPreloader .pl__mug{animation-name:plShakeSoft !important;animation-duration:.9s !important}
+  html #esquinaPreloader .pl__slosh{animation-duration:.9s !important}
+  html #esquinaPreloader .pl__splash{animation-iteration-count:1 !important}
+}
+@keyframes plLogoSoft{0%{opacity:0}22%{opacity:1}80%{opacity:1}100%{opacity:0}}
+@keyframes plShakeSoft{0%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}100%{transform:rotate(-3deg)}}
+
+/* ==========================================================================
+   LOADER DE TRANSIÇÃO (#esquinaLoader) — mesma barra + caneca, em laço,
+   exibido quando o usuário muda de página/tela e é preciso aguardar o carregamento.
+   Criado pelo preloader.js. Usa "html #id" + !important para continuar animando mesmo
+   com "reduzir movimento" ligado (o styles.css desliga animações nesse modo).
+   ========================================================================== */
+.pl.pl--wait{
+  --wait-t:2s;
+  --h:clamp(24px,5vw,40px);
+  z-index:9998;background:rgba(0,0,0,.96);
+  animation:none;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .25s ease,visibility 0s linear .25s;
+}
+.pl.pl--wait.pl--show{opacity:1;visibility:visible;pointer-events:auto;transition-delay:0s;cursor:pointer}
+.pl--wait .pl__load{width:min(82vw,560px)}
+@media (min-width:1600px) and (min-height:900px){.pl.pl--wait{--h:52px}.pl--wait .pl__load{width:min(60vw,760px)}}
+html:has(#esquinaLoader.pl--show){overflow:hidden}
+#esquinaLoader:not(.pl--show) *{animation-play-state:paused !important}
+
+@keyframes plFillLoop{
+  0%{transform:translateX(-100%);opacity:1}
+  30%{transform:translateX(-62%)}
+  55%{transform:translateX(-40%)}
+  80%{transform:translateX(-12%)}
+  92%{transform:translateX(0);opacity:1}
+  100%{transform:translateX(0);opacity:0}
+}
+@keyframes plLevelLoop{
+  0%{transform:translateY(84px);opacity:1}
+  30%{transform:translateY(52px)}
+  55%{transform:translateY(33.6px)}
+  80%{transform:translateY(10px)}
+  92%{transform:translateY(0);opacity:1}
+  100%{transform:translateY(0);opacity:0}
+}
+@keyframes plDomeLoop{
+  0%,38%{opacity:0;transform:translateY(16px) scale(.55)}
+  55%,92%{opacity:1;transform:none}
+  100%{opacity:0;transform:none}
+}
+html #esquinaLoader.pl--show .pl__load{animation:plLoadIn .35s cubic-bezier(.2,.8,.2,1) both !important}
+html #esquinaLoader.pl--show .pl__fill{animation:plFillLoop var(--wait-t) linear infinite !important}
+html #esquinaLoader.pl--show .pl__level{animation:plLevelLoop var(--wait-t) linear infinite !important}
+html #esquinaLoader.pl--show .pl__dome{animation:plDomeLoop var(--wait-t) ease infinite !important}
+html #esquinaLoader.pl--show .pl__splash{animation:plSplash 1.3s ease-out .9s infinite both !important}
+html #esquinaLoader.pl--show .pl__mug{animation:plShake .5s ease-in-out infinite !important}
+html #esquinaLoader.pl--show .pl__slosh{animation:plSlosh .5s ease-in-out infinite alternate !important}
+html #esquinaLoader.pl--show .pl__edge{animation:plBlob 1.1s ease-in-out infinite alternate !important}
+html #esquinaLoader.pl--show .pl__bob{animation:plBob 1.3s ease-in-out infinite alternate !important}
+html #esquinaLoader.pl--show .pl__w1{animation:plWaveSvg .9s linear infinite !important}
+html #esquinaLoader.pl--show .pl__w2{animation:plWaveSvg 1.4s linear infinite reverse !important}
+html #esquinaLoader.pl--show .pl__bub{animation:plBubble 1.8s ease-in infinite !important}
+html #esquinaLoader.pl--show .pl__bub:nth-of-type(1){animation-delay:.1s !important}
+html #esquinaLoader.pl--show .pl__bub:nth-of-type(2){animation-duration:1.4s !important;animation-delay:.7s !important}
+html #esquinaLoader.pl--show .pl__bub:nth-of-type(3){animation-duration:2.2s !important;animation-delay:.4s !important}
+html #esquinaLoader.pl--show .pl__bub:nth-of-type(4){animation-duration:1.6s !important;animation-delay:1s !important}
+html #esquinaLoader.pl--show .pl__bub:nth-of-type(5){animation-duration:2s !important;animation-delay:.2s !important}
+html #esquinaLoader.pl--show .pl__bub:nth-of-type(6){animation-duration:1.5s !important;animation-delay:.9s !important}
+html #esquinaLoader.pl--show .pl__bub:nth-of-type(7){animation-duration:2.4s !important;animation-delay:.5s !important}
+html #esquinaLoader.pl--show .pl__sb{animation:plSb 1.9s ease-in infinite !important}
+html #esquinaLoader.pl--show .pl__sb:nth-of-type(2){animation-delay:.5s !important;animation-duration:1.5s !important}
+html #esquinaLoader.pl--show .pl__sb:nth-of-type(3){animation-delay:1s !important;animation-duration:2.2s !important}
+html #esquinaLoader.pl--show .pl__sb:nth-of-type(4){animation-delay:.3s !important;animation-duration:1.7s !important}
+html #esquinaLoader.pl--show .pl__sb:nth-of-type(5){animation-delay:1.3s !important}
+html #esquinaLoader.pl--show .pl__txt i{animation:plDot 1.2s infinite both !important}
+html #esquinaLoader.pl--show .pl__txt i:nth-child(2){animation-delay:.2s !important}
+html #esquinaLoader.pl--show .pl__txt i:nth-child(3){animation-delay:.4s !important}
+@media (prefers-reduced-motion:reduce){   /* versão mais suave do chacoalhar */
+  html #esquinaLoader.pl--show .pl__mug{animation-name:plShakeSoft !important;animation-duration:.9s !important}
+  html #esquinaLoader.pl--show .pl__slosh{animation-duration:.9s !important}
 }
