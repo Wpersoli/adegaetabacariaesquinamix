@@ -29,6 +29,9 @@ for (const file of javascript) {
 }
 
 assert.equal(auth.validCpf('529.982.247-25'), true);
+assert.equal(auth.normalizePhone('(11) 99999-9999'), '+5511999999999');
+assert.equal(auth.normalizePhone('+55 11 3333-4444'), '+551133334444');
+assert.equal(auth.normalizePhone('123'), '');
 assert.equal(auth.validCpf('111.111.111-11'), false);
 assert.equal(auth.validCpf('52998224724'), false);
 assert.equal(auth.validBirth('1990-04-20'), true);
@@ -71,6 +74,15 @@ assert.equal((migration.match(/\$\$;/g) || []).length, 2);
 assert.ok(migration.includes("p_cpf_hash !~ '^[0-9a-f]{64}$'"));
 assert.ok(migration.includes('v_existing_hash is not null and v_existing_hash <> p_cpf_hash'));
 
+const phoneMigration = fs.readFileSync(path.join(root, 'supabase/migrations/202611170001_customer_phone_required.sql'), 'utf8');
+assert.match(phoneMigration, /phone_e164 text/i);
+assert.match(phoneMigration, /phone_verified_at timestamptz/i);
+assert.match(phoneMigration, /drop function if exists public\\.register_customer_profile\\(uuid, text, date, text\\)/i);
+assert.match(phoneMigration, /p_phone_e164 text/i);
+assert.match(phoneMigration, /revoke all on function public\\.register_customer_profile\\(uuid, text, date, text, text\\) from public, anon, authenticated/i);
+assert.ok(authUi.includes('Telefone com DDD'));
+assert.ok(authUi.includes('phone:d.phone'));
+
 const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 assert.match(app, /Cliente: '\+customer\.name/);
 assert.match(app, /Status da conta/);
@@ -82,4 +94,4 @@ const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 assert.match(sw, /u\.pathname\.indexOf\('\/api\/'\)===0/);
 assert.match(sw, /u\.pathname\.indexOf\('\/auth\/'\)===0/);
 
-console.log('Esquina Mix auth: sintaxe JS, validação CPF, retorno seguro, máscara e verificações RLS aprovadas.');
+console.log('Esquina Mix auth: sintaxe JS, CPF, telefone E.164, retorno seguro e verificações RLS aprovadas.');
