@@ -9,7 +9,7 @@ module.exports=async function(req,res){
     const redirect=A.confirmationUrl(c,d.returnTo||'/');
     try{
       await A.sbFetch(c,'/auth/v1/resend?type=signup&redirect_to='+encodeURIComponent(redirect),{
-        method:'POST',body:{type:'signup',email}
+        method:'POST',body:{email}
       });
     }catch(_){}
     return A.send(res,200,{ok:true});
