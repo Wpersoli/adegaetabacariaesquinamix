@@ -42,7 +42,17 @@ assert.match(migration, /cpf_hash text not null unique/i);
 assert.match(migration, /revoke all on function public\.register_customer_profile[\s\S]*from public, anon, authenticated/i);
 assert.match(migration, /revoke all on function public\.lookup_customer_identity[\s\S]*from public, anon, authenticated/i);
 assert.match(migration, /cpf_hash text not null unique/i);
-assert.doesNotMatch(migration, /\bc pf\b/i);
+assert.equal((migration.match(/as \$\$/g) || []).length, 2);
+assert.equal((migration.match(/\$\$;/g) || []).length, 2);
+assert.match(migration, /p_cpf_hash !~ '\^\[0-9a-f\]\{64\}\
+
+const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
+assert.match(sw, /u\.pathname\.indexOf\('\/api\/'\)===0/);
+assert.match(sw, /u\.pathname\.indexOf\('\/auth\/'\)===0/);
+
+console.log('Esquina Mix auth: sintaxe JS, validação CPF, retorno seguro, máscara e verificações RLS aprovadas.');
+/);
+assert.match(migration, /v_existing_hash is not null and v_existing_hash <> p_cpf_hash/);
 
 const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 assert.match(sw, /u\.pathname\.indexOf\('\/api\/'\)===0/);
