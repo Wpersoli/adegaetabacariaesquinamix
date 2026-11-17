@@ -126,7 +126,7 @@ $('send').onclick=function(){
 /* Navegação e busca */
 function setCat(c,keep){if(c==='outros'){location.href='/produtos?ordem=az';return}homePage=1;cat=c;if(!keep)subF=null;
   [].forEach.call(document.querySelectorAll('#nav button'),function(x){x.classList.toggle('on',x.dataset.cat===c&&c!=='todos'?true:(c==='todos'&&x.textContent.trim()==='Início'))});
-  [].forEach.call($('chips').children,function(x){x.classList.toggle('is-active',x.dataset.cat===c)});
+  [].forEach.call($('chips').children,function(x){x.classList.toggle('is-active',x.dataset.cat===c);x.setAttribute('aria-pressed',String(x.dataset.cat===c))});
   var on=document.querySelector('#nav button.on');if(on&&on.scrollIntoView)on.scrollIntoView({inline:'center',block:'nearest'});
   render()}
 $('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.textContent.trim().indexOf('Início')===0){location.href='/#inicio';return}setCat(b.dataset.cat);document.getElementById('cardapio').scrollIntoView()});
@@ -139,7 +139,7 @@ var qt;$('q').addEventListener('input',function(){var v=this.value;clearTimeout(
 (function(){
  var panel=$('homeFilter'),toggle=$('homeFilterToggle'),close=$('homeFilterClose'),veil=$('homeFilterVeil'),cats=$('homeFilterCats'),prices=$('homeFilterPrices'),search=$('homeFilterSearch');if(!panel||!toggle)return;
  function open(on){panel.classList.toggle('is-open',on);panel.setAttribute('aria-hidden',on?'false':'true');toggle.setAttribute('aria-expanded',on?'true':'false');toggle.setAttribute('aria-label',on?'Fechar filtros':'Abrir filtros');veil.hidden=!on;if(on){search.value=$('q').value;search.focus()}}
- function draw(){cats.textContent='';[['todos','Todos'],['promo','Promoções'],['bebidas','Bebidas'],['tabacos','Cigarros e Tabacos'],['headshop','Headshop'],['narguile','Narguile'],['outros','Outros']].forEach(function(c){var b=document.createElement('button');b.type='button';b.className='feat-chip'+(cat===c[0]?' is-active':'')+(c[0]==='promo'?' is-warn':'');b.textContent=c[1];b.onclick=function(){setCat(c[0]);homePage=1;draw()};cats.appendChild(b)});
+ function draw(){cats.textContent='';[['todos','Todos'],['promo','Promoções'],['bebidas','Bebidas'],['narguile','Narguile'],['headshop','Headshop'],['tabacos','Cigarros e Tabacos']].forEach(function(c){var b=document.createElement('button');b.type='button';b.className='feat-chip'+(cat===c[0]?' is-active':'')+(c[0]==='promo'?' is-warn':'');b.setAttribute('aria-pressed',String(cat===c[0]));b.textContent=c[1];b.onclick=function(){setCat(c[0]);homePage=1;draw()};cats.appendChild(b)});
  prices.textContent='';PR.forEach(function(r,i){var b=document.createElement('button');b.type='button';b.className='feat-chip'+(sel['p:'+i]?' is-active':'');b.textContent=r[0];b.onclick=function(){Object.keys(sel).forEach(function(k){if(k.indexOf('p:')===0)delete sel[k]});if(!b.classList.contains('is-active'))sel['p:'+i]=true;homePage=1;render();draw()};prices.appendChild(b)})}
  toggle.addEventListener('click',function(){open(!panel.classList.contains('is-open'))});close.addEventListener('click',function(){open(false)});veil.addEventListener('click',function(){open(false)});document.addEventListener('keydown',function(e){if(e.key==='Escape')open(false)});
  search.addEventListener('input',function(){ $('q').value=this.value;term=this.value;homePage=1;render() });
