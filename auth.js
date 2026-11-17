@@ -161,6 +161,7 @@ var MSG={
   CPF_IN_USE:'Este CPF já possui cadastro. Entre na sua conta ou recupere o acesso.',
   EMAIL_CONFIRMATION_NOT_ENFORCED:'A confirmação de e-mail precisa ser ativada nas configurações do serviço.',
   AUTH_CONFIGURATION_MISSING:'O serviço de contas ainda está em configuração. Tente novamente mais tarde.',
+  CPF_HASH_CONFIGURATION_MISSING:'A validação de cadastro está temporariamente indisponível. Tente novamente mais tarde.',
   INVALID_NAME:'Informe nome e sobrenome.',
   INVALID_EMAIL:'Informe um e-mail válido.',
   PHONE_INVALID:'Informe um telefone válido com DDD.',
