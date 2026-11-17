@@ -244,6 +244,7 @@ function tpl(){
         consent('c-ok',CONSENT)+
         '<p class="au-st" role="status" aria-live="polite"></p>'+
         '<button type="submit" class="au-btn">Concluir cadastro</button>'+
+        '<button type="button" class="au-link" data-act="cancel-completion">Cancelar e voltar para entrar</button>'+
       '</form>'+
     '</section>'+
 
@@ -346,6 +347,7 @@ function build(){
     if(a==='close')close();
     else if(a==='google')google(t);
     else if(a==='logout')logout(t);
+    else if(a==='cancel-completion'&&view==='complete')logout(t);
     else if(a==='resend')resendConfirmation(t);
     else if(a==='whatsapp-recovery')whatsappRecovery();
     else if(a==='whatsapp-pending')whatsappPending();
