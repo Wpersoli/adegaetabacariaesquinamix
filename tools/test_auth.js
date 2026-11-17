@@ -71,7 +71,7 @@ const userHeaders = auth.requestHeaders(
 );
 assert.equal(userHeaders.Authorization, 'Bearer user-access-token');
 
-const migration = fs.readFileSync(path.join(root, 'supabase/migrations/202611160001_esquina_auth.sql'), 'utf8');
+const migration = fs.readFileSync(path.join(root, 'supabase/migrations/20261117024320_esquina_auth.sql'), 'utf8');
 assert.match(migration, /enable row level security/i);
 assert.match(migration, /cpf_hash text not null unique/i);
 assert.match(migration, /revoke all on function public\.register_customer_profile[\s\S]*from public, anon, authenticated/i);
@@ -95,7 +95,7 @@ assert.match(app, /Sou '\+customer\.name/);
 assert.doesNotMatch(app, /customer\.cpfStatus/);
 assert.match(app, /location\.href='\/produtos\?ordem=az'/);
 
-const profileMigration = fs.readFileSync(path.join(root, 'supabase/migrations/20261117180000_customer_profile_edit.sql'), 'utf8');
+const profileMigration = fs.readFileSync(path.join(root, 'supabase/migrations/20261117231903_customer_profile_edit.sql'), 'utf8');
 assert.match(profileMigration, /update public\.customer_profiles/i);
 assert.match(profileMigration, /update private\.customer_identity/i);
 assert.match(profileMigration, /revoke all on function public\.update_customer_profile[\s\S]*from public, anon, authenticated/i);
