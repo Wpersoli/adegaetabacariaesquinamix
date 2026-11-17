@@ -129,39 +129,39 @@ try {
 
 /* Regressões: filtros na ordem solicitada e endereço temporário restrito a um pedido. */
 const requestedCategories = ['Todos','Promoções','Bebidas','Narguile','Headshop','Cigarros e Tabacos'];
-const homeChipBlock = index.match(/<div class="feat__chips" id="chips"[^>]*>([\\s\\S]*?)<\\/div>/);
+const homeChipBlock = index.match(/<div class="feat__chips" id="chips"[^>]*>([\s\S]*?)<\/div>/);
 assert.ok(homeChipBlock, 'Filtros da home precisam existir');
 const homePositions = requestedCategories.map((label) => homeChipBlock[1].indexOf('>' + label + '</button>'));
 assert.ok(homePositions.every((position) => position >= 0));
 assert.deepEqual(homePositions, [...homePositions].sort((a,b) => a-b));
 assert.equal((homeChipBlock[1].match(/data-cat=/g) || []).length, requestedCategories.length);
 assert.ok(app.includes("[['todos','Todos'],['promo','Promoções'],['bebidas','Bebidas'],['narguile','Narguile'],['headshop','Headshop'],['tabacos','Cigarros e Tabacos']]"));
-assert.doesNotMatch(app, /\\['outros','Outros'\\]/);
+assert.doesNotMatch(app, /\['outros','Outros'\]/);
 
 const productPage = fs.readFileSync(path.join(root, 'produtos.html'), 'utf8');
-const productChipBlock = productPage.match(/<div class="feat__chips pg-category-chips"[^>]*>([\\s\\S]*?)<\\/div>/);
+const productChipBlock = productPage.match(/<div class="feat__chips pg-category-chips"[^>]*>([\s\S]*?)<\/div>/);
 assert.ok(productChipBlock, 'Filtros do catálogo precisam existir');
 const productPositions = requestedCategories.map((label) => productChipBlock[1].indexOf('>' + label + '</button>'));
 assert.ok(productPositions.every((position) => position >= 0));
 assert.deepEqual(productPositions, [...productPositions].sort((a,b) => a-b));
-assert.match(productPage, /href="\\/#inicio"[^>]*aria-label="Voltar ao cardápio"/);
-assert.match(productPage, /<a class="on pink" href="\\/#inicio">Início<\\/a>/);
+assert.match(productPage, /href="\/#inicio"[^>]*aria-label="Voltar ao cardápio"/);
+assert.match(productPage, /<a class="on pink" href="\/#inicio">Início<\/a>/);
 
 const productJs = fs.readFileSync(path.join(root, 'produtos.js'), 'utf8');
-assert.match(productJs, /location\\.href='\\/produtos\\?ordem=az'/);
+assert.match(productJs, /location\.href='\/produtos\?ordem=az'/);
 assert.doesNotMatch(productJs, /cpfStatus/);
 
 const checkout = fs.readFileSync(path.join(root, 'pedido.js'), 'utf8');
-assert.match(checkout, /function resetAddressChoice\\(\\)/);
-assert.match(checkout, /function syncAddressUser\\(\\)/);
-assert.match(checkout, /resetAddressChoice\\(\\);/);
+assert.match(checkout, /function resetAddressChoice\(\)/);
+assert.match(checkout, /function syncAddressUser\(\)/);
+assert.match(checkout, /resetAddressChoice\(\);/);
 assert.doesNotMatch(checkout, /cpfStatus/);
 
 const signupApi = fs.readFileSync(path.join(root, 'api/auth/signup.js'), 'utf8');
 const completeApi = fs.readFileSync(path.join(root, 'api/auth/complete.js'), 'utf8');
 const forgotEmailApi = fs.readFileSync(path.join(root, 'api/auth/forgot-email.js'), 'utf8');
-assert.match(signupApi, /A\\.requireCpfSecret\\(c\\)/);
-assert.match(completeApi, /A\\.requireCpfSecret\\(c\\)/);
-assert.match(forgotEmailApi, /A\\.requireCpfSecret\\(c\\)/);
+assert.match(signupApi, /A\.requireCpfSecret\(c\)/);
+assert.match(completeApi, /A\.requireCpfSecret\(c\)/);
+assert.match(forgotEmailApi, /A\.requireCpfSecret\(c\)/);
 
 console.log('Esquina Mix: autenticação, HMAC isolado, filtros, checkout e navegação validados.');
