@@ -123,16 +123,21 @@ function call(path,method,body){
 }
 var api={
   me:function(){return call('/me','GET').catch(function(){return{user:null}})},
-  signup:function(d){return call('/signup','POST',{name:d.name.trim(),email:d.email.trim(),cpf:onlyDigits(d.cpf),birth:d.birth,password:d.password,consent:true})},
+  signup:function(d){return call('/signup','POST',{name:d.name.trim(),email:d.email.trim(),cpf:onlyDigits(d.cpf),birth:d.birth,password:d.password,consent:true,returnTo:d.returnTo})},
   login:function(d){return call('/login','POST',{email:d.email.trim(),password:d.password})},
   complete:function(d){return call('/complete','POST',{cpf:onlyDigits(d.cpf),birth:d.birth,consent:true})},
   forgot:function(d){return call('/forgot','POST',{email:d.email.trim()})},
+  forgotEmail:function(d){return call('/forgot-email','POST',{cpf:onlyDigits(d.cpf),birth:d.birth})},
   logout:function(){return call('/logout','POST')}
 };
 var A=MODE==='api'?api:demo;
 
 var MSG={
   BAD_CREDENTIALS:'E-mail ou senha incorretos.',
+  EMAIL_NOT_VERIFIED:'Seu e-mail ainda não foi confirmado. Abra o link enviado para concluir o cadastro.',
+  CPF_IN_USE:'Este CPF já possui cadastro. Entre na sua conta ou recupere o acesso.',
+  EMAIL_CONFIRMATION_NOT_ENFORCED:'A confirmação de e-mail precisa ser ativada nas configurações do serviço.',
+  AUTH_CONFIGURATION_MISSING:'O serviço de contas ainda está em configuração. Tente novamente mais tarde.',
   CPF_IN_USE:'Este CPF já possui cadastro. Entre na sua conta ou recupere a senha.',
   EMAIL_IN_USE:'Este e-mail já possui cadastro. Entre na sua conta.',
   CPF_INVALID:'CPF inválido ou não encontrado na Receita Federal.',
@@ -184,6 +189,7 @@ function tpl(){
         '<p class="au-st" role="status" aria-live="polite"></p>'+
         '<button type="submit" class="au-btn">Entrar</button>'+
         '<button type="button" class="au-link" data-go="forgot">Esqueci minha senha</button>'+
+        '<button type="button" class="au-link" data-go="forgotEmail">Esqueci meu e-mail</button>'+
       '</form>'+
     '</section>'+
 
@@ -229,6 +235,19 @@ function tpl(){
       '</form>'+
     '</section>'+
 
+    /* RECUPERAR E-MAIL */
+    '<section data-view="forgotEmail" hidden>'+
+      '<p class="au-lead">Informe seu CPF e sua data de nascimento. Se os dados forem localizados, mostraremos apenas uma versão protegida do e-mail. Se precisar de ajuda, fale diretamente com a equipe da loja.</p>'+
+      '<form class="au-form" data-form="forgotEmail" novalidate>'+
+        field('fe-cpf','CPF',CPFATTR,'cpf')+
+        field('fe-birth','Nascimento',BIRTHATTR,'birth')+
+        '<p class="au-st" role="status" aria-live="polite"></p>'+
+        '<button type="submit" class="au-btn">Localizar meu e-mail</button>'+
+        '<button type="button" class="au-link" data-act="whatsapp-recovery">Preciso de ajuda pelo WhatsApp</button>'+
+        '<button type="button" class="au-link" data-go="login">Voltar para entrar</button>'+
+      '</form>'+
+    '</section>'+
+
     /* MINHA CONTA */
     '<section data-view="account" hidden>'+
       '<div class="au-acc"><span class="au-av" id="a-av" aria-hidden="true"></span><div><strong id="a-name"></strong><small id="a-mail"></small></div></div>'+
@@ -242,7 +261,7 @@ function tpl(){
 }
 
 /* ---------- controle de telas ---------- */
-var TITLES={login:'Entrar',signup:'Criar conta',complete:'Concluir cadastro',forgot:'Recuperar senha',account:'Minha conta'};
+var TITLES={login:'Entrar',signup:'Criar conta',complete:'Concluir cadastro',forgot:'Recuperar senha',forgotEmail:'Recuperar e-mail',account:'Minha conta'};
 function status(sec,type,txt){var s=$('.au-st',sec);if(!s)return;s.className='au-st'+(type?' is-'+type:'');s.textContent=txt||''}
 function fieldErr(el,txt){
   var e=document.getElementById(el.id+'-e');
@@ -304,6 +323,7 @@ function build(){
     if(a==='close')close();
     else if(a==='google')google(t);
     else if(a==='logout')logout(t);
+    else if(a==='whatsapp-recovery')whatsappRecovery();
   });
   /* mascara de CPF e limpeza de erro ao digitar */
   root.addEventListener('input',function(e){
@@ -377,6 +397,13 @@ function signedIn(u,sec,welcome){
   user=u;paintBtn();setView('account');
   status($('[data-view="account"]'),'ok',welcome);
 }
+function whatsappRecovery(){
+  var phone=(document.querySelector('meta[name="esquina-whatsapp"]')||{}).content||'';
+  phone=phone.replace(/\D/g,'');
+  if(!phone){status($('[data-view="forgotEmail"]'),'err','O WhatsApp da loja ainda não foi configurado.');return;}
+  var message='Olá! Preciso de ajuda para recuperar o acesso à minha conta da Esquina Mix.';
+  window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(message),'_blank','noopener');
+}
 function onSubmit(e){
   e.preventDefault();
   var form=e.target,name=form.getAttribute('data-form');
@@ -387,13 +414,24 @@ function onSubmit(e){
     A.login(d).then(function(r){lock(form,false);signedIn(r.user,form,'Login realizado. Bem-vindo de volta!')},function(x){lock(form,false);fail(form,x)});
   }else if(name==='signup'){
     lock(form,true,'Criando conta…');
-    A.signup(d).then(function(r){lock(form,false);signedIn(r.user,form,'Conta criada com sucesso. Bem-vindo à Esquina Mix!')},function(x){lock(form,false);fail(form,x)});
+    d.returnTo=location.pathname+location.search+location.hash;
+    A.signup(d).then(function(r){
+      lock(form,false);
+      if(r&&r.pending){setView('login');status($('[data-view="login"]'),'ok','Cadastro iniciado. Enviamos um link de confirmação para seu e-mail. Abra o link para ativar a conta e retornar ao site.');}
+      else signedIn(r.user,form,'Conta criada com sucesso. Bem-vindo à Esquina Mix!');
+    },function(x){lock(form,false);fail(form,x)});
   }else if(name==='complete'){
     lock(form,true,'Validando…');
     A.complete(d).then(function(r){lock(form,false);signedIn(r.user,form,'Cadastro concluído!')},function(x){lock(form,false);fail(form,x)});
   }else if(name==='forgot'){
     lock(form,true,'Enviando…');
     A.forgot(d).then(function(){lock(form,false);status(form.parentNode,'ok','Se o e-mail estiver cadastrado, você receberá as instruções em instantes.')},function(x){lock(form,false);fail(form,x)});
+  }else if(name==='forgotEmail'){
+    lock(form,true,'Consultando…');
+    A.forgotEmail(d).then(function(r){
+      lock(form,false);
+      status(form.parentNode,'ok',r&&r.emailMasked?'E-mail localizado: '+r.emailMasked+'. Se não reconhecer o endereço, solicite ajuda pelo WhatsApp da loja.':'Não foi possível localizar o e-mail com os dados informados. Confira os dados ou fale com a loja pelo WhatsApp.');
+    },function(x){lock(form,false);fail(form,x)});
   }
 }
 function google(t){
