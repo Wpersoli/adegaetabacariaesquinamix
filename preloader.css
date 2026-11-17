@@ -12,7 +12,8 @@
   --amber:#f6a800;
   --amber-hi:#ffd45c;
   --amber-lo:#d98200;
-  --h:clamp(26px,6vw,54px);        /* altura da barra (tudo escala a partir dela) */
+  --k:.4;                          /* ESCALA da tela de loading: .4 = 60% menor (1 = tamanho original) */
+  --h:calc(clamp(26px,6vw,54px)*var(--k));        /* altura da barra (tudo escala a partir dela) */
   --m:calc(var(--h)*3.1);            /* largura da caneca */
   --wp:calc(var(--h)*.9);            /* período da onda do líquido */
 
@@ -35,19 +36,19 @@ html:has(#esquinaPreloader){overflow:hidden;animation:plUnlock .01s linear 6.9s 
 
 /* ---------- FASE 1: logo tela cheia ---------- */
 .pl__glow{
-  position:absolute;left:50%;top:50%;width:min(130vw,1200px);aspect-ratio:1;
+  position:absolute;left:50%;top:50%;width:calc(min(130vw,1200px)*var(--k));aspect-ratio:1;
   transform:translate(-50%,-50%);
   background:radial-gradient(circle,rgba(236,26,181,.30) 0,rgba(62,200,255,.13) 38%,transparent 66%);
   animation:plGlow var(--logo-t) ease both;
 }
 .pl__logo{
   position:absolute;left:50%;top:50%;
-  width:min(92vw,88vh,960px);aspect-ratio:1;
+  width:calc(min(92vw,88vh,960px)*var(--k));aspect-ratio:1;
   margin:0;translate:-50% -50%;
   animation:plLogo var(--logo-t) ease both;
   will-change:transform,opacity;
 }
-@supports (height:100dvh){.pl__logo{width:min(92vw,88dvh,960px)}}
+@supports (height:100dvh){.pl__logo{width:calc(min(92vw,88dvh,960px)*var(--k))}}
 .pl__logo img{display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
 
 @keyframes plLogo{
@@ -62,16 +63,17 @@ html:has(#esquinaPreloader){overflow:hidden;animation:plUnlock .01s linear 6.9s 
 
 /* ---------- FASE 2: barra de loading ---------- */
 .pl__load{
-  position:relative;width:min(90vw,860px);
+  position:relative;width:calc(min(90vw,860px)*var(--k));
+  padding-top:calc(var(--h)*1.6);   /* reserva o espaço da caneca acima da barra: conjunto fica centralizado de verdade */
   animation:plLoadIn .55s cubic-bezier(.2,.8,.2,1) var(--load-d) both;
 }
 @supports not (animation-name:x){.pl__load{opacity:1}}
-@keyframes plLoadIn{from{opacity:0;transform:translateY(16px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes plLoadIn{from{opacity:0;transform:translateY(calc(16px*var(--k))) scale(.94)}to{opacity:1;transform:none}}
 
 .pl__row{position:relative;padding-right:calc(var(--m)*.55)}
 
 .pl__bar{
-  height:var(--h);padding:3px;
+  height:var(--h);padding:calc(3px*var(--k));
   border:calc(var(--h)*.11) solid #fff;border-radius:999px;background:#000;
   box-shadow:0 0 calc(var(--h)*.9) rgba(246,168,0,.18);
 }
@@ -150,10 +152,10 @@ html:has(#esquinaPreloader){overflow:hidden;animation:plUnlock .01s linear 6.9s 
   animation:plShake .5s ease-in-out infinite}
 @keyframes plShake{       /* chacoalha enquanto a barra carrega */
   0%{transform:translate(0,0) rotate(-5deg)}
-  20%{transform:translate(2px,-1.5px) rotate(4deg)}
-  40%{transform:translate(-2px,1px) rotate(-4.5deg)}
-  60%{transform:translate(2px,-1px) rotate(5deg)}
-  80%{transform:translate(-1.5px,1px) rotate(-3deg)}
+  20%{transform:translate(calc(2px*var(--k)),calc(-1.5px*var(--k))) rotate(4deg)}
+  40%{transform:translate(calc(-2px*var(--k)),calc(1px*var(--k))) rotate(-4.5deg)}
+  60%{transform:translate(calc(2px*var(--k)),calc(-1px*var(--k))) rotate(5deg)}
+  80%{transform:translate(calc(-1.5px*var(--k)),calc(1px*var(--k))) rotate(-3deg)}
   100%{transform:translate(0,0) rotate(-5deg)}
 }
 /* o líquido balança dentro do copo, em contra-tempo */
@@ -201,8 +203,8 @@ html:has(#esquinaPreloader){overflow:hidden;animation:plUnlock .01s linear 6.9s 
 
 /* ---------- texto ---------- */
 .pl__txt{
-  margin:clamp(16px,4.2vw,30px) 0 0;text-align:center;
-  font:700 clamp(14px,3.3vw,20px)/1 "DM Sans",system-ui,sans-serif;
+  margin:max(8px,calc(clamp(16px,4.2vw,30px)*var(--k))) 0 0;text-align:center;white-space:nowrap;
+  font:700 max(9px,calc(clamp(14px,3.3vw,20px)*var(--k)))/1 "DM Sans",system-ui,sans-serif;
   letter-spacing:.07em;color:#f3e2a6;
 }
 .pl__txt i{font-style:normal;animation:plDot 1.2s infinite both}
@@ -211,14 +213,14 @@ html:has(#esquinaPreloader){overflow:hidden;animation:plUnlock .01s linear 6.9s 
 @keyframes plDot{0%,20%{opacity:.15}50%{opacity:1}100%{opacity:.15}}
 
 /* ---------- telas grandes: escala o conjunto barra + caneca ---------- */
-@media (min-width:1600px) and (min-height:900px){.pl{--h:66px}.pl__load{width:min(80vw,1080px)}.pl__txt{font-size:26px}}
-@media (min-width:2400px) and (min-height:1100px){.pl{--h:86px}.pl__load{width:min(70vw,1400px)}.pl__txt{font-size:34px}}
+@media (min-width:1600px) and (min-height:900px){.pl{--h:calc(66px*var(--k))}.pl__load{width:calc(min(80vw,1080px)*var(--k))}.pl__txt{font-size:max(9px,calc(26px*var(--k)))}}
+@media (min-width:2400px) and (min-height:1100px){.pl{--h:calc(86px*var(--k))}.pl__load{width:calc(min(70vw,1400px)*var(--k))}.pl__txt{font-size:max(9px,calc(34px*var(--k)))}}
 
 /* ---------- telas pequenas / baixas ---------- */
-@media (max-width:420px){.pl{--h:clamp(22px,6.4vw,30px)}}
+@media (max-width:420px){.pl{--h:calc(clamp(22px,6.4vw,30px)*var(--k))}}
 @media (max-height:420px) and (orientation:landscape){
-  .pl{--h:clamp(20px,4.4vh,30px)}
-  .pl__txt{margin-top:12px}
+  .pl{--h:calc(clamp(20px,4.4vh,30px)*var(--k))}
+  .pl__txt{margin-top:max(6px,calc(12px*var(--k)))}
 }
 
 /* ---------- movimento reduzido ----------
@@ -273,15 +275,15 @@ html:has(#esquinaPreloader){overflow:hidden;animation:plUnlock .01s linear 6.9s 
    ========================================================================== */
 .pl.pl--wait{
   --wait-t:2s;
-  --h:clamp(24px,5vw,40px);
+  --h:calc(clamp(24px,5vw,40px)*var(--k));
   z-index:9998;background:rgba(0,0,0,.96);
   animation:none;
   opacity:0;visibility:hidden;pointer-events:none;
   transition:opacity .25s ease,visibility 0s linear .25s;
 }
 .pl.pl--wait.pl--show{opacity:1;visibility:visible;pointer-events:auto;transition-delay:0s;cursor:pointer}
-.pl--wait .pl__load{width:min(82vw,560px)}
-@media (min-width:1600px) and (min-height:900px){.pl.pl--wait{--h:52px}.pl--wait .pl__load{width:min(60vw,760px)}}
+.pl--wait .pl__load{width:calc(min(82vw,560px)*var(--k))}
+@media (min-width:1600px) and (min-height:900px){.pl.pl--wait{--h:calc(52px*var(--k))}.pl--wait .pl__load{width:calc(min(60vw,760px)*var(--k))}}
 html:has(#esquinaLoader.pl--show){overflow:hidden}
 #esquinaLoader:not(.pl--show) *{animation-play-state:paused !important}
 
