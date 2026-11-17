@@ -712,3 +712,10 @@ body:has(.drawer:not([hidden])) .home-filter-tab,body:has(.drawer:not([hidden]))
 .ck__who{margin:0;font:500 15px/1.3 "DM Sans",sans-serif;color:var(--cream)}
 .ck__who b{color:var(--gold);font-weight:700}
 .ck__who[hidden]{display:none!important}
+
+/* Endereço no checkout: acompanha os campos existentes sem alterar o fluxo de pagamento */
+.ck__address-input{height:auto;min-height:88px;padding:11px 12px;resize:vertical;line-height:1.4}
+.ck__address-input[hidden]{display:none!important}
+.ck__address-modes{grid-template-columns:repeat(2,minmax(0,1fr));margin:2px 0 4px}
+.ck__address-modes .ck__opt span{font-size:11px;line-height:1.2;padding:6px}
+@media(max-width:380px){.ck__address-modes{grid-template-columns:1fr}}
