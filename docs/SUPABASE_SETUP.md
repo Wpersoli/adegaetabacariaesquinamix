@@ -61,10 +61,11 @@ Não use curingas amplos. Adicione apenas os endereços que realmente serão usa
 
 ## 3. Modelo do banco
 
-A migração aplicada está em **supabase/migrations/202611160001_esquina_auth.sql**.
+As migrações estão em **supabase/migrations/**. A migração `20261117180000_customer_profile_edit.sql` deve ser aplicada após as migrações de autenticação, telefone e pedidos antes de liberar a edição de dados em Produção.
 
 Ela cria:
 - **public.customer_profiles**: nome, nascimento, consentimento e telefone E.164 (com estado separado de verificação), com RLS para o próprio usuário;
+- A migração `20261117180000_customer_profile_edit.sql` adiciona a RPC server-only que atualiza nome, nascimento e telefone de forma sincronizada com o índice privado de identidade; o endereço padrão é salvo em `auth.users.raw_user_meta_data`.
 - **private.customer_identity**: guarda somente HMAC-SHA256 do CPF e a data de nascimento;
 - **private.email_lookup_attempts**: limita tentativas de recuperação por IP e CPF;
 - RPCs de cadastro e localização de identidade executáveis exclusivamente pelo servidor.
