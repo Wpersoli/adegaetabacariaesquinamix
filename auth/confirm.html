@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08060d">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Confirmar acesso • Esquina Mix</title>
+  <link rel="stylesheet" href="/auth-confirm.css">
+  <script src="/auth-confirm.js" defer></script>
+</head>
+<body>
+  <main class="confirm-shell">
+    <section class="confirm-card" aria-labelledby="confirm-title">
+      <div class="confirm-mark" aria-hidden="true">EM</div>
+      <p class="confirm-eyebrow">ADEGA E TABACARIA</p>
+      <h1 id="confirm-title">Confirmando seu acesso</h1>
+      <p id="confirm-message" class="confirm-message" role="status" aria-live="polite">Estamos validando seu link de segurança. Aguarde.</p>
+      <form id="password-form" hidden>
+        <label for="new-password">Nova senha</label>
+        <input id="new-password" type="password" minlength="8" autocomplete="new-password" required>
+        <p class="confirm-hint">Use pelo menos 8 caracteres, incluindo letras e números.</p>
+        <button type="submit">Salvar nova senha</button>
+      </form>
+      <a id="back-link" href="/" hidden>Voltar para a Esquina Mix</a>
+    </section>
+  </main>
+</body>
+</html>
