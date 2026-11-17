@@ -77,9 +77,9 @@ assert.ok(migration.includes('v_existing_hash is not null and v_existing_hash <>
 const phoneMigration = fs.readFileSync(path.join(root, 'supabase/migrations/202611170001_customer_phone_required.sql'), 'utf8');
 assert.match(phoneMigration, /phone_e164 text/i);
 assert.match(phoneMigration, /phone_verified_at timestamptz/i);
-assert.match(phoneMigration, /drop function if exists public\\.register_customer_profile\\(uuid, text, date, text\\)/i);
+assert.ok(phoneMigration.includes('drop function if exists public.register_customer_profile(uuid, text, date, text)'));
 assert.match(phoneMigration, /p_phone_e164 text/i);
-assert.match(phoneMigration, /revoke all on function public\\.register_customer_profile\\(uuid, text, date, text, text\\) from public, anon, authenticated/i);
+assert.ok(phoneMigration.includes('revoke all on function public.register_customer_profile(uuid, text, date, text, text) from public, anon, authenticated'));
 assert.ok(authUi.includes('Telefone com DDD'));
 assert.ok(authUi.includes('phone:d.phone'));
 
