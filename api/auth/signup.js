@@ -47,7 +47,7 @@ module.exports = async function(req, res) {
       if (e.status === 409 || /duplicate|unique/i.test(e.message)) return A.send(res, 409, {code:'CPF_IN_USE'});
       throw e;
     }
-    return A.send(res, 202, {pending:true,user:{name,email,cpfStatus:'pending'}});
+    return A.send(res, 202, {pending:true,user:{name,email,registrationStatus:'pending'}});
   } catch (e) {
     if (e.code === 'user_already_exists' || e.status === 422) return A.send(res,409,{code:'EMAIL_IN_USE'});
     if (e.message === 'METHOD_NOT_ALLOWED') return A.send(res,405,{code:'METHOD_NOT_ALLOWED'});
