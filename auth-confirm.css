@@ -1,0 +1,17 @@
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#08060d;color:#f6eedf;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+body{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 50% 15%,rgba(236,26,181,.14),transparent 42%),#08060d}
+.confirm-shell{width:min(100%,460px)}
+.confirm-card{padding:clamp(24px,6vw,38px);border:1px solid rgba(236,26,181,.7);border-radius:22px;background:linear-gradient(145deg,#21152b,#100d17);box-shadow:0 18px 70px rgba(0,0,0,.45),0 0 38px rgba(236,26,181,.14);text-align:center}
+.confirm-mark{width:58px;height:58px;margin:0 auto 14px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,#ec1ab5,#13cce8);color:#08060d;font-weight:950;font-size:20px;letter-spacing:-1px}
+.confirm-eyebrow{margin:0;color:#e9c54a;font-size:11px;letter-spacing:.18em;font-weight:800}
+h1{margin:10px 0 12px;font-size:clamp(24px,6vw,31px);line-height:1.1}
+.confirm-message{margin:0 auto 20px;color:#d8cde0;line-height:1.6;max-width:34ch}
+label{display:block;text-align:left;margin:16px 0 7px;font-size:13px;font-weight:750}
+input{width:100%;min-height:48px;padding:12px 14px;border:1px solid #70536e;border-radius:12px;background:#09070e;color:#fff;font:inherit}
+button{width:100%;min-height:48px;margin-top:16px;border:0;border-radius:12px;background:linear-gradient(90deg,#ec1ab5,#13cce8);color:#09070e;font:inherit;font-weight:850;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}
+.confirm-hint{margin:8px 0 0;text-align:left;color:#bcaec5;font-size:12px}
+a{display:inline-block;margin-top:20px;color:#f4d65e;font-weight:750}
+[hidden]{display:none!important}
+@media(prefers-reduced-motion:no-preference){.confirm-card{animation:appear .35s ease both}@keyframes appear{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}}
