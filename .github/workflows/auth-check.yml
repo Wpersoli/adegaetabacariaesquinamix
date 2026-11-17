@@ -2,6 +2,7 @@ name: Validate Esquina Mix auth
 on:
   push:
     branches:
+      - main
       - feature/supabase-auth-esquina-mix
   pull_request:
     branches:
@@ -17,6 +18,11 @@ jobs:
         with:
           node-version: 22
       - name: Check patch whitespace
-        run: git diff --check origin/main...HEAD
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --check origin/main...HEAD
+          else
+            git diff --check HEAD^ HEAD
+          fi
       - name: Run auth static and unit checks
         run: node tools/test_auth.js
