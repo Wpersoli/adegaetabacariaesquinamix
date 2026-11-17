@@ -16,7 +16,7 @@ module.exports=async function(req,res){
       const current=await A.sbFetch(c,'/auth/v1/user',{token:access}),previous=current.user_metadata||{};
       await A.sbFetch(c,'/auth/v1/user',{method:'PUT',token:access,body:{data:Object.assign({},previous,{full_name:name,phone_e164:phone,birth_date:birth,delivery_address:address})}});
       try{await A.sbFetch(c,'/rest/v1/rpc/update_customer_profile',{method:'POST',admin:true,body:{p_user_id:user.id,p_full_name:name,p_birth_date:birth,p_phone_e164:phone}})}
-      catch(e){try{await A.sbFetch(c,'/auth/v1/user',{method:'PUT',token:access,body:{data:previous}})}catch(_){}throw e}
+      catch(e){try{await A.sbFetch(c,'/auth/v1/user',{method:'PUT',token:access,body:{data:previous}})}catch(_){}return A.send(res,503,{code:'PROFILE_UPDATE_UNAVAILABLE',error:'Não foi possível salvar os dados. Tente novamente.'})}
       const refreshed=await A.sbFetch(c,'/auth/v1/user',{token:access});
       return A.send(res,200,{user:await A.profileFor(c,refreshed,access)});
     }
