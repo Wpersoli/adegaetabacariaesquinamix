@@ -129,9 +129,48 @@
 
 <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt" hidden>
   <header><h2 id="dt">Sua sacola</h2><button id="closeCart" type="button" aria-label="Fechar">✕</button></header>
-  <ul id="items"></ul>
-  <div class="total"><span>Total</span><b id="total">R$ 0,00</b></div>
-  <button class="wa" id="send" type="button">Enviar pedido pelo WhatsApp</button>
+  <div class="drawer__body">
+    <p class="cart-empty" id="cartEmpty">Sua sacola está vazia.<br><small>Toque em “Comprar” nos produtos para adicionar.</small></p>
+    <div class="cart-tools" id="cartTools" hidden>
+      <span id="cartCount">0 itens</span>
+      <button type="button" class="cart-clear" id="clearCart" aria-label="Limpar sacola (remover todos os itens)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"/></svg><span>Limpar sacola</span></button>
+    </div>
+    <ul id="items"></ul>
+    <div class="ck" id="checkout" hidden>
+      <div class="ck__f">
+        <label class="ck__lbl" for="ckPhone">Seu telefone (WhatsApp) <b aria-hidden="true">*</b></label>
+        <input class="ck__in" id="ckPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="(11) 99999-9999" required aria-describedby="ckPhoneErr">
+        <p class="ck__err" id="ckPhoneErr" role="alert" hidden></p>
+      </div>
+      <fieldset class="ck__f ck__fs">
+        <legend class="ck__lbl">Forma de pagamento <b aria-hidden="true">*</b></legend>
+        <div class="ck__opts">
+          <label class="ck__opt"><input type="radio" name="pay" value="Pix"><span>Pix</span></label>
+          <label class="ck__opt"><input type="radio" name="pay" value="Débito"><span>Débito</span></label>
+          <label class="ck__opt"><input type="radio" name="pay" value="Crédito"><span>Crédito</span></label>
+          <label class="ck__opt"><input type="radio" name="pay" value="Dinheiro"><span>Dinheiro</span></label>
+        </div>
+        <p class="ck__err" id="ckPayErr" role="alert" hidden></p>
+      </fieldset>
+      <fieldset class="ck__f ck__fs ck__cash" id="ckCash" hidden>
+        <legend class="ck__lbl">Precisa de troco?</legend>
+        <div class="ck__opts">
+          <label class="ck__opt"><input type="radio" name="change" value="sim"><span>Sim</span></label>
+          <label class="ck__opt"><input type="radio" name="change" value="nao"><span>Não</span></label>
+        </div>
+        <div class="ck__chg" id="ckChangeBox" hidden>
+          <label class="ck__lbl" for="ckChange">Troco para quanto? (R$)</label>
+          <input class="ck__in" id="ckChange" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 50" aria-describedby="ckChangeHint ckChangeErr">
+          <p class="ck__hint" id="ckChangeHint"></p>
+        </div>
+        <p class="ck__err" id="ckChangeErr" role="alert" hidden></p>
+      </fieldset>
+    </div>
+  </div>
+  <div class="drawer__foot">
+    <div class="total"><span>Total</span><b id="total">R$ 0,00</b></div>
+    <button class="wa" id="send" type="button">Enviar pedido pelo WhatsApp</button>
+  </div>
 </aside>
 <div class="veil" id="veil" hidden></div>
 
@@ -146,7 +185,10 @@
 
 <a class="fab fab--wa" id="waFab" href="https://wa.me/5511917221039?text=Ol%C3%A1!%20Vim%20pelo%20card%C3%A1pio%20digital%20da%20Esquina%20Mix." target="_blank" rel="noopener" aria-label="Falar no WhatsApp"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.2 7.8c-.4.4-.7 1-.5 1.8.5 1.9 2.6 4.3 5 5.2.9.3 1.5.1 1.9-.3l.5-.8c.1-.2 0-.4-.2-.5l-1.5-.7c-.2-.1-.4 0-.5.1l-.5.6c-1-.4-2-1.4-2.4-2.3l.6-.6c.1-.1.2-.3.1-.5L10.4 7.9c-.2-.3-.9-.4-1.2-.1z" fill="currentColor"/></svg></a>
 
+<button class="fab fab--top" id="toTop" type="button" aria-label="Voltar ao topo"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 19V6M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+
 <script src="catalog.js" defer></script>
+<script src="pedido.js" defer></script>
 <script src="produtos.js" defer></script>
 <script src="auth.js" defer></script>
 </body>

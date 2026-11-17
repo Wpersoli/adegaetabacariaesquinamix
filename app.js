@@ -76,6 +76,7 @@ function render(){
     return okCat&&(!subF||subF.t(x,norm(x.n)))&&(q.mx==null||x.p<=q.mx)&&(q.mn==null||x.p>=q.mn)&&q.w.every(function(t){return tokenMatch(t,wordsOf(x))})});
   facets(base,q);
   var list=base.filter(matchSel);
+  drawAll();
   if(sortBy==='asc')list.sort(function(a,b){return a.p-b.p});else if(sortBy==='desc')list.sort(function(a,b){return b.p-a.p});else if(sortBy==='az')list.sort(function(a,b){return a.n.localeCompare(b.n,'pt-BR',{sensitivity:'base'})});
   var g=$('grid');g.textContent='';
   var totalPages=Math.max(1,Math.ceil(list.length/homePer));if(homePage>totalPages)homePage=totalPages;
@@ -88,6 +89,12 @@ function render(){
     var buy=c.querySelector('.prod-buy');buy.setAttribute('aria-label','Adicionar '+x.n+' à sacola');
     buy.onclick=function(){add(x.id);buy.textContent='Adicionado ✓';clearTimeout(buy.t);buy.t=setTimeout(function(){buy.textContent='Comprar →'},1200)};
     g.appendChild(c)});drawHomePages(totalPages)}
+/* Todos / Promoções: atalho para a página com todos os produtos disponíveis */
+function drawAll(){var a=$('allLink');if(!a)return;
+  var on=(cat==='todos'||cat==='promo')&&!subF&&!term&&!Object.keys(sel).length;a.hidden=!on;if(!on)return;
+  var promos=catalog.filter(function(x){return x.promo}).length,n=catalog.length;
+  $('allTitle').textContent='Ver todos os produtos disponíveis';
+  $('allSub').textContent=cat==='promo'?promos+(promos===1?' promoção':' promoções')+' aqui · catálogo completo com '+n+' produtos':'Catálogo completo com '+n+' produtos e '+promos+(promos===1?' promoção':' promoções')}
 function drawHomePages(total){var box=$('homePages');if(!box)return;box.textContent='';box.hidden=total<=1;if(total<=1)return;for(var i=1;i<=total;i++){var b=document.createElement('button');b.type='button';b.textContent=i;if(i===homePage)b.setAttribute('aria-current','page');b.onclick=function(){homePage=+this.textContent;render();document.getElementById('cardapio').scrollIntoView({behavior:'smooth',block:'start'})};box.appendChild(b)}}
 
 /* Sacola */
@@ -104,21 +111,17 @@ function sync(open){
     ul.appendChild(li)});
   $('badge').textContent=n;$('total').textContent=brl(t);$('send').disabled=!n;$('cartBtn').setAttribute('aria-label','Abrir sacola ('+n+(n===1?' item':' itens')+')');
   save('emCart',JSON.stringify(cart));
+  document.dispatchEvent(new CustomEvent('cart:sync',{detail:{n:n,t:t}}));
   if(open)toggle(true)}
+document.addEventListener('cart:clear',function(){cart={};sync()});
 var lastFocus=null;
 function toggle(o){var d=$('drawer');if(o===!d.hidden)return;d.hidden=!o;$('veil').hidden=!o;lock(d,o);
   if(o){lastFocus=document.activeElement;$('closeCart').focus()}else if(lastFocus){lastFocus.focus();lastFocus=null}}
 $('cartBtn').onclick=function(){toggle(true)};
 $('closeCart').onclick=$('veil').onclick=function(){toggle(false)};
 $('send').onclick=function(){
-  var l=['*Pedido — Esquina Mix*'],t=0;
-  catalog.forEach(function(x){var q=cart[x.id];if(q){l.push(q+'x '+x.n+' — '+brl(q*x.p));t+=q*x.p}});
-  l.push('*Total: '+brl(t)+'*');
-  var customer=window.EsquinaAuth&&window.EsquinaAuth.user;
-  if(customer&&customer.name)l.push('*Cliente: '+customer.name+'*');
-  if(customer&&customer.cpfStatus)l.push('Status da conta: '+(customer.cpfStatus==='verified'?'verificada':'em validação'));
-  var m=document.querySelector('meta[name="esquina-whatsapp"]'),num=((m&&m.content)||'').replace(/\D/g,'');
-  if(!num)return;window.open('https://wa.me/'+num+'?text='+encodeURIComponent(l.join('\n')),'_blank','noopener')};
+  var items=[];catalog.forEach(function(x){var q=cart[x.id];if(q)items.push({n:x.n,q:q,p:x.p})});
+  if(window.EsquinaOrder)window.EsquinaOrder.send(items)};
 
 /* Navegação e busca */
 function setCat(c,keep){homePage=1;cat=c;if(!keep)subF=null;
@@ -489,21 +492,31 @@ var reviews=[
   bar.addEventListener('focusin',show);
   $('nav').addEventListener('click',function(){hold=Date.now()+900;show()});
   document.addEventListener('cart:add',function(){hold=Date.now()+1500;show()});
+  document.addEventListener('bar:hold',function(){hold=Date.now()+1500;show()});
 })();
 /* Altura da barra fixa -> offset de rolagem das âncoras */
 (function(){var b=$('bar');if(!b)return;function set(){document.documentElement.style.setProperty('--bar-h',b.offsetHeight+'px')}set();if(window.ResizeObserver)new ResizeObserver(set).observe(b);else window.addEventListener('resize',set)})();
-/* Status da loja (horário de Brasília): aberto das OPEN às CLOSE, virando a meia-noite; atualiza a cada minuto */
+/* Status da loja (horário de Brasília): aberto das OPEN às CLOSE, virando a meia-noite.
+   O relógio HH:MM:SS anda a cada segundo; o status é rechecado a cada virada de minuto (e no 1º segundo). */
 (function(){
-  var OPEN=10,CLOSE=2,dot=$('shopDot'),txt=$('shopTxt'),tr=$('shopTrust');
+  var OPEN=10,CLOSE=2,dot=$('shopDot'),txt=$('shopTxt'),tr=$('shopTrust'),clk=$('shopClockTx');
   if(!dot||!txt)return;
-  var fmt=new Intl.DateTimeFormat('pt-BR',{hour:'numeric',hourCycle:'h23',timeZone:'America/Sao_Paulo'}),
-      hh=function(n){return ('0'+n).slice(-2)+':00'};
-  function paint(){
-    var h=parseInt(fmt.format(new Date()),10),open=h>=OPEN||h<CLOSE;
+  var fmt=new Intl.DateTimeFormat('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23',timeZone:'America/Sao_Paulo'}),
+      hh=function(n){return ('0'+n).slice(-2)+':00'},lastMin=-1;
+  function paint(h){
+    var open=h>=OPEN||h<CLOSE;
     dot.className='dot '+(open?'is-open':'is-closed');
     txt.textContent=open?'Esquina-Mix aberta • Fecha às '+hh(CLOSE):'Esquina-Mix fechada • Abre às '+hh(OPEN);
     if(tr)tr.textContent=open?'Esquina-Mix aberta':'Esquina-Mix fechada'}
-  paint();setInterval(paint,60000);
+  function tick(){
+    var o={};fmt.formatToParts(new Date()).forEach(function(p){o[p.type]=p.value});
+    var t=o.hour+':'+o.minute+':'+o.second;
+    if(clk){clk.textContent=t;clk.setAttribute('datetime',t)}
+    if(o.minute!==lastMin){lastMin=o.minute;paint(parseInt(o.hour,10))}}
+  tick();
+  /* alinha o intervalo à virada do segundo para o relógio não "pular" */
+  setTimeout(function(){tick();setInterval(tick,1000)},1000-(Date.now()%1000));
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)tick()});
 })();
 render();sync();
 })();
@@ -579,3 +592,30 @@ function paint(){
 window.addEventListener('pointermove',function(e){px=e.clientX;py=e.clientY;if(!raf)raf=requestAnimationFrame(paint)},{passive:true});
 document.addEventListener('pointerleave',function(){bt.style.setProperty('--k','.3')});
 })();
+
+/* Âncora #cardapio: posiciona o título "// cardápio digital" logo abaixo da barra fixa, mesmo vindo de outra página
+   (produtos.html → "Voltar ao cardápio"). Reajusta enquanto imagens/fontes carregam, até o usuário rolar por conta própria. */
+(function(){
+  var calm=function(){return window.matchMedia('(prefers-reduced-motion:reduce)').matches},user=false,tries=0;
+  function goCardapio(smooth){
+    var el=document.getElementById('cardapio'),bar=document.getElementById('bar');if(!el)return;
+    document.dispatchEvent(new Event('bar:hold'));
+    var bh=bar?bar.offsetHeight:0,y=el.getBoundingClientRect().top+(window.pageYOffset||0)-bh-6;
+    window.scrollTo({top:Math.max(0,Math.round(y)),behavior:smooth&&!calm()?'smooth':'auto'})}
+  function settle(){if(user||location.hash!=='#cardapio'||tries++>6)return;
+    var el=document.getElementById('cardapio'),bar=document.getElementById('bar');if(!el)return;
+    var want=el.getBoundingClientRect().top-(bar?bar.offsetHeight:0)-6;
+    if(Math.abs(want)>3)goCardapio(false)}
+  ['wheel','touchstart','keydown','mousedown'].forEach(function(ev){window.addEventListener(ev,function(){user=true},{passive:true,once:true})});
+  if(location.hash==='#cardapio'){
+    if('scrollRestoration' in history)history.scrollRestoration='manual';
+    [0,250,700,1500].forEach(function(ms){setTimeout(settle,ms)});
+    window.addEventListener('load',settle);
+    document.addEventListener('esquina:preloader-done',settle);
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(settle)}
+  /* cliques em links internos para #cardapio (banner, "Pular para o cardápio", rodapé…) */
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a[href="#cardapio"]');if(!a||e.defaultPrevented||e.button||e.metaKey||e.ctrlKey)return;
+    e.preventDefault();user=true;goCardapio(true);try{history.replaceState(null,'','#cardapio')}catch(x){}});
+})();
+

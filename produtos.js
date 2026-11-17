@@ -38,7 +38,9 @@ function sync(){
     ul.appendChild(li)});
   $('badge').textContent=n;$('total').textContent=brl(t);$('send').disabled=!n;
   $('cartBtn').setAttribute('aria-label','Abrir sacola ('+n+(n===1?' item':' itens')+')');
-  save('emCart',JSON.stringify(cart))}
+  save('emCart',JSON.stringify(cart));
+  document.dispatchEvent(new CustomEvent('cart:sync',{detail:{n:n,t:t}}))}
+document.addEventListener('cart:clear',function(){cart={};sync()});
 var lastFocus=null;
 function toggle(o){var d=$('drawer');if(o===!d.hidden)return;d.hidden=!o;$('veil').hidden=!o;lock(d,o);
   if(o){lastFocus=document.activeElement;$('closeCart').focus()}else if(lastFocus){lastFocus.focus();lastFocus=null}}
@@ -46,17 +48,22 @@ $('cartBtn').onclick=function(){toggle(true)};
 $('closeCart').onclick=$('veil').onclick=function(){toggle(false)};
 document.addEventListener('keydown',function(e){if(e.key==='Escape')toggle(false)});
 $('send').onclick=function(){
-  var l=['*Pedido — Esquina Mix*'],t=0;
-  catalog.forEach(function(x){var q=cart[x.id];if(q){l.push(q+'x '+x.n+' — '+brl(q*x.p));t+=q*x.p}});
-  l.push('*Total: '+brl(t)+'*');
-  var customer=window.EsquinaAuth&&window.EsquinaAuth.user;
-  if(customer&&customer.name)l.push('*Cliente: '+customer.name+'*');
-  if(customer&&customer.cpfStatus)l.push('Status da conta: '+(customer.cpfStatus==='verified'?'verificada':'em validação'));
-  var m=document.querySelector('meta[name="esquina-whatsapp"]'),num=((m&&m.content)||'').replace(/\D/g,'');
-  if(!num)return;window.open('https://wa.me/'+num+'?text='+encodeURIComponent(l.join('\n')),'_blank','noopener')};
+  var items=[];catalog.forEach(function(x){var q=cart[x.id];if(q)items.push({n:x.n,q:q,p:x.p})});
+  if(window.EsquinaOrder)window.EsquinaOrder.send(items)};
 /* mantém a sacola igual à da home ao voltar pelo histórico ou ao mudar em outra aba */
 window.addEventListener('pageshow',function(e){if(e.persisted){readCart();sync()}});
 window.addEventListener('storage',function(e){if(e.key==='emCart'){readCart();sync()}});
+
+/* Voltar ao topo: aparece depois de rolar a página (mesmo botão da home) */
+(function(){
+  var up=$('toTop');if(!up)return;var on=false,busy=false;
+  function upd(){busy=false;var s=(window.pageYOffset||document.documentElement.scrollTop||0)>400;if(s!==on){on=s;up.classList.toggle('is-on',s)}}
+  window.addEventListener('scroll',function(){if(!busy){busy=true;requestAnimationFrame(upd)}},{passive:true});
+  up.addEventListener('click',function(){
+    var calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({top:0,behavior:calm?'auto':'smooth'})});
+  upd();
+})();
 
 /* WhatsApp flutuante: mesmo número da meta; inclui o nome do cliente quando logado */
 (function(){

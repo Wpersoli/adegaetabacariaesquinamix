@@ -129,3 +129,7 @@ select.pg-in{appearance:auto;padding-right:8px}
 a.mnav__a{text-decoration:none}
 .mnav__a[aria-current="true"]{color:var(--gold)}
 .pg-filters{touch-action:pan-y}
+
+/* Botão "Voltar ao topo" desta página (sem a barra inferior da home, fica logo acima do WhatsApp) */
+.pg-page .fab--top{bottom:calc(max(16px,env(safe-area-inset-bottom,0px)) + 70px)}
+@media(max-width:600px){.pg-page .fab--top{bottom:calc(max(14px,env(safe-area-inset-bottom,0px)) + 66px)}}
