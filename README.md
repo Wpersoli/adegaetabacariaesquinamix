@@ -59,7 +59,8 @@ Projeto estatico. Basta conectar a branch `main` na Vercel; nao requer comando d
 
 Arquivos: `auth.css`, `auth.js`, `auth-confirm.js`, `auth-confirm.css` e endpoints em `api/auth/`. O painel mantém as telas Entrar, Criar conta, Concluir cadastro, Recuperar senha, Recuperar e-mail e Minha conta.
 
-- Cadastro por e-mail: nome, e-mail, CPF (validação matemática dos dígitos), nascimento, maioridade, senha e consentimento.
+- Cadastro por e-mail e conclusão de cadastro Google: nome, e-mail, telefone com DDD (obrigatório), CPF (validação matemática dos dígitos), nascimento, maioridade e consentimento.
+- O telefone é salvo em formato internacional E.164 como contato da loja. Não é enviado código por WhatsApp e o número permanece marcado como não verificado; a ativação da conta continua dependendo da confirmação por e-mail.
 - A conta exige confirmação por e-mail antes de liberar sessão.
 - Recuperação de senha por e-mail; recuperação de e-mail com CPF + nascimento, máscara de endereço e limitação de tentativas.
 - Google OAuth está preparado no código, mas depende da configuração do provedor Google no Supabase.
