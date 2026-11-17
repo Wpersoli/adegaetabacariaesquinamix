@@ -99,7 +99,7 @@ var demo={
       return pbk(d.password,salt).then(function(ph){
         users.push({email:em,name:d.name.trim(),phone:maskPhone(d.phone),cpf:ch,birth:d.birth,salt:salt,pw:ph,at:Date.now()});
         if(!sset(KU,users))throw err('STORAGE');
-        var u={name:d.name.trim(),email:em,phone:maskPhone(d.phone),phoneVerified:false,cpfStatus:'pending'};sset(KS,u);return{user:u};
+        var u={name:d.name.trim(),email:em,phone:maskPhone(d.phone),phoneVerified:false,registrationStatus:'pending'};sset(KS,u);return{user:u};
       });
     });
   },
@@ -109,7 +109,7 @@ var demo={
     if(!u)return Promise.reject(err('BAD_CREDENTIALS'));
     return pbk(d.password,u.salt).then(function(ph){
       if(ph!==u.pw)throw err('BAD_CREDENTIALS');
-      var s={name:u.name,email:u.email,phone:u.phone||'',phoneVerified:false,cpfStatus:'pending'};sset(KS,s);return{user:s};
+      var s={name:u.name,email:u.email,phone:u.phone||'',phoneVerified:false,registrationStatus:'pending'};sset(KS,s);return{user:s};
     });
   },
   complete:function(){return Promise.reject(err('UNAVAILABLE'))},
