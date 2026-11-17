@@ -109,7 +109,7 @@
   <button data-cat="tabacos">Cigarros e Tabacos</button>
   <button data-cat="headshop">Headshop</button>
   <button data-cat="narguile">Narguile</button>
-  <button data-cat="todos">Outros <span class="tag">Tem de tudo</span></button>
+  <button data-cat="outros">Outros <span class="tag">Tem de tudo</span></button>
 </nav>
 </div>
 <p class="loc"><span>Adega e Tabacaria em <b>Guarulhos</b> • Vila Galvão · Fecha às 02:00</span><span class="loc__age">Venda proibida p/ menores de 18 • Beba com responsabilidade</span></p>
@@ -246,6 +246,16 @@
         <input class="ck__in" id="ckPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="(11) 99999-9999" required aria-describedby="ckPhoneErr">
         <p class="ck__err" id="ckPhoneErr" role="alert" hidden></p>
       </div>
+        <div class="ck__f" id="ckAddressBox">
+          <label class="ck__lbl" for="ckAddress">Endereço de entrega <b aria-hidden="true">*</b></label>
+          <div class="ck__opts ck__address-modes" id="ckAddressModes" hidden>
+            <label class="ck__opt"><input type="radio" name="addressMode" value="saved" checked><span>Endereço cadastrado</span></label>
+            <label class="ck__opt"><input type="radio" name="addressMode" value="new"><span>Outro endereço</span></label>
+          </div>
+          <textarea class="ck__in ck__address-input" id="ckAddress" rows="3" maxlength="300" placeholder="Rua, número, complemento, bairro e cidade" aria-describedby="ckAddressHint ckAddressErr"></textarea>
+          <p class="ck__hint" id="ckAddressHint">O endereço informado será usado apenas neste pedido, sem alterar seus dados da conta.</p>
+          <p class="ck__err" id="ckAddressErr" role="alert" hidden></p>
+        </div>
       <fieldset class="ck__f ck__fs">
         <legend class="ck__lbl">Forma de pagamento <b aria-hidden="true">*</b></legend>
         <div class="ck__opts">

@@ -13,7 +13,7 @@ var brl=function(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'
 var r2=function(v){return Math.round(v*100)/100};
 var PHONE_RE=/^[1-9][0-9][2-9][0-9]{7,8}$/;
 var KP='emPhone',KN='emName';
-var st={pay:'',change:'',phoneTouched:false,nameTouched:false,total:0,count:0};
+var st={pay:'',change:'',phoneTouched:false,nameTouched:false,addressMode:'saved',total:0,count:0};
 
 /* ---------- telefone ---------- */
 function phoneDigits(v){var d=String(v||'').replace(/\D/g,'');if(d.indexOf('55')===0&&d.length>11)d=d.slice(2);return d.slice(0,11)}
@@ -61,12 +61,34 @@ function prefillPhone(){
   var el=$('ckPhone');if(!el||st.phoneTouched)return;
   var u=user(),v=(u&&u.phone)||load(KP)||'';
   if(v&&maskPhone(v)!==el.value)el.value=maskPhone(v)}
+function paintAddress(){
+  var u=user(),saved=String(u&&u.address||'').trim(),modes=$('ckAddressModes'),field=$('ckAddress'),hint=$('ckAddressHint');
+  if(!field)return;
+  if(saved){
+    modes.hidden=false;
+    var mode=st.addressMode==='new'?'new':'saved';
+    var radio=document.querySelector('#ckAddressModes input[value="'+mode+'"]');if(radio)radio.checked=true;
+    field.hidden=mode==='saved';
+    field.value=mode==='new'?field.value:saved;
+    hint.textContent=mode==='saved'?'Usando o endereço padrão salvo na sua conta.':'Este endereço será usado somente neste pedido e não altera o endereço salvo na conta.';
+  }else{
+    modes.hidden=true;field.hidden=false;
+    hint.textContent='Este endereço será usado somente neste pedido. Para salvar um endereço padrão, edite os dados da sua conta.';
+  }
+}
+function cleanAddress(v){return String(v||'').replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim().slice(0,300)}
+function selectedAddress(){
+  var u=user(),saved=cleanAddress(u&&u.address||'');
+  if(saved&&st.addressMode!=='new')return saved;
+  return cleanAddress($('ckAddress')&&$('ckAddress').value||'');
+}
 
 $('ckName').addEventListener('input',function(){st.nameTouched=true;this.removeAttribute('aria-invalid');$('ckNameErr').hidden=true});
-document.addEventListener('esquina:user',paintWho);
+document.addEventListener('esquina:user',function(){paintWho();paintAddress()});
 $('ckPhone').addEventListener('input',function(){st.phoneTouched=true;this.value=maskPhone(this.value);this.removeAttribute('aria-invalid');$('ckPhoneErr').hidden=true});
 $('checkout').addEventListener('change',function(e){
   var t=e.target;if(!t||t.type!=='radio')return;
+  if(t.name==='addressMode'){if(t.value==='new'&&st.addressMode!=='new')$('ckAddress').value='';st.addressMode=t.value;paintAddress();$('ckAddressErr').hidden=true;return}
   if(t.name==='pay'){st.pay=t.value;if(st.pay!=='Dinheiro'){st.change='';[].forEach.call(document.querySelectorAll('input[name=change]'),function(r){r.checked=false})}$('ckPayErr').hidden=true}
   else if(t.name==='change'){st.change=t.value;$('ckChangeErr').hidden=true;
     if(st.change==='sim'){setTimeout(function(){try{$('ckChange').focus({preventScroll:true})}catch(x){}},30)}}
@@ -91,11 +113,11 @@ document.addEventListener('cart:sync',function(e){
   $('cartEmpty').hidden=has;$('checkout').hidden=!has;$('cartTools').hidden=!has;
   var ct=$('cartCount');if(ct)ct.textContent=st.count+(st.count===1?' item':' itens');
   if(!has)disarm();
-  paintCash();prefillPhone();paintWho()});
+  paintCash();prefillPhone();paintWho();paintAddress()});
 
 /* ao abrir a sacola, preenche o telefone da conta (ou o último usado) */
 var dw=$('drawer');
-if(dw&&window.MutationObserver)new MutationObserver(function(){if(!dw.hidden){prefillPhone();paintWho()}}).observe(dw,{attributes:true,attributeFilter:['hidden']});
+if(dw&&window.MutationObserver)new MutationObserver(function(){if(!dw.hidden){prefillPhone();paintWho();paintAddress()}}).observe(dw,{attributes:true,attributeFilter:['hidden']});
 
 /* ---------- comanda ---------- */
 var LINE='━━━━━━━━━━━━━━━━━━━━';
@@ -103,13 +125,14 @@ function stamp(){
   var f=new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}),o={};
   f.formatToParts(new Date()).forEach(function(p){o[p.type]=p.value});
   return{date:o.day+'/'+o.month+'/'+o.year,time:o.hour+':'+o.minute,num:o.day+o.month+'-'+o.hour+o.minute}}
-function build(items,phone,changeFor,stp){
+function build(items,phone,changeFor,stp,address){
   var s=stp||stamp(),u=user(),total=0,qty=0,l=[];
   l.push(LINE,'🍺 *ESQUINA MIX*','_Adega e Tabacaria · Guarulhos_',LINE,
     '🧾 *COMANDA DE PEDIDO*','Nº: *'+s.num+'*','Data: '+s.date+' às '+s.time,LINE,
     '*CLIENTE*');
   l.push('Nome: '+(custName()||'Não informado'));
   l.push('Telefone: '+maskPhone(phone));
+  l.push('Endereço de entrega: '+(address||'Não informado'));
   if(u&&u.cpfStatus)l.push('Conta: '+(u.cpfStatus==='verified'?'verificada':'em validação'));
   l.push(LINE,'*ITENS*');
   items.forEach(function(x,i){var sub=r2(x.q*x.p);total=r2(total+sub);qty+=x.q;
@@ -129,6 +152,8 @@ function send(items){
   if(!nameOk(nm)){fail('ckNameErr','Informe seu nome.',$('ckName'));return}
   var ph=phoneDigits($('ckPhone').value);
   if(!PHONE_RE.test(ph)){fail('ckPhoneErr','Informe um telefone válido com DDD, ex.: (11) 99999-9999.',$('ckPhone'));return}
+  var address=selectedAddress();
+  if(address.length<8){fail('ckAddressErr','Informe um endereço de entrega válido.',$('ckAddress'));return}
   if(!st.pay){fail('ckPayErr','Escolha a forma de pagamento.',document.querySelector('input[name=pay]'));return}
   var total=items.reduce(function(a,x){return r2(a+x.q*x.p)},0),changeFor=0;
   if(st.pay==='Dinheiro'){
@@ -140,11 +165,12 @@ function send(items){
   save(KP,maskPhone(ph));
   var u=user();if(!(u&&u.name))save(KN,nm);
   var stp=stamp();
-  window.open('https://wa.me/'+num+'?text='+encodeURIComponent(build(items,ph,changeFor,stp)),'_blank','noopener');
+  window.open('https://wa.me/'+num+'?text='+encodeURIComponent(build(items,ph,changeFor,stp,address)),'_blank','noopener');
   /* cliente logado: guarda o pedido para acompanhar em "Pedidos" (não bloqueia nem altera o envio pelo WhatsApp) */
   if(u&&window.EsquinaAuth&&window.EsquinaAuth.recordOrder){
     try{window.EsquinaAuth.recordOrder({code:stp.num,items:items.map(function(x){return{n:x.n,q:x.q,p:x.p}}),total:total,pay:st.pay,changeFor:changeFor||null,phone:ph}).catch(function(){})}catch(e){}}}
 
 window.EsquinaOrder={send:send,build:build,phone:maskPhone};
+paintAddress();
 paintCash();
 })();
