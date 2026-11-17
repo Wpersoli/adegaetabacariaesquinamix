@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#ec1ab5">
 <!-- WhatsApp comercial: DDI+DDD+número, só dígitos. Ex.: 5511999999999 -->
 <meta name="esquina-whatsapp" content="5511917221039">
+<meta name="esquina-auth" content="demo">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png">
 <link rel="icon" type="image/png" href="assets/favicon.png">
@@ -39,6 +40,7 @@
 <link rel="preload" as="image" href="assets/logo.webp">
 <link rel="stylesheet" href="preloader.css">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="auth.css">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "LiquorStore", "name": "Esquina Mix — Adega e Tabacaria", "url": "https://adegaetabacariaesquinamix.vercel.app/", "image": "https://adegaetabacariaesquinamix.vercel.app/assets/og-image.jpg", "telephone": "+55 11 91722-1039", "address": {"@type": "PostalAddress", "streetAddress": "R. São Francisco, 285", "addressLocality": "Guarulhos", "addressRegion": "SP", "postalCode": "07071-010", "addressCountry": "BR"}, "geo": {"@type": "GeoCoordinates", "latitude": -23.4546859, "longitude": -46.5682857}, "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "10:00", "closes": "02:00"}], "sameAs": ["https://www.instagram.com/esquinamix2025/"]}</script>
 </head>
 <body>
@@ -95,7 +97,7 @@
     <input id="q" type="search" aria-label="Buscar produtos" placeholder="Buscar: ipa até 9, zero álcool, lata..." autocomplete="off"></label>
   <div class="actions">
     <button class="ico ico-search" id="searchBtn" type="button" aria-label="Buscar produtos" aria-expanded="false"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-4-4" stroke="currentColor" stroke-width="2"/></svg></button>
-    <a class="ico" href="#contato" aria-label="Contato"><svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
+    <button class="ico" id="accountBtn" type="button" aria-label="Entrar ou criar conta" aria-haspopup="dialog" aria-expanded="false" aria-controls="authModal"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
     <button class="ico" id="cartBtn" aria-label="Abrir sacola"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 8h14l-1 12H6zM9 8a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="2"/></svg><em id="badge">0</em></button>
   </div>
 </header>
@@ -257,5 +259,6 @@
 
 <script src="preloader.js" defer></script>
 <script src="app.js" defer></script>
+<script src="auth.js" defer></script>
 </body>
 </html>

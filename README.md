@@ -54,3 +54,16 @@ Projeto estatico. Basta conectar a branch `main` na Vercel; nao requer comando d
 - Ponto de quebra: **1025px**. Desktop: marca | busca (56px) | conta e sacola (caixas 48px) + barra de categorias centralizada.
 - Celular/tablet (≤1024px): hambúrguer 44px | marca centralizada 78px | lupa, conta e sacola 44px sem caixa. A barra horizontal vira um menu em tela cheia (hambúrguer), com subcategorias em sanfona. A lupa abre o campo de busca (com auto-preenchimento) em linha própria.
 - **Validar:** `npm i -D playwright && npx playwright install chromium`, depois `python -m http.server 8080` e `node tools/validar_responsivo.js http://localhost:8080` (11 larguras, de 320 a 1920px).
+
+## Login e cadastro (botão de usuário no cabeçalho)
+Arquivos: `auth.css`, `auth.js` e o botão `#accountBtn` no `index.html`. Abre um painel responsivo (cartão no desktop, painel que sobe da base no celular) com: Entrar, Criar conta, Concluir cadastro (após Google), Recuperar senha e Minha conta.
+- **Cadastro por e-mail:** nome, e-mail, CPF (máscara + validação dos dígitos), nascimento (só maiores de 18) e senha (mín. 8, letras e números), com consentimento LGPD. **1 CPF = 1 conta.**
+- **Google:** botão "Entrar/Cadastrar com Google" (fluxo por redirecionamento). Quem entra pelo Google informa CPF e nascimento na tela "Concluir cadastro".
+- **Modo** (meta `esquina-auth` no `<head>`): `demo` (padrão, só neste navegador; NÃO é seguro nem consulta a Receita) ou `api` (usa o servidor). **Para produção troque para `api`.**
+- **Contrato do servidor** (`/api/auth`, JSON, cookie de sessão httpOnly+Secure+SameSite, header `X-Requested-With: esquina`):
+  - `POST /signup {name,email,cpf,birth,password,consent}` → 201 `{user}`; erros `{code}`: `CPF_IN_USE`, `EMAIL_IN_USE`, `CPF_INVALID`, `CPF_NOT_MATCH`, `UNDERAGE`, `RATE_LIMIT`
+  - `POST /login {email,password}` → 200 `{user}` | 401 `{code:"BAD_CREDENTIALS"}`
+  - `POST /complete {cpf,birth,consent}` (conta Google sem CPF) · `POST /forgot {email}` (sempre 200) · `POST /logout`
+  - `GET /me` → `{user:{name,email,cpfStatus,needsCpf?}}` ou 401 · `GET /google` → redireciona ao Google; o callback grava a sessão e volta para `/?auth=google`
+  - No servidor: validar o CPF na base do governo (ex.: Serpro Datavalid ou provedor de KYC), guardar só o hash do CPF com índice único, senha com argon2/bcrypt, limitar tentativas.
+- Para a CSP do `vercel.json` não é preciso liberar nada: o Google usa redirecionamento e as chamadas vão para o mesmo domínio.
