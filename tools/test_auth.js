@@ -12,6 +12,7 @@ const javascript = [
   'auth-confirm.js',
   'lib/esquina-auth.js',
   'api/auth/signup.js',
+  'api/auth/resend.js',
   'api/auth/login.js',
   'api/auth/me.js',
   'api/auth/session.js',
