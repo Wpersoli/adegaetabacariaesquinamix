@@ -67,3 +67,19 @@ Arquivos: `auth.css`, `auth.js` e o botão `#accountBtn` no `index.html`. Abre u
   - `GET /me` → `{user:{name,email,cpfStatus,needsCpf?}}` ou 401 · `GET /google` → redireciona ao Google; o callback grava a sessão e volta para `/?auth=google`
   - No servidor: validar o CPF na base do governo (ex.: Serpro Datavalid ou provedor de KYC), guardar só o hash do CPF com índice único, senha com argon2/bcrypt, limitar tentativas.
 - Para a CSP do `vercel.json` não é preciso liberar nada: o Google usa redirecionamento e as chamadas vão para o mesmo domínio.
+
+
+## Autenticação Supabase (nova implementação)
+
+A implementação de autenticação em andamento está isolada na branch **feature/supabase-auth-esquina-mix**.
+Consulte **docs/SUPABASE_SETUP.md** antes de configurar ou publicar.
+
+- Cadastro com confirmação obrigatória por e-mail; a sessão não é criada antes da confirmação.
+- Sessão mantida por cookies HttpOnly, Secure em produção e SameSite=Lax.
+- Perfil com RLS; CPF guardado somente como HMAC-SHA256 em schema privado.
+- Recuperação de senha e recuperação de e-mail com máscara e limitação de tentativas.
+- O Service Worker não armazena respostas da API nem a página de confirmação.
+- WhatsApp é atendimento manual; não há envio automático nem aprovação de cadastro pelo WhatsApp nesta integração.
+- A validação do CPF verifica os dígitos. Não consulta a Receita Federal.
+
+A migração do banco está em **supabase/migrations/202611160001_esquina_auth.sql**.
