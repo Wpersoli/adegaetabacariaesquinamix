@@ -57,7 +57,7 @@ function resetCheckout(){
   st.pay='';st.change='';
   [].forEach.call(document.querySelectorAll('#checkout input[type=radio]'),function(r){r.checked=false});
   var c=$('ckChange');if(c)c.value='';
-  clearErr();paintCash()}
+  resetAddressChoice();clearErr();paintCash()}
 function prefillPhone(){
   var el=$('ckPhone');if(!el||st.phoneTouched)return;
   var u=user(),v=(u&&u.phone)||load(KP)||'';
@@ -76,6 +76,20 @@ function paintAddress(){
     modes.hidden=true;field.hidden=false;
     hint.textContent='Este endereço será usado somente neste pedido. Para salvar um endereço padrão, edite os dados da sua conta.';
   }
+}
+function resetAddressChoice(){
+  st.addressMode='saved';
+  var field=$('ckAddress');if(field)field.value='';
+  var radio=document.querySelector('#ckAddressModes input[value="saved"]');if(radio)radio.checked=true;
+  paintAddress();
+}
+function syncAddressUser(){
+  var u=user(),id=u&&u.id?String(u.id):null;
+  if(id!==addressUserId){
+    addressUserId=id;st.addressMode='saved';
+    var field=$('ckAddress');if(field)field.value='';
+  }
+  paintAddress();
 }
 function cleanAddress(v){return String(v||'').replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim().slice(0,300)}
 function selectedAddress(){
@@ -173,6 +187,6 @@ function send(items){
     try{window.EsquinaAuth.recordOrder({code:stp.num,items:items.map(function(x){return{n:x.n,q:x.q,p:x.p}}),total:total,pay:st.pay,changeFor:changeFor||null,phone:ph}).catch(function(){})}catch(e){}}}
 
 window.EsquinaOrder={send:send,build:build,phone:maskPhone};
-paintAddress();
+syncAddressUser();
 paintCash();
 })();
