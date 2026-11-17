@@ -51,4 +51,4 @@ grant select on public.customer_orders to authenticated;
 grant all on public.customer_orders to service_role;
 
 comment on table public.customer_orders is
-  'Pedidos feitos pela sacola por clientes logados. O status e atualizado pela loja (API /api/orders/status ou Table Editor).';
+  'Pedidos feitos pela sacola por clientes logados. O status e atualizado pela loja (API PATCH /api/orders ou Table Editor).';

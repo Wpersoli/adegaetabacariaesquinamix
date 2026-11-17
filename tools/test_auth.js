@@ -22,8 +22,7 @@ const javascript = [
   'api/auth/complete.js',
   'api/auth/password.js',
   'api/auth/google.js',
-  'api/orders/index.js',
-  'api/orders/status.js'
+  'api/orders/index.js'
 ];
 
 for (const file of javascript) {
