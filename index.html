@@ -35,11 +35,52 @@
 <meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Bungee&family=VT323&family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/logo.webp">
+<link rel="stylesheet" href="preloader.css">
 <link rel="stylesheet" href="styles.css">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "LiquorStore", "name": "Esquina Mix — Adega e Tabacaria", "url": "https://adegaetabacariaesquinamix.vercel.app/", "image": "https://adegaetabacariaesquinamix.vercel.app/assets/og-image.jpg", "telephone": "+55 11 91722-1039", "address": {"@type": "PostalAddress", "streetAddress": "R. São Francisco, 285", "addressLocality": "Guarulhos", "addressRegion": "SP", "postalCode": "07071-010", "addressCountry": "BR"}, "geo": {"@type": "GeoCoordinates", "latitude": -23.4546859, "longitude": -46.5682857}, "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "10:00", "closes": "02:00"}], "sameAs": ["https://www.instagram.com/esquinamix2025/"]}</script>
 </head>
 <body>
+<div class="pl" id="esquinaPreloader" role="status" aria-live="polite" aria-label="Carregando Esquina Mix">
+  <div class="pl__glow" aria-hidden="true"></div>
+  <div class="pl__logo" aria-hidden="true"><img src="assets/logo.webp" width="900" height="900" alt="" decoding="async" fetchpriority="high"></div>
+  <div class="pl__load" aria-hidden="true">
+    <div class="pl__row">
+      <div class="pl__bar"><div class="pl__track"><div class="pl__fill">
+        <div class="pl__wave"></div><span class="pl__shine"></span>
+        <i class="pl__bub"></i><i class="pl__bub"></i><i class="pl__bub"></i><i class="pl__bub"></i><i class="pl__bub"></i><i class="pl__bub"></i><i class="pl__bub"></i>
+        <span class="pl__edge"></span>
+      </div></div></div>
+      <div class="pl__mugw">
+        <svg class="pl__mug" viewBox="0 0 120 130" focusable="false">
+          <defs>
+            <clipPath id="plMugClip"><path d="M24 46H84L79 117Q78.600 123 72 123H36Q29.400 123 29 117Z"/></clipPath>
+            <linearGradient id="plLiq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd45c"/><stop offset=".5" stop-color="#f6a800"/><stop offset="1" stop-color="#d98200"/></linearGradient>
+          </defs>
+          <path d="M86 58H99Q112 58 112 72V90Q112 104 99 104H82" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+          <path d="M86 61H98Q108 61 108 72V90Q108 101 98 101H83" fill="none" stroke="#c9d1da" stroke-width="1.500" stroke-linecap="round" opacity=".7"/>
+          <path d="M20 44H88L82 118Q81.500 126 73 126H35Q26.500 126 26 118Z" fill="#000"/>
+          <g clip-path="url(#plMugClip)"><g transform="translate(0 44)"><g class="pl__level"><g class="pl__slosh">
+            <g class="pl__w2" opacity=".55"><path d="M14 4q7.500-7 15 0t15 0 15 0 15 0 15 0 15 0 15 0 15 0 15 0 15 0 15 0 15 0V110H14Z" fill="#ffe08a"/></g>
+            <g class="pl__w1"><path d="M14 6q7.500-7 15 0t15 0 15 0 15 0 15 0 15 0 15 0 15 0 15 0 15 0 15 0 15 0V110H14Z" fill="url(#plLiq)"/></g>
+            <g fill="#fff"><circle cx="30" cy="2" r="7"/><circle cx="43" cy="-1" r="8"/><circle cx="57" cy="1" r="8"/><circle cx="70" cy="-1" r="8"/><circle cx="82" cy="2" r="7"/></g>
+            <g fill="#fff" opacity=".8"><circle class="pl__sb" cx="36" cy="76" r="1.800"/><circle class="pl__sb" cx="50" cy="80" r="1.300"/><circle class="pl__sb" cx="62" cy="74" r="2.200"/><circle class="pl__sb" cx="72" cy="80" r="1.500"/><circle class="pl__sb" cx="44" cy="70" r="1.200"/></g>
+          </g></g></g>
+          <g fill="#fff"><rect x="32" y="52" width="5" height="60" rx="2.500" opacity=".34"/><rect x="45" y="52" width="3" height="62" rx="1.500" opacity=".16"/><rect x="57" y="52" width="3" height="62" rx="1.500" opacity=".16"/><rect x="69" y="52" width="3" height="62" rx="1.500" opacity=".16"/></g></g>
+          <path d="M20 44H88L82 118Q81.500 126 73 126H35Q26.500 126 26 118Z" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>
+          <path d="M30 115H79" stroke="#fff" stroke-width="2.500" stroke-linecap="round" opacity=".55"/>
+          <g class="pl__dome"><g class="pl__bob" fill="#fff" stroke="#e4e9f0" stroke-width="1">
+            <circle cx="27" cy="42" r="9"/><circle cx="38" cy="33" r="12"/><circle cx="54" cy="28" r="13"/><circle cx="69" cy="33" r="12"/><circle cx="81" cy="42" r="9"/><circle cx="46" cy="40" r="10"/><circle cx="62" cy="41" r="10"/>
+            <ellipse cx="25" cy="55" rx="4" ry="10"/><ellipse cx="84" cy="52" rx="3.500" ry="6.500"/><ellipse cx="33" cy="50" rx="3" ry="5.500"/>
+          </g></g>
+          <g class="pl__splash" fill="#fff"><path d="M32 26C24 13 11 10 1 15 10 15 17 19 21 29Z"/><circle cx="9" cy="5" r="2.600"/><circle cx="21" cy="3" r="2"/><circle cx="3" cy="27" r="2.300"/></g>
+        </svg>
+      </div>
+    </div>
+    <p class="pl__txt">LOADING<i>.</i><i>.</i><i>.</i></p>
+  </div>
+</div>
 <a class="skip" href="#cardapio">Pular para o cardápio</a>
 <div class="ticker"><span id="shopStatus"><i class="dot" id="shopDot" aria-hidden="true"></i><span id="shopTxt">Esquina-Mix aberta • Fecha às 02:00</span></span><span>Venda proibida p/ menores de 18 • Beba com responsabilidade</span></div>
 
@@ -141,18 +182,27 @@
   </div></section>
 
   <section class="loc2" id="encontre" aria-labelledby="lc"><div class="wrap loc2__inner">
-    <div class="loc2__card"><p class="eyebrow">// base terrestre</p><h2 class="sec-title sm" id="lc">Encontre a <span class="hl">Esquina Mix</span></h2>
-      <dl><dt>Endereço</dt><dd>R. São Francisco, 285 – Vila Galvão, Guarulhos – SP, 07071-010</dd>
-      <dt>Horário</dt><dd>Aberto até 02:00 · reabre às 10:00</dd>
-      <dt>WhatsApp</dt><dd><a href="https://wa.me/5511917221039" target="_blank" rel="noopener">(11) 91722-1039</a></dd></dl>
-      <div class="loc2__btns"><a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Adega+e+Tabacaria+Esquina+Mix%2C+R.+S%C3%A3o+Francisco%2C+285%2C+Guarulhos" target="_blank" rel="noopener">Visualizar no Maps</a><a class="btn alt" href="https://www.google.com/maps/dir/?api=1&amp;destination=Adega+e+Tabacaria+Esquina+Mix%2C+R.+S%C3%A3o+Francisco%2C+285%2C+Guarulhos" target="_blank" rel="noopener">Como chegar</a></div></div>
+    <div class="loc2__card">
+      <div class="loc2__head">
+        <div><p class="eyebrow">// base terrestre</p><h2 class="sec-title sm" id="lc">Encontre a <span class="hl">Esquina Mix</span></h2></div>
+        <div class="loc2__badge" role="status"><p class="loc2__open"><i class="dot" id="lcDot" aria-hidden="true"></i><span id="lcTxt">Fechado agora • consulte o horário</span></p><p class="loc2__hrs">Todos os dias: 10h00–02h00</p></div>
+      </div>
+      <dl><dt>Endereço</dt><dd><a class="loc2__addr" href="https://www.google.com/maps/dir/?api=1&amp;destination=Adega+e+Tabacaria+Esquina+Mix%2C+R.+S%C3%A3o+Francisco%2C+285%2C+Guarulhos" data-route-open>R. São Francisco, 285 – Vila Galvão, Guarulhos – SP, 07071-010</a></dd></dl>
+      <div class="dirp" id="dirp">
+        <div class="dirp__modes js-modes" role="group" aria-label="Meio de transporte"><button type="button" class="dirp__m" data-mode="driving" aria-pressed="true" aria-label="Carro"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 16v-4l1.6-4.4A2 2 0 0 1 8.5 6h7a2 2 0 0 1 1.9 1.6L19 12v4M5 16h14M5 16v2.5M19 16v2.5"/><circle cx="8" cy="13.5" r=".9" fill="currentColor"/><circle cx="16" cy="13.5" r=".9" fill="currentColor"/></svg></button><button type="button" class="dirp__m" data-mode="transit" aria-pressed="false" aria-label="Ônibus"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="13" rx="2.5"/><path d="M5 11h14M8 20l1.5-3M16 20l-1.5-3"/><circle cx="8.5" cy="14" r=".8" fill="currentColor"/><circle cx="15.5" cy="14" r=".8" fill="currentColor"/></svg></button><button type="button" class="dirp__m" data-mode="walking" aria-pressed="false" aria-label="A pé"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13" cy="4.5" r="1.8"/><path d="M12 8.5 9.5 12l2 2.5-1 5M12 8.5l3 2.5 2 .5M11.5 14.5l3 1.5 1 3.5M9.5 12l-2.5 1"/></svg></button><button type="button" class="dirp__m" data-mode="bicycling" aria-pressed="false" aria-label="Bike"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l3.5-7h5l3.5 7M9.5 9l3 7M14.5 9h2"/></svg></button></div>
+        <div class="dirp__f"><span class="dirp__pin" aria-hidden="true"></span><input id="dirOrigin" type="text" inputmode="text" autocomplete="off" placeholder="Sua localização" aria-label="Ponto de partida"><button type="button" class="dirp__b" id="dirGo" aria-label="Traçar a partir do endereço digitado"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></svg></button><button type="button" class="dirp__b" id="dirLocate" aria-label="Usar minha localização atual"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg></button></div>
+        <div class="dirp__f"><span class="dirp__pin dirp__pin--d" aria-hidden="true"></span><input id="dirDest" type="text" readonly value="Esquina Mix · R. São Francisco, 285" aria-label="Destino"><button type="button" class="dirp__b" id="dirCopy" aria-label="Copiar endereço"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5v-2a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/></svg></button></div>
+        <button type="button" class="dirp__copy" id="dirCopyTx">Copiar endereço</button>
+      </div>
+      <div class="loc2__btns"><a class="btn" href="https://www.google.com/maps/dir/?api=1&amp;destination=Adega+e+Tabacaria+Esquina+Mix%2C+R.+S%C3%A3o+Francisco%2C+285%2C+Guarulhos" data-route-open data-route-keep>Como chegar</a><a class="btn alt" href="https://www.google.com/maps/search/?api=1&amp;query=Adega+e+Tabacaria+Esquina+Mix%2C+R.+S%C3%A3o+Francisco%2C+285%2C+Guarulhos" target="_blank" rel="noopener">Visualizar no Maps</a></div>
+    </div>
     <div class="loc2__map">
       <div class="route">
         <div class="route__row">
           <button class="btn" id="routeBtn" type="button">Traçar rota até a loja</button>
-          <div class="route__modes" id="routeModes" role="group" aria-label="Meio de transporte"><button type="button" data-mode="driving" aria-pressed="true">Carro</button><button type="button" data-mode="walking" aria-pressed="false">A pé</button><button type="button" data-mode="bicycling" aria-pressed="false">Bike</button><button type="button" data-mode="transit" aria-pressed="false">Ônibus</button></div>
+          <div class="route__modes js-modes" id="routeModes" role="group" aria-label="Meio de transporte"><button type="button" data-mode="driving" aria-pressed="true">Carro</button><button type="button" data-mode="walking" aria-pressed="false">A pé</button><button type="button" data-mode="bicycling" aria-pressed="false">Bike</button><button type="button" data-mode="transit" aria-pressed="false">Ônibus</button></div>
         </div>
-        <p class="route__st" id="routeStatus" role="status">Ao permitir o acesso à sua localização, a rota e o tempo de viagem aparecem aqui automaticamente e se atualizam conforme você se desloca. Este site não salva a sua posição; o Google Maps a usa apenas para calcular a rota.</p>
+        <p class="route__st" id="routeStatus" role="status">Ao permitir o acesso à sua localização, a rota aparece aqui e se atualiza conforme você se desloca. Este site não salva a sua posição.</p>
         <a class="route__open" id="routeOpen" href="#" target="_blank" rel="noopener" hidden>Abrir navegação no Google Maps ↗</a>
       </div>
       <iframe id="mapFrame" title="Mapa e rota até a Esquina Mix" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" src="https://maps.google.com/maps?q=R.+S%C3%A3o+Francisco,+285,+Vila+Galv%C3%A3o,+Guarulhos&amp;output=embed"></iframe>
@@ -190,12 +240,22 @@
 <nav class="mbar" id="mbar" aria-label="Navegação inferior">
   <button type="button" class="mbar__item is-active" data-k="home" data-act="home" aria-label="Início"><span class="mbar__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-6h4v6"/></svg></span><span class="mbar__label">Início</span></button>
   <button type="button" class="mbar__item" data-k="search" data-act="search" aria-label="Buscar" aria-expanded="false"><span class="mbar__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></span><span class="mbar__label">Buscar</span></button>
-  <a class="mbar__item mbar__item--hero" href="https://www.google.com/maps/dir/?api=1&amp;destination=Adega+e+Tabacaria+Esquina+Mix%2C+R.+S%C3%A3o+Francisco%2C+285%2C+Guarulhos" target="_blank" rel="noopener" aria-label="Como chegar"><span class="mbar__circle" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17.5" r="2.5"/><circle cx="18" cy="17.5" r="2.5"/><path d="M8.5 17.5H14l2-9"/><path d="M14 8.5h3.5"/><path d="M3 11h5.5l1.5 6.5"/></svg></span><span class="mbar__dot" aria-hidden="true"></span><span class="mbar__icon" aria-hidden="true"></span><span class="mbar__label">Como chegar</span></a>
+  <a class="mbar__item mbar__item--hero" data-route-open href="https://www.google.com/maps/dir/?api=1&amp;destination=Adega+e+Tabacaria+Esquina+Mix%2C+R.+S%C3%A3o+Francisco%2C+285%2C+Guarulhos" target="_blank" rel="noopener" aria-label="Como chegar"><span class="mbar__circle" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="17.5" r="2.5"/><circle cx="18" cy="17.5" r="2.5"/><path d="M8.5 17.5H14l2-9"/><path d="M14 8.5h3.5"/><path d="M3 11h5.5l1.5 6.5"/></svg></span><span class="mbar__dot" aria-hidden="true"></span><span class="mbar__icon" aria-hidden="true"></span><span class="mbar__label">Como chegar</span></a>
   <a class="mbar__item" href="https://wa.me/5511917221039?text=Ol%C3%A1!%20Vim%20pelo%20card%C3%A1pio%20digital%20da%20Esquina%20Mix." target="_blank" rel="noopener" aria-label="WhatsApp"><span class="mbar__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.5z"/><path d="M9 9.5c.3 2.5 2.5 4.7 5.5 5.5l1-1.5-2-1-.8.8c-.9-.4-1.8-1.3-2.200-2.200l.8-.8-1-2z"/></svg></span><span class="mbar__label">WhatsApp</span></a>
   <a class="mbar__item" data-k="products" href="#cardapio" aria-label="Produtos"><span class="mbar__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg></span><span class="mbar__label">Produtos</span></a>
 </nav>
 <a class="fab fab--wa" id="waFab" href="https://wa.me/5511917221039?text=Ol%C3%A1!%20Vim%20pelo%20card%C3%A1pio%20digital%20da%20Esquina%20Mix." target="_blank" rel="noopener" aria-label="Falar no WhatsApp"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.2 7.8c-.4.4-.7 1-.5 1.8.5 1.9 2.6 4.3 5 5.2.9.3 1.5.1 1.9-.3l.5-.8c.1-.2 0-.4-.2-.5l-1.5-.7c-.2-.1-.4 0-.5.1l-.5.6c-1-.4-2-1.4-2.4-2.3l.6-.6c.1-.1.2-.3.1-.5L10.4 7.9c-.2-.3-.9-.4-1.2-.1z" fill="currentColor"/></svg></a>
 <button class="fab fab--top" id="toTop" type="button" aria-label="Voltar ao topo"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 19V6M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+<div class="rm" id="rm" role="dialog" aria-modal="true" aria-labelledby="rmT" hidden>
+  <header class="rm__top"><button type="button" class="rm__back" id="rmClose" aria-label="Voltar ao site"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div class="rm__ti"><p class="rm__eyebrow">// em rota</p><h2 id="rmT">Até a Esquina Mix</h2><p class="rm__addr">R. São Francisco, 285 – Vila Galvão, Guarulhos – SP, 07071-010</p></div></header>
+  <div class="rm__modes js-modes" role="group" aria-label="Meio de transporte"><button type="button" class="rm__m" data-mode="driving" aria-pressed="true" aria-label="Carro"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 16v-4l1.6-4.4A2 2 0 0 1 8.5 6h7a2 2 0 0 1 1.9 1.6L19 12v4M5 16h14M5 16v2.5M19 16v2.5"/><circle cx="8" cy="13.5" r=".9" fill="currentColor"/><circle cx="16" cy="13.5" r=".9" fill="currentColor"/></svg><span>Carro</span></button><button type="button" class="rm__m" data-mode="transit" aria-pressed="false" aria-label="Ônibus"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="13" rx="2.5"/><path d="M5 11h14M8 20l1.5-3M16 20l-1.5-3"/><circle cx="8.5" cy="14" r=".8" fill="currentColor"/><circle cx="15.5" cy="14" r=".8" fill="currentColor"/></svg><span>Ônibus</span></button><button type="button" class="rm__m" data-mode="walking" aria-pressed="false" aria-label="A pé"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13" cy="4.5" r="1.8"/><path d="M12 8.5 9.5 12l2 2.5-1 5M12 8.5l3 2.5 2 .5M11.5 14.5l3 1.5 1 3.5M9.5 12l-2.5 1"/></svg><span>A pé</span></button><button type="button" class="rm__m" data-mode="bicycling" aria-pressed="false" aria-label="Bike"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l3.5-7h5l3.5 7M9.5 9l3 7M14.5 9h2"/></svg><span>Bike</span></button></div>
+  <div class="rm__stats" aria-live="polite"><div><small>Distância</small><b id="rmDist">—</b></div><div><small>Tempo ≈</small><b id="rmEta">—</b></div><div><small>GPS</small><b id="rmAcc">—</b></div></div>
+  <p class="rm__st" id="rmStatus" role="status">Obtendo a sua localização…</p>
+  <div class="rm__map"><iframe id="rmFrame" title="Mapa da rota ao vivo até a Esquina Mix" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+  <footer class="rm__foot"><button type="button" class="btn" id="rmRefresh">Atualizar rota</button><a class="btn alt" id="rmOpen" href="https://www.google.com/maps/dir/?api=1&amp;destination=Adega+e+Tabacaria+Esquina+Mix%2C+R.+S%C3%A3o+Francisco%2C+285%2C+Guarulhos" target="_blank" rel="noopener">Abrir no Google Maps ↗</a></footer>
+</div>
+
+<script src="preloader.js" defer></script>
 <script src="app.js" defer></script>
 </body>
 </html>

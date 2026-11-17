@@ -1,0 +1,228 @@
+/* ==========================================================================
+   ABERTURA (preloader) — Esquina Mix
+   Sequência total: 6,0 s  →  logo tela cheia (0–2,3s) → barra de chope (2,2–5,4s) → saída (5,4–6,0s)
+   Tudo isolado em classes .pl* (não toca em nenhum estilo existente).
+   Para ajustar os tempos, mude só as variáveis abaixo (e o tempo total no preloader.js).
+   ========================================================================== */
+.pl{
+  --logo-t:2.3s;          /* duração da fase do logo */
+  --load-d:2.2s;          /* quando a barra começa a aparecer */
+  --fill-d:2.4s;          /* quando o líquido começa a encher */
+  --fill-t:3s;            /* duração do enchimento (termina em 5,4s) */
+  --amber:#f6a800;
+  --amber-hi:#ffd45c;
+  --amber-lo:#d98200;
+  --h:clamp(26px,6vw,54px);        /* altura da barra (tudo escala a partir dela) */
+  --m:calc(var(--h)*3.1);            /* largura da caneca */
+  --wp:calc(var(--h)*.9);            /* período da onda do líquido */
+
+  position:fixed;inset:0;z-index:9999;
+  display:grid;place-items:center;
+  background:#000;color:#fff;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overflow:hidden;overscroll-behavior:none;touch-action:none;
+  opacity:1;transition:opacity .55s ease;
+  /* rede de segurança: se o JS falhar, some sozinho depois do tempo */
+  animation:plFailsafe .01s linear 6.8s forwards;
+}
+.pl.pl--out{opacity:0;pointer-events:none}
+.pl *{box-sizing:border-box;pointer-events:none}
+
+/* trava a rolagem do site enquanto a abertura existe (some junto com ela) */
+html:has(#esquinaPreloader){overflow:hidden;animation:plUnlock .01s linear 6.9s forwards}
+@keyframes plUnlock{to{overflow:visible}}
+@keyframes plFailsafe{to{opacity:0;visibility:hidden}}
+
+/* ---------- FASE 1: logo tela cheia ---------- */
+.pl__glow{
+  position:absolute;left:50%;top:50%;width:min(130vw,1200px);aspect-ratio:1;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(236,26,181,.30) 0,rgba(62,200,255,.13) 38%,transparent 66%);
+  animation:plGlow var(--logo-t) ease both;
+}
+.pl__logo{
+  position:absolute;left:50%;top:50%;
+  width:min(92vw,88vh,960px);aspect-ratio:1;
+  margin:0;translate:-50% -50%;
+  animation:plLogo var(--logo-t) ease both;
+  will-change:transform,opacity;
+}
+@supports (height:100dvh){.pl__logo{width:min(92vw,88dvh,960px)}}
+.pl__logo img{display:block;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
+
+@keyframes plLogo{
+  0%{opacity:0;transform:scale(.55) rotate(-5deg)}
+  20%{opacity:1;transform:scale(1.05) rotate(.6deg)}
+  28%{opacity:1;transform:scale(1) rotate(0)}
+  54%{opacity:1;transform:scale(1.025)}
+  80%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(1.2)}
+}
+@keyframes plGlow{0%{opacity:0}25%{opacity:1}75%{opacity:.9}100%{opacity:0}}
+
+/* ---------- FASE 2: barra de loading ---------- */
+.pl__load{
+  position:relative;width:min(90vw,860px);
+  animation:plLoadIn .55s cubic-bezier(.2,.8,.2,1) var(--load-d) both;
+}
+@supports not (animation-name:x){.pl__load{opacity:1}}
+@keyframes plLoadIn{from{opacity:0;transform:translateY(16px) scale(.94)}to{opacity:1;transform:none}}
+
+.pl__row{position:relative;padding-right:calc(var(--m)*.55)}
+
+.pl__bar{
+  height:var(--h);padding:3px;
+  border:calc(var(--h)*.11) solid #fff;border-radius:999px;background:#000;
+  box-shadow:0 0 calc(var(--h)*.9) rgba(246,168,0,.18);
+}
+.pl__track{position:relative;width:100%;height:100%;border-radius:999px;overflow:hidden}
+
+/* líquido da barra */
+.pl__fill{
+  position:absolute;inset:0;border-radius:999px;
+  background:linear-gradient(180deg,var(--amber-hi) 0,#fbb800 42%,var(--amber-lo) 100%);
+  transform:translateX(-100%);
+  animation:plFill var(--fill-t) linear var(--fill-d) forwards;
+  will-change:transform;
+}
+@keyframes plFill{          /* carrega "de verdade": acelera, desacelera, termina cheio */
+  0%{transform:translateX(-100%)}
+  30%{transform:translateX(-62%)}
+  55%{transform:translateX(-40%)}
+  80%{transform:translateX(-12%)}
+  100%{transform:translateX(0)}
+}
+/* ondinhas na superfície do líquido */
+.pl__wave{position:absolute;left:0;right:0;top:-1px;height:26%;overflow:hidden}
+.pl__wave::before{
+  content:"";position:absolute;top:0;left:0;height:100%;width:calc(100% + var(--wp)*2);
+  background:radial-gradient(ellipse calc(var(--wp)*.5) 100% at 50% 0,#000 62%,transparent 66%) 0 0/var(--wp) 100% repeat-x;
+  animation:plWaveX 1.1s linear infinite;
+}
+@keyframes plWaveX{to{transform:translateX(calc(var(--wp)*-1))}}
+/* brilho fixo + reflexo que varre o líquido */
+.pl__shine{
+  position:absolute;left:3%;right:9%;top:30%;height:16%;border-radius:99px;
+  background:linear-gradient(90deg,rgba(255,255,255,.95),rgba(255,255,255,.45));
+}
+.pl__fill::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(100deg,transparent 38%,rgba(255,255,255,.38) 50%,transparent 62%) 0 0/220% 100%;
+  animation:plGlare 1.5s linear infinite;
+}
+@keyframes plGlare{from{background-position:140% 0}to{background-position:-60% 0}}
+/* "frente" do líquido: bolha que pulsa na ponta, dá aspecto de líquido avançando */
+.pl__edge{
+  position:absolute;right:calc(var(--h)*-.35);top:-12%;width:calc(var(--h)*.95);height:124%;
+  background:radial-gradient(circle at 35% 40%,var(--amber-hi),var(--amber) 70%);
+  border-radius:50% 50% 50% 50%/45% 55% 45% 55%;
+  animation:plBlob 1.1s ease-in-out infinite alternate;
+}
+@keyframes plBlob{
+  from{border-radius:50% 50% 50% 50%/45% 55% 45% 55%;transform:scale(1,1)}
+  to{border-radius:42% 58% 55% 45%/58% 42% 58% 42%;transform:scale(1.08,.94)}
+}
+/* bolhas subindo no líquido */
+.pl__bub{
+  position:absolute;bottom:-25%;width:calc(var(--h)*.2);aspect-ratio:1;border-radius:50%;
+  background:rgba(255,255,255,.75);opacity:0;animation:plBubble 1.8s ease-in infinite;
+}
+.pl__bub:nth-of-type(1){right:4%;animation-delay:.1s}
+.pl__bub:nth-of-type(2){right:11%;width:calc(var(--h)*.13);animation-duration:1.4s;animation-delay:.7s}
+.pl__bub:nth-of-type(3){right:19%;animation-duration:2.2s;animation-delay:.4s}
+.pl__bub:nth-of-type(4){right:29%;width:calc(var(--h)*.15);animation-duration:1.6s;animation-delay:1s}
+.pl__bub:nth-of-type(5){right:41%;animation-duration:2s;animation-delay:.2s}
+.pl__bub:nth-of-type(6){right:55%;width:calc(var(--h)*.12);animation-duration:1.5s;animation-delay:.9s}
+.pl__bub:nth-of-type(7){right:70%;animation-duration:2.4s;animation-delay:.5s}
+@keyframes plBubble{
+  0%{transform:translateY(0) scale(.6);opacity:0}
+  20%{opacity:.85}
+  100%{transform:translateY(calc(var(--h)*-1.1)) scale(1.1);opacity:0}
+}
+
+/* ---------- caneca de chope ---------- */
+.pl__mugw{
+  position:absolute;right:0;top:50%;width:var(--m);aspect-ratio:120/130;
+  transform:translateY(-63%) rotate(-8deg);
+}
+.pl__mug{display:block;width:100%;height:100%;overflow:visible;transform-origin:50% 90%;
+  animation:plShake .5s ease-in-out infinite}
+@keyframes plShake{       /* chacoalha enquanto a barra carrega */
+  0%{transform:translate(0,0) rotate(-5deg)}
+  20%{transform:translate(2px,-1.5px) rotate(4deg)}
+  40%{transform:translate(-2px,1px) rotate(-4.5deg)}
+  60%{transform:translate(2px,-1px) rotate(5deg)}
+  80%{transform:translate(-1.5px,1px) rotate(-3deg)}
+  100%{transform:translate(0,0) rotate(-5deg)}
+}
+/* o líquido balança dentro do copo, em contra-tempo */
+.pl__slosh{transform-origin:55px 0;animation:plSlosh .5s ease-in-out infinite alternate}
+@keyframes plSlosh{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
+
+.pl__level{animation:plLevel var(--fill-t) linear var(--fill-d) both}
+@keyframes plLevel{        /* mesmos pontos da barra: caneca enche junto com o loading */
+  0%{transform:translateY(84px)}
+  30%{transform:translateY(52px)}
+  55%{transform:translateY(33.6px)}
+  80%{transform:translateY(10px)}
+  100%{transform:translateY(0)}
+}
+.pl__w1{animation:plWaveSvg .9s linear infinite}
+.pl__w2{animation:plWaveSvg 1.4s linear infinite reverse}
+@keyframes plWaveSvg{to{transform:translateX(-30px)}}
+.pl__sb{opacity:0;animation:plSb 1.9s ease-in infinite}
+.pl__sb:nth-of-type(2){animation-delay:.5s;animation-duration:1.5s}
+.pl__sb:nth-of-type(3){animation-delay:1s;animation-duration:2.2s}
+.pl__sb:nth-of-type(4){animation-delay:.3s;animation-duration:1.7s}
+.pl__sb:nth-of-type(5){animation-delay:1.3s}
+@keyframes plSb{0%{transform:translateY(0);opacity:0}15%{opacity:.85}100%{transform:translateY(-52px);opacity:0}}
+
+/* colarinho de espuma que "transborda" quando está quase cheio */
+.pl__dome{
+  transform-box:fill-box;transform-origin:50% 100%;opacity:0;
+  animation:plDome calc(var(--fill-t)*.25) cubic-bezier(.2,1.4,.4,1) calc(var(--fill-d) + var(--fill-t)*.4) both;
+}
+@keyframes plDome{from{opacity:0;transform:translateY(16px) scale(.55)}to{opacity:1;transform:none}}
+.pl__bob{transform-box:fill-box;transform-origin:50% 100%;animation:plBob 1.3s ease-in-out infinite alternate}
+@keyframes plBob{from{transform:translateY(0) scale(1)}to{transform:translateY(-1.5px) scale(1.03,1.05)}}
+
+/* respingo no topo da caneca */
+.pl__splash{
+  transform-box:fill-box;transform-origin:100% 100%;opacity:0;
+  animation:plSplash 1.3s ease-out calc(var(--fill-d) + var(--fill-t)*.5) infinite both;
+}
+@keyframes plSplash{
+  0%{opacity:0;transform:translate(8px,10px) scale(.3) rotate(10deg)}
+  25%{opacity:1}
+  65%{opacity:1;transform:translate(-3px,-4px) scale(1) rotate(0)}
+  100%{opacity:0;transform:translate(-6px,-8px) scale(1.05) rotate(-6deg)}
+}
+
+/* ---------- texto ---------- */
+.pl__txt{
+  margin:clamp(16px,4.2vw,30px) 0 0;text-align:center;
+  font:400 clamp(15px,3.6vw,21px)/1 var(--f-sign,"Bebas Neue",Impact,sans-serif);
+  letter-spacing:.14em;color:var(--sign-gold,#E5A900);
+}
+.pl__txt i{font-style:normal;animation:plDot 1.2s infinite both}
+.pl__txt i:nth-child(2){animation-delay:.2s}
+.pl__txt i:nth-child(3){animation-delay:.4s}
+@keyframes plDot{0%,20%{opacity:.15}50%{opacity:1}100%{opacity:.15}}
+
+/* ---------- telas grandes: escala o conjunto barra + caneca ---------- */
+@media (min-width:1600px) and (min-height:900px){.pl{--h:66px}.pl__load{width:min(80vw,1080px)}.pl__txt{font-size:26px}}
+@media (min-width:2400px) and (min-height:1100px){.pl{--h:86px}.pl__load{width:min(70vw,1400px)}.pl__txt{font-size:34px}}
+
+/* ---------- telas pequenas / baixas ---------- */
+@media (max-width:420px){.pl{--h:clamp(22px,6.4vw,30px)}}
+@media (max-height:420px) and (orientation:landscape){
+  .pl{--h:clamp(20px,4.4vh,30px)}
+  .pl__txt{margin-top:12px}
+}
+
+/* ---------- movimento reduzido: só o logo, calmo, e sai ---------- */
+@media (prefers-reduced-motion:reduce){
+  .pl,.pl__glow,.pl__logo{animation:none}
+  .pl__glow{opacity:.8}
+  .pl__load{display:none}
+}

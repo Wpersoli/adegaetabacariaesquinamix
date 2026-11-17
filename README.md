@@ -12,7 +12,7 @@ Cardapio digital responsivo, sem framework e sem dependencias de build.
 - `assets/favicon.ico`, `favicon-48.png`, `apple-touch-icon.png`: icones gerados a partir da logo oficial.
 
 ## Identidade visual
-- Tipografia: `DM Sans` (Google Fonts) para titulos e corpo de texto, substituindo a combinacao anterior Barlow Condensed + Inter, alinhando o estilo de fonte ao site de referencia informado pelo cliente.
+- Tipografia (referencia PLANET EXPRESS): titulos, menus, botoes e cards usam `--f-display` = Rohn Rounded Black (fonte comercial; se instalada/embutida e usada primeiro, senao cai em `Russo One`, depois `Archivo Black`). A assinatura ADEGA · TABACARIA e rotulos usam `Bebas Neue` (`--f-sign`) em dourado `#E5A900`. Corpo de texto continua `DM Sans`. Para usar a Rohn de verdade, coloque o `.woff2` em `assets/fonts/` e adicione `url()` no `@font-face` do fim do `styles.css`. Neon branco/dourado da marca reage ao mouse (final do `app.js`).
 - Paleta de cores (rosa/dourado/ciano sobre fundo escuro) mantida conforme o manual da marca Esquina Mix.
 - Elementos funcionais adicionados: barra de avisos com ticker animado, botao flutuante do WhatsApp, barra fixa de sacola no mobile, favoritos (coracao) por produto e microanimacao de "Adicionado" no botao de compra.
 
@@ -31,10 +31,11 @@ Projeto estatico. Basta conectar a branch `main` na Vercel; nao requer comando d
 - `robots.txt` e `sitemap.xml` na raiz; ao trocar para dominio proprio, atualize canonical, og:url, sitemap e JSON-LD.
 - Horario de funcionamento: constantes `OPEN`/`CLOSE` no bloco "Status da loja" de `app.js` e no JSON-LD do `index.html`.
 
-## Mapa e rota
-- Ao rolar até a seção do mapa, a localização do visitante é solicitada automaticamente (o botão "Traçar/Atualizar rota" fica como alternativa); ao permitir, o site traça o trajeto no mapa com o tempo de viagem e atualiza ao se deslocar. Modos: carro, a pé, bike, ônibus.
-- Sem chave, usa o embed do Google sem API key. Para a rota oficial com trânsito, crie uma chave da **Maps Embed API** no Google Cloud, restrinja por referrer (seu domínio) e cole em `MAPS_KEY` no bloco "Rota até a loja" de `app.js`.
-- A CSP já permite os iframes do Google; `geolocation=(self)` está liberado no `vercel.json`.
+## Mapa e rota (seção "// base terrestre")
+- Cartão (selo de horário, endereço, painel de rotas com modos carro/ônibus/a pé/bike, origem digitável ou "usar minha localização", copiar endereço) + mapa com botões de rota. Mesma estrutura no desktop (2 colunas) e no celular (empilhado).
+- **Celular/tablet (≤900px):** tocar em "Como chegar" (cartão), no endereço ou em "Como chegar" da barra flutuante abre uma **tela cheia de rota** com o mapa do próprio site, distância em linha reta, tempo aproximado e precisão do GPS. O mapa se atualiza a cada ~20 m / 6 s de deslocamento; o botão Voltar do aparelho fecha a tela. No desktop, "Como chegar" continua abrindo o Google Maps e o endereço traça a rota no mapa da página.
+- A posição não é gravada: só é enviada ao Google Maps para desenhar a rota. Tempo/distância da tela cheia são estimativas (linha reta x fator de ruas x velocidade média); o tempo oficial com trânsito aparece no próprio mapa.
+- Sem chave, usa o embed do Google sem API key. Para a rota oficial com trânsito, crie uma chave da **Maps Embed API**, restrinja por referrer e cole em `MAPS_KEY` (bloco "Rota até a loja" do `app.js`). A CSP já permite os iframes do Google; `geolocation=(self)` está no `vercel.json`.
 
 ## Barra do topo
 - Cabeçalho + categorias ficam num bloco `.bar` (sticky): somem ao rolar para baixo e reaparecem ao rolar para cima, no desktop e no celular. Não esconde com a sacola aberta, com a busca em foco, logo após clicar numa categoria ou adicionar um item (a barra reaparece para mostrar a sacola). Respeita "reduzir movimento".

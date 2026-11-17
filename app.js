@@ -373,37 +373,101 @@ var reviews=[
     window.scrollTo({top:0,behavior:calm?'auto':'smooth'})});
   upd();
 })();
-/* Rota até a loja: geolocalização sob demanda (HTTPS), atualiza ao se deslocar >100 m e a cada >=30 s */
+/* Rota até a loja: mapa embutido + tela cheia no celular/tablet (≤900px), atualizada a cada passo.
+   Localização sob demanda (HTTPS). Este site não grava a posição; ela só vai ao Google Maps para desenhar a rota. */
 (function(){
-  var MAPS_KEY='', /* opcional: chave da Maps Embed API restrita por referrer (rota com trânsito oficial) */
+  var MAPS_KEY='', /* opcional: chave da Maps Embed API restrita por referrer (rota oficial com trânsito) */
       DEST='Adega e Tabacaria Esquina Mix, R. São Francisco, 285, Vila Galvão, Guarulhos - SP',
-      btn=$('routeBtn'),st=$('routeStatus'),fr=$('mapFrame'),lnk=$('routeOpen'),modes=$('routeModes');
-  if(!btn||!fr)return;
-  var mode='driving',pos=null,last=null,watch=null,flg={driving:'d',walking:'w',bicycling:'b',transit:'r'};
+      ADDR='R. São Francisco, 285 – Vila Galvão, Guarulhos – SP, 07071-010',
+      TO={lat:-23.4546859,lng:-46.5682857},
+      FLG={driving:'d',walking:'w',bicycling:'b',transit:'r'},
+      KMH={driving:28,walking:5,bicycling:15,transit:20},
+      fr=$('mapFrame'),btn=$('routeBtn'),st=$('routeStatus'),lnk=$('routeOpen');
+  if(!fr||!btn)return;
+  var rm=$('rm'),rst=$('rmStatus'),rOpen=$('rmOpen'),
+      org=$('dirOrigin'),mq=window.matchMedia('(max-width:900px)'),
+      mode='driving',pos=null,acc=0,typed='',last=null,watch=null,busy=false,popping=false,opener=null;
+  function say(t){st.textContent=t;rst.textContent=t}
   function dist(a,b){var r=Math.PI/180,R=6371e3,p=(b.lat-a.lat)*r,q=(b.lng-a.lng)*r,
     x=Math.sin(p/2)*Math.sin(p/2)+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(q/2)*Math.sin(q/2);return 2*R*Math.asin(Math.sqrt(x))}
+  function km(m){return m<1000?Math.round(m/10)*10+' m':(m/1000).toFixed(m<10000?1:0).replace('.',',')+' km'}
+  function eta(m){var min=Math.max(1,Math.round(m*1.3/1000/KMH[mode]*60));return min<60?min+' min':Math.floor(min/60)+' h '+('0'+min%60).slice(-2)+' min'}
+  function stats(){
+    var d=pos&&!typed?dist(pos,TO):null;
+    $('rmDist').textContent=d===null?'—':km(d);
+    $('rmEta').textContent=d===null?'—':(d<30?'Chegou':'≈ '+eta(d));
+    $('rmAcc').textContent=pos&&acc?'± '+Math.round(acc)+' m':'—';
+    if(d!==null&&d<30)say('Você chegou à Esquina Mix! 🎉')}
+  function src(){
+    var o=typed?encodeURIComponent(typed):pos.lat.toFixed(6)+','+pos.lng.toFixed(6),d=encodeURIComponent(DEST);
+    return{
+      f:MAPS_KEY?'https://www.google.com/maps/embed/v1/directions?key='+encodeURIComponent(MAPS_KEY)+'&origin='+o+'&destination='+d+'&mode='+mode+'&language=pt-BR&region=BR'
+        :'https://maps.google.com/maps?saddr='+o+'&daddr='+d+'&dirflg='+FLG[mode]+'&hl=pt-BR&output=embed',
+      l:'https://www.google.com/maps/dir/?api=1&origin='+o+'&destination='+d+'&travelmode='+mode}}
+  /* troca o iframe por um novo (mudar o src empilha histórico e o botão Voltar do celular andaria no mapa) */
+  function setSrc(f,u){if(!f||f.dataset.u===u)return;var n=f.cloneNode(false);n.removeAttribute('loading');n.dataset.u=u;n.src=u;f.parentNode.replaceChild(n,f)}
   function draw(){
-    var o=pos.lat.toFixed(6)+','+pos.lng.toFixed(6),d=encodeURIComponent(DEST);
-    fr.src=MAPS_KEY?'https://www.google.com/maps/embed/v1/directions?key='+encodeURIComponent(MAPS_KEY)+'&origin='+o+'&destination='+d+'&mode='+mode+'&language=pt-BR&region=BR'
-      :'https://maps.google.com/maps?saddr='+o+'&daddr='+d+'&dirflg='+flg[mode]+'&hl=pt-BR&output=embed';
-    lnk.href='https://www.google.com/maps/dir/?api=1&origin='+o+'&destination='+d+'&travelmode='+mode;lnk.hidden=false;
-    last={lat:pos.lat,lng:pos.lng,t:Date.now()}}
-  function onPos(p){pos={lat:p.coords.latitude,lng:p.coords.longitude};
-    if(!last||(dist(pos,last)>100&&Date.now()-last.t>=30000)){draw();
-      st.textContent='Rota traçada a partir da sua posição (precisão ≈ '+Math.round(p.coords.accuracy)+' m). O tempo de viagem aparece no mapa e é atualizado conforme você se desloca.'}}
-  function onErr(e){btn.disabled=false;st.textContent=e.code===1?'Permissão de localização negada. Libere no cadeado do navegador e tente de novo.'
-    :e.code===3?'Tempo esgotado ao obter a localização. Tente novamente.':'Não foi possível determinar sua posição. Verifique o GPS e a internet.'}
-  var busy=false;
+    if(!pos&&!typed)return;
+    var s=src();setSrc($('mapFrame'),s.f);if(!rm.hidden)setSrc($('rmFrame'),s.f);
+    lnk.href=s.l;lnk.hidden=false;rOpen.href=s.l;
+    last={lat:pos?pos.lat:0,lng:pos?pos.lng:0,t:Date.now()}}
+  function onPos(p){
+    pos={lat:p.coords.latitude,lng:p.coords.longitude};acc=p.coords.accuracy||0;
+    org.placeholder='Sua localização atual';stats();
+    if(typed)return;
+    var open=!rm.hidden,need=!last||(dist(pos,last)>(open?20:100)&&Date.now()-last.t>=(open?6000:30000));
+    if(need){draw();if(!(pos&&dist(pos,TO)<30))say('Rota traçada a partir da sua posição (precisão ≈ '+Math.round(acc)+' m). Atualiza a cada passo em direção à loja.')}}
+  function onErr(e){busy=false;btn.disabled=false;
+    if(e&&e.code===1)org.placeholder='Localização não autorizada';
+    say(e&&e.code===1?'Permissão de localização negada. Libere no cadeado do navegador e tente de novo, ou digite o ponto de partida.'
+      :e&&e.code===3?'Tempo esgotado ao obter a localização. Tente novamente.':'Não foi possível determinar sua posição. Verifique o GPS e a internet.')}
+  function watchStart(){if(watch===null)watch=navigator.geolocation.watchPosition(onPos,function(){},{enableHighAccuracy:true,maximumAge:2000,timeout:20000})}
+  function ok(p){busy=false;btn.disabled=false;btn.textContent='Atualizar rota';last=null;typed='';onPos(p);watchStart()}
   function start(){
     if(busy)return;
-    if(!navigator.geolocation){st.textContent='Seu navegador não oferece localização.';return}
-    busy=true;st.textContent='Obtendo a sua localização…';btn.disabled=true;
-    navigator.geolocation.getCurrentPosition(function(p){
-      busy=false;btn.disabled=false;btn.textContent='Atualizar rota';last=null;onPos(p);
-      if(watch===null)watch=navigator.geolocation.watchPosition(onPos,function(){},{enableHighAccuracy:true,maximumAge:10000,timeout:20000})
-    },function(e){busy=false;onErr(e)},{enableHighAccuracy:true,timeout:15000,maximumAge:0})}
+    if(!navigator.geolocation){say('Seu navegador não oferece localização. Digite o ponto de partida.');return}
+    busy=true;say('Obtendo a sua localização…');btn.disabled=true;
+    navigator.geolocation.getCurrentPosition(ok,function(e){
+      if(e&&e.code!==1)navigator.geolocation.getCurrentPosition(ok,onErr,{enableHighAccuracy:false,timeout:15000,maximumAge:60000});
+      else onErr(e)},{enableHighAccuracy:true,timeout:12000,maximumAge:0})}
+  function setMode(m){mode=m;
+    [].forEach.call(document.querySelectorAll('.js-modes [data-mode]'),function(x){x.setAttribute('aria-pressed',x.dataset.mode===m?'true':'false')});
+    stats();draw()}
+  document.addEventListener('click',function(e){var b=e.target.closest('.js-modes [data-mode]');if(b)setMode(b.dataset.mode)});
   btn.onclick=start;
-  /* Automático: ao chegar perto do mapa pede/usa a localização; se o usuário permitir depois (pelo cadeado), traça na hora */
+  /* Origem digitada */
+  function useTyped(){var v=org.value.trim();if(!v)return start();typed=v;last=null;stats();draw();say('Rota traçada a partir de “'+v+'”.')}
+  $('dirGo').onclick=useTyped;
+  org.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();useTyped()}});
+  $('dirLocate').onclick=function(){org.value='';typed='';last=null;if(pos){draw();stats()}start()};
+  /* Copiar endereço */
+  var tx=$('dirCopyTx'),txt0=tx.textContent,tm=0;
+  function copied(okk){tx.textContent=okk?'Endereço copiado ✓':'Não foi possível copiar';clearTimeout(tm);tm=setTimeout(function(){tx.textContent=txt0},2200)}
+  function copy(){
+    if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(ADDR).then(function(){copied(1)},function(){copied(0)});
+    var t=document.createElement('textarea');t.value=ADDR;t.setAttribute('readonly','');t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.select();
+    var r=false;try{r=document.execCommand('copy')}catch(x){}document.body.removeChild(t);copied(r)}
+  $('dirCopy').onclick=copy;tx.onclick=copy;
+  /* Tela de rota (celular/tablet) */
+  function openRm(from){
+    opener=from||document.activeElement;rm.hidden=false;document.documentElement.classList.add('rm-open');
+    try{history.pushState({rm:1},'')}catch(x){}
+    $('rmClose').focus();stats();
+    if(pos||typed){draw();setSrc($('rmFrame'),src().f)}else{setSrc($('rmFrame'),'https://maps.google.com/maps?q=R.+S%C3%A3o+Francisco,+285,+Vila+Galv%C3%A3o,+Guarulhos&output=embed');start()}}
+  function closeRm(){
+    if(rm.hidden)return;rm.hidden=true;document.documentElement.classList.remove('rm-open');
+    if(!popping&&history.state&&history.state.rm)history.back();
+    if(opener&&opener.focus)opener.focus()}
+  $('rmClose').onclick=closeRm;
+  $('rmRefresh').onclick=function(){last=null;if(typed){draw()}else if(pos){draw();start()}else start()};
+  window.addEventListener('popstate',function(){if(!rm.hidden){popping=true;closeRm();popping=false}});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeRm()});
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('[data-route-open]');if(!a)return;
+    if(mq.matches){e.preventDefault();openRm(a);return}
+    if(a.hasAttribute('data-route-keep'))return;
+    e.preventDefault();start()});
+  /* Automático ao chegar na seção do mapa; se o usuário liberar depois pelo cadeado, traça na hora */
   var sec=$('encontre'),armed=false;
   function arm(){if(armed)return;armed=true;start()}
   if(navigator.permissions&&navigator.permissions.query){
@@ -412,9 +476,12 @@ var reviews=[
   if('IntersectionObserver' in window&&sec){
     var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){io.disconnect();arm()}},{rootMargin:'200px'});io.observe(sec)}
   else arm();
-  modes.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;mode=b.dataset.mode;
-    [].forEach.call(modes.children,function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});if(pos)draw()});
   window.addEventListener('pagehide',function(){if(watch!==null)navigator.geolocation.clearWatch(watch)});
+  /* Selo de horário do cartão */
+  var dot=$('lcDot'),tt=$('lcTxt'),fmt=new Intl.DateTimeFormat('pt-BR',{hour:'numeric',hourCycle:'h23',timeZone:'America/Sao_Paulo'});
+  function badge(){var h=parseInt(fmt.format(new Date()),10),o=h>=10||h<2;
+    dot.className='dot '+(o?'is-open':'is-closed');tt.textContent=o?'Aberto agora • fecha às 02h00':'Fechado agora • abre às 10h00'}
+  badge();setInterval(badge,60000);
 })();
 /* Barra do topo: some ao rolar para baixo e volta ao rolar para cima (também no celular) */
 (function(){
@@ -507,4 +574,21 @@ render();sync();
     if(document.hidden)stop();else start()
   });
   start();
+})();
+
+
+/* Neon da marca: intensidade e brilho reagem à proximidade do mouse (só apresentação) */
+(function(){
+'use strict';
+var bt=document.querySelector('.brand-t');
+if(!bt||!window.matchMedia||!matchMedia('(hover:hover)').matches||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+var raf=0,px=0,py=0;
+function paint(){
+  raf=0;
+  var r=bt.getBoundingClientRect();if(!r.width)return;
+  var cx=r.left+r.width/2,cy=r.top+r.height/2,d=Math.hypot(px-cx,py-cy);
+  bt.style.setProperty('--k',Math.max(0,Math.min(1,1-d/420)).toFixed(3));
+}
+window.addEventListener('pointermove',function(e){px=e.clientX;py=e.clientY;if(!raf)raf=requestAnimationFrame(paint)},{passive:true});
+document.addEventListener('pointerleave',function(){bt.style.setProperty('--k','.3')});
 })();
