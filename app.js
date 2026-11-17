@@ -107,8 +107,9 @@ function matchSel(x){var ks=Object.keys(sel),cs=ks.filter(function(k){return k.s
 /* Subcategorias do cardapio = exatamente os itens do menu suspenso do topo (SUBS) */
 function facets(base,q){
   var box=$('facets');if(!box)return;box.textContent='';
+  var pool=catalog.filter(function(x){return cat==='todos'||(cat==='promo'?x.promo:x.cat===cat)});
   (SUBS[cat]||[]).forEach(function(sb,i){var on=!!(subF&&subF.label===sb[0]),b=document.createElement('button');b.type='button';
-    b.className='feat-chip'+(on?' is-active':'');b.dataset.i=i;b.setAttribute('aria-pressed',on?'true':'false');b.textContent=sb[0];box.appendChild(b)});
+    b.className='feat-chip'+(on?' is-active':'');b.dataset.i=i;b.setAttribute('aria-pressed',on?'true':'false');b.textContent=sb[0];if(!pool.some(function(x){return sb[1](x,norm(x.n))})){b.classList.add('is-empty');b.title='Sem itens no momento'}box.appendChild(b)});
   if(q.mx!=null||q.mn!=null){var n=document.createElement('span');n.className='facet-note';n.textContent='Preço '+(q.mn!=null?'a partir de '+brl(q.mn)+' ':'')+(q.mx!=null?'até '+brl(q.mx):'');box.appendChild(n)}}
 function render(){
   var q=parseTerm();
@@ -122,7 +123,7 @@ function render(){
   if(!list.length){g.innerHTML='<p class="feat__empty">'+(subF?'Ainda não temos itens em “'+subF.label+'” no cardápio digital. Pergunte pelo WhatsApp!':'Nada encontrado. Tente outra busca.')+'</p>';return}
   list.forEach(function(x){
     var c=document.createElement('article');c.className='prod-card';
-    c.innerHTML='<div class="prod-filete"></div>'+(x.promo?'<span class="prod-tag">Promo</span>':'')+'<div class="prod-img'+(x.img?' prod-img--foto':'')+'"><img src="'+(x.img||'assets/logo.webp')+'" alt="" width="'+(x.img?800:120)+'" height="'+(x.img?800:120)+'" loading="lazy"></div><p class="prod-cat"></p><h3 class="prod-name"></h3><div class="prod-price"></div><button class="prod-buy">Comprar →</button>';
+    c.innerHTML='<div class="prod-filete"></div>'+(x.promo?'<span class="prod-tag">Promo</span>':'')+'<div class="prod-img'+(x.img?' prod-img--foto':'')+'"><img src="'+(x.img||'assets/logo.webp')+'" alt="" width="'+(x.img?800:120)+'" height="'+(x.img?800:120)+'" loading="lazy" decoding="async"></div><p class="prod-cat"></p><h3 class="prod-name"></h3><div class="prod-price"></div><button class="prod-buy">Comprar →</button>';
     c.querySelector('.prod-cat').textContent=names[x.cat];c.querySelector('.prod-name').textContent=x.n;c.querySelector('img').alt=x.img?x.n:'';c.querySelector('.prod-price').textContent=brl(x.p);
     var buy=c.querySelector('.prod-buy');buy.setAttribute('aria-label','Adicionar '+x.n+' à sacola');
     buy.onclick=function(){add(x.id);buy.textContent='Adicionado ✓';clearTimeout(buy.t);buy.t=setTimeout(function(){buy.textContent='Comprar →'},1200)};
@@ -330,8 +331,8 @@ var reviews=[
   var tr=$('rankTrack');
   topIds.forEach(function(id,i){var x=catalog.filter(function(c){return c.id===id})[0];if(!x)return;
     var a=document.createElement('button');a.className='rank-card';
-    a.innerHTML='<b class="rank-n"></b><img src="assets/logo.webp" alt="" width="64" height="64" loading="lazy"><span class="rank-i"><small></small><strong></strong><em></em></span>';
-    a.querySelector('.rank-n').textContent=('0'+(i+1)).slice(-2);a.querySelector('small').textContent=names[x.cat];
+    a.innerHTML='<b class="rank-n"></b><img alt="" width="64" height="64" loading="lazy" decoding="async"><span class="rank-i"><small></small><strong></strong><em></em></span>';
+    a.querySelector('img').src=x.img||'assets/logo.webp';a.querySelector('.rank-n').textContent=('0'+(i+1)).slice(-2);a.querySelector('small').textContent=names[x.cat];
     a.querySelector('strong').textContent=x.n;a.querySelector('em').textContent=brl(x.p);
     a.setAttribute('aria-label','Adicionar '+x.n+' à sacola');a.onclick=function(){add(x.id)};tr.appendChild(a)});
   var d=0,sx=0,sl=0;
