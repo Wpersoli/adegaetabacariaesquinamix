@@ -24,7 +24,7 @@ module.exports=async function(req,res){
       const user=await A.currentUser(req,res,c);
       if(!user)return A.send(res,401,{code:'UNAUTHENTICATED'});
       if(d.confirm!=='ENCERRAR')return A.send(res,400,{code:'CONFIRMATION_REQUIRED'});
-      await A.sbFetch(c,'/auth/v1/admin/users/'+encodeURIComponent(user.id),{method:'DELETE',admin:true});
+      try{await A.sbFetch(c,'/auth/v1/admin/users/'+encodeURIComponent(user.id),{method:'DELETE',admin:true})}catch(e){return A.send(res,503,{code:'ACCOUNT_DELETE_UNAVAILABLE'})}
       A.clearSession(res);
       return A.send(res,200,{ok:true});
     }
