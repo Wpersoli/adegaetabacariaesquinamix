@@ -713,9 +713,9 @@ body:has(.drawer:not([hidden])) .home-filter-tab,body:has(.drawer:not([hidden]))
 .ck__who b{color:var(--gold);font-weight:700}
 .ck__who[hidden]{display:none!important}
 
-/* Links na barra de categorias mantêm o mesmo tratamento visual dos botões */
-.nav a{flex:none;display:inline-flex;align-items:center;gap:6px;padding:12px clamp(10px,1.5vw,22px);font:400 var(--nf) var(--f-display);letter-spacing:.2px;text-transform:uppercase;white-space:nowrap;color:#e9e1d4;text-decoration:none}
-.nav a:hover{color:var(--gold)}
-
-#ckAddress{height:auto;min-height:92px;padding:10px 12px;resize:vertical;line-height:1.4}
-#ckAddress[readonly]{opacity:.9;cursor:default}
+/* Endereço no checkout: acompanha os campos existentes sem alterar o fluxo de pagamento */
+.ck__address-input{height:auto;min-height:88px;padding:11px 12px;resize:vertical;line-height:1.4}
+.ck__address-input[hidden]{display:none!important}
+.ck__address-modes{grid-template-columns:repeat(2,minmax(0,1fr));margin:2px 0 4px}
+.ck__address-modes .ck__opt span{font-size:11px;line-height:1.2;padding:6px}
+@media(max-width:380px){.ck__address-modes{grid-template-columns:1fr}}
