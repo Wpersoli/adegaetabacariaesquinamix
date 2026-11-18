@@ -25,7 +25,7 @@ $('no').onclick=function(){$('deny').hidden=false};
 /* ---------- Sacola (compartilhada com a home) ---------- */
 var cart={};
 function readCart(){cart={};try{var raw=JSON.parse(load('emCart')||'{}')||{};catalog.forEach(function(x){var q=parseInt(raw[x.id],10);if(q>0)cart[x.id]=Math.min(q,99)})}catch(e){cart={}}}
-function add(id){cart[id]=Math.min((cart[id]||0)+1,99);sync();if($('badge').animate)$('badge').animate([{transform:'scale(1.5)'},{transform:'scale(1)'}],{duration:250})}
+function add(id){cart[id]=Math.min((cart[id]||0)+1,99);sync();var added=catalog.find(function(x){return x.id===id})||{};document.dispatchEvent(new CustomEvent('cart:add',{detail:{productId:id,category:added.cat||''}}));if($('badge').animate)$('badge').animate([{transform:'scale(1.5)'},{transform:'scale(1)'}],{duration:250})}
 function sync(){
   var n=0,t=0,ul=$('items');ul.textContent='';
   catalog.forEach(function(x){var q=cart[x.id];if(!q)return;n+=q;t+=q*x.p;
