@@ -300,10 +300,10 @@ console.log('Esquina Mix: autenticação, sessões, HMAC, filtros, checkout e na
 
 /* Integridade comercial: não apresentar ranking inventado, avaliações locais sem fonte ou promoções de tabaco. */
 const commercialCatalog = fs.readFileSync(path.join(root, 'catalog.js'), 'utf8');
-const commercialLines = commercialCatalog.split('\\n');
-assert.ok(!commercialLines.some((line) => /\\bcat:'tabacos'\\b/.test(line) && /promo:1/.test(line)));
-assert.ok(!commercialLines.some((line) => /\\bcat:'narguile'\\b/.test(line) && /promo:1/.test(line)));
-assert.ok(!commercialLines.some((line) => /\\bcat:'headshop'\\b/.test(line) && /promo:1/.test(line)));
+const commercialLines = commercialCatalog.split('\n');
+assert.ok(!commercialLines.some((line) => line.includes("cat:'tabacos'") && line.includes('promo:1')));
+assert.ok(!commercialLines.some((line) => line.includes("cat:'narguile'") && line.includes('promo:1')));
+assert.ok(!commercialLines.some((line) => line.includes("cat:'headshop'") && line.includes('promo:1')));
 assert.ok(!app.includes('Sabrina Duque') && !app.includes('Ulisses Gomes') && !app.includes('Leo Batista'));
 assert.ok(app.includes('var reviews=[];'));
 assert.ok(index.includes('Explore a <span class="hl">variedade</span>'));
