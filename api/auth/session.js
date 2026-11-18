@@ -21,8 +21,8 @@ module.exports=async function(req,res){
       return A.send(res,200,{user:await A.profileFor(c,refreshed,access)});
     }
     if(d.action==='delete'){
-      const user=await A.currentUser(req,res,c);
-      if(!user)return A.send(res,401,{code:'UNAUTHENTICATED'});
+      const jar=A.cookies(req),user=await A.currentUser(req,res,c),access=req.esquinaAccessToken||jar.esquina_access;
+      if(!user||!access)return A.send(res,401,{code:'UNAUTHENTICATED'});
       if(d.confirm!=='ENCERRAR')return A.send(res,400,{code:'CONFIRMATION_REQUIRED'});
       try{
         // Revoga todos os refresh tokens antes da exclusão. JWTs de acesso já emitidos
@@ -36,12 +36,14 @@ module.exports=async function(req,res){
     const access=String(d.access_token||''),refresh=String(d.refresh_token||'');
     if(!access||!refresh) return A.send(res,400,{code:'INVALID_SESSION'});
     const user=await A.sbFetch(c,'/auth/v1/user',{token:access});
+    if(!(await A.authUserExists(c,user.id))) return A.send(res,401,{code:'UNAUTHENTICATED'});
     if(!user.email_confirmed_at&&!user.confirmed_at) return A.send(res,403,{code:'EMAIL_NOT_VERIFIED'});
     A.setSession(res,{access_token:access,refresh_token:refresh,expires_in:3600});
     return A.send(res,200,{user:await A.profileFor(c,user,access)});
   }catch(e){
     if(e.message==='METHOD_NOT_ALLOWED') return A.send(res,405,{code:'METHOD_NOT_ALLOWED'});
     if(e.message==='AUTH_CONFIGURATION_MISSING') return A.send(res,503,{code:'AUTH_CONFIGURATION_MISSING'});
+    if(e.message==='AUTH_USER_LOOKUP_UNAVAILABLE') return A.send(res,503,{code:'UNAVAILABLE'});
     return A.send(res,401,{code:'INVALID_SESSION'});
   }
 };
