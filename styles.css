@@ -719,3 +719,13 @@ body:has(.drawer:not([hidden])) .home-filter-tab,body:has(.drawer:not([hidden]))
 .ck__address-modes{grid-template-columns:repeat(2,minmax(0,1fr));margin:2px 0 4px}
 .ck__address-modes .ck__opt span{font-size:11px;line-height:1.2;padding:6px}
 @media(max-width:380px){.ck__address-modes{grid-template-columns:1fr}}
+
+/* Conversão e acessibilidade: estados claros, alvos confortáveis e movimento respeitando preferências. */
+.prod-card{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.prod-card:focus-within{outline:2px solid var(--gold);outline-offset:3px}
+.prod-buy{min-height:44px;touch-action:manipulation}
+.feat-chip,.pg-filtbtn,.mbar__item,.ico,.ico-menu{touch-action:manipulation}
+.rev__intro{max-width:46ch;margin:12px 0 18px;color:var(--cream);font:500 15px/1.55 "DM Sans",sans-serif;opacity:.86}
+@media(hover:hover) and (pointer:fine){.prod-card:hover{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){.prod-card{transition:none}.prod-card:hover{transform:none}}
+@media(max-width:480px){.prod-buy{width:100%;min-height:48px}.rev__intro{font-size:14px}}
