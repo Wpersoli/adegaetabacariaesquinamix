@@ -182,6 +182,8 @@ assert.ok(authLib.includes('authUserExists(c, session.user.id)'));
 const sessionApi = fs.readFileSync(path.join(root, 'api/auth/session.js'), 'utf8');
 assert.ok(sessionApi.includes('req.esquinaAccessToken||jar.esquina_access'));
 assert.ok(sessionApi.includes('/auth/v1/logout?scope=global'));
+const logoutApi = fs.readFileSync(path.join(root, 'api/auth/logout.js'), 'utf8');
+assert.ok(logoutApi.includes('/auth/v1/logout?scope=local'));
 assert.ok(sessionApi.includes('A.authUserExists(c,user.id)'));
 assert.ok(sessionApi.includes('AUTH_USER_LOOKUP_UNAVAILABLE'));
 
@@ -246,6 +248,45 @@ assert.ok(sessionApi.includes('AUTH_USER_LOOKUP_UNAVAILABLE'));
     assert.equal(active.id, 'active-user');
     assert.equal(active.registrationStatus, 'pending');
     assert.equal(activeReq.esquinaAccessToken, 'active-access');
+
+    // Perfil indisponível não deve revogar nem limpar os cookies de uma sessão válida.
+    const profileFailureHeaders = {};
+    const profileFailureReq = { headers: { cookie: 'esquina_access=active-access; esquina_refresh=active-refresh' } };
+    const profileFailureRes = { setHeader(name, value) { profileFailureHeaders[name] = value; } };
+    global.fetch = async (url) => {
+      const path = String(url).replace(config.url, '');
+      if (path === '/auth/v1/user') return response(200, {
+        id: 'active-user', email: 'active@example.test', user_metadata: { full_name: 'Cliente Teste' }
+      });
+      if (path === '/auth/v1/admin/users/active-user') return response(200, { user: { id: 'active-user' } });
+      if (path.indexOf('/rest/v1/customer_profiles?') === 0) return response(503, { message: 'database unavailable' });
+      throw new Error('Unexpected request: ' + path);
+    };
+    await assert.rejects(
+      auth.currentUser(profileFailureReq, profileFailureRes, config),
+      /PROFILE_LOOKUP_UNAVAILABLE/
+    );
+    assert.equal(profileFailureHeaders['Set-Cookie'], undefined);
+
+    // Token expirado: renova a sessão; o lookup do perfil ocorre fora do catch de refresh.
+    const refreshedHeaders = {};
+    const refreshedReq = { headers: { cookie: 'esquina_access=expired-access; esquina_refresh=valid-refresh' } };
+    const refreshedRes = { setHeader(name, value) { refreshedHeaders[name] = value; } };
+    global.fetch = async (url) => {
+      const path = String(url).replace(config.url, '');
+      if (path === '/auth/v1/user') return response(401, { message: 'JWT expired' });
+      if (path === '/auth/v1/token?grant_type=refresh_token') return response(200, {
+        access_token: 'new-access', refresh_token: 'new-refresh', expires_in: 3600,
+        user: { id: 'refreshed-user', email: 'active@example.test', user_metadata: { full_name: 'Cliente Atualizado' } }
+      });
+      if (path === '/auth/v1/admin/users/refreshed-user') return response(200, { user: { id: 'refreshed-user' } });
+      if (path.indexOf('/rest/v1/customer_profiles?') === 0) return response(200, []);
+      throw new Error('Unexpected request: ' + path);
+    };
+    const refreshed = await auth.currentUser(refreshedReq, refreshedRes, config);
+    assert.equal(refreshed.id, 'refreshed-user');
+    assert.equal(refreshedReq.esquinaAccessToken, 'new-access');
+    assert.ok(refreshedHeaders['Set-Cookie'][0].includes('new-access'));
   } finally {
     global.fetch = originalFetch;
   }
