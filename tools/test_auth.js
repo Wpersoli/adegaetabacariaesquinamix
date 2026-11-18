@@ -123,10 +123,10 @@ assert.match(index, /name="esquina-auth" content="api"/);
 /* Portão 18+: autodeclaração binária, sem solicitar data de nascimento. */
 const productsPage = fs.readFileSync(path.join(root, 'produtos.html'), 'utf8');
 function ageGateMarkup(pageName, html) {
-  const match = html.match(/<div class="gate" id="gate"[\\s\\S]*?<\\/div>\\s*<\\/div>/);
+  const match = html.match(/<div class="gate" id="gate"[\s\S]*?<\/div>\s*<\/div>/);
   assert.ok(match, pageName + ': modal de confirmação de idade ausente.');
-  assert.match(match[0], /id="yes"[^>]*>Sim, sou maior de 18 anos<\\/button>/);
-  assert.match(match[0], /id="no"[^>]*>Não, sou menor de 18 anos<\\/button>/);
+  assert.match(match[0], /id="yes"[^>]*>Sim, sou maior de 18 anos<\/button>/);
+  assert.match(match[0], /id="no"[^>]*>Não, sou menor de 18 anos<\/button>/);
   assert.doesNotMatch(match[0], /type=["']date|data de nascimento|nascimento/i);
 }
 ageGateMarkup('Home', index);
