@@ -36,8 +36,6 @@ button{font:inherit;cursor:pointer;border:0;color:inherit;background:none}
 @keyframes kb{to{transform:scale(1.045)}}
 .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.14) 50%,transparent 60%);transform:translateX(-120%);animation:shine 7s 1.5s infinite;pointer-events:none;z-index:3}
 @keyframes shine{40%,100%{transform:translateX(120%)}}
-.hero-cta{position:absolute;left:clamp(12px,6.5%,120px);bottom:clamp(14px,6%,60px);line-height:1;background:var(--gold);color:#1a1030;text-decoration:none;font:400 clamp(12px,1.3vw,17px) var(--f-display);text-transform:uppercase;padding:14px 22px;border-radius:8px;box-shadow:0 6px 0 #a8791a;z-index:5;animation:pulse 2.4s infinite}
-@keyframes pulse{50%{transform:translateY(-3px)}}
 /* ===== Hero: carrossel automático (slide original + promo) ===== */
 .hero-track{position:absolute;inset:0}
 .hero-slide{position:absolute;inset:0;opacity:0;transition:opacity 1.1s ease}
@@ -77,7 +75,6 @@ footer{text-align:center;padding:40px 16px;background:#0b0713;color:#bdb2d6;font
 @media(max-width:900px){.top{grid-template-columns:1fr auto;row-gap:10px}.search{grid-column:1/-1;order:3;height:46px}.brand img{width:72px}}
 @media(max-width:700px){
 .ticker{flex-direction:column;gap:2px;font-size:10px;text-align:center}
-.hero-cta{left:50%;transform:translateX(-50%);animation:none;bottom:14px;white-space:nowrap}
 .actions{gap:14px}
 .hero{aspect-ratio:800/1200}
 
@@ -175,7 +172,6 @@ footer p:first-of-type{font:400 20px var(--f-display);color:var(--card)}
 .rev__score{display:flex;flex-direction:column;gap:14px;background:var(--card);color:var(--dk);border:3px solid var(--dk);border-radius:18px;box-shadow:5px 5px 0 var(--prim);padding:20px}
 .rev__brand{display:inline-flex;align-items:center;gap:8px;font:400 18px var(--f-sign);text-transform:uppercase}
 .rev__g{width:20px;height:20px;border-radius:50%;border:2px solid var(--dk);background:conic-gradient(from -45deg,#4285F4 0 90deg,#34A853 90deg 180deg,#FBBC05 180deg 270deg,#EA4335 270deg)}
-.rev__big{font:400 26px/1.05 var(--f-display);text-transform:uppercase}.rev__sub{font-size:15px}
 .rev__list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
 .rev-card{background:var(--card);color:var(--dk);border:3px solid var(--dk);border-radius:14px;box-shadow:0 4px 0 var(--dk);padding:16px;display:grid;gap:8px}
 .rev-card header{display:flex;gap:10px;align-items:center}.rev-card .av{width:36px;height:36px;border-radius:50%;background:var(--prim);color:#fff;display:grid;place-items:center;font:400 16px var(--f-display)}
@@ -311,7 +307,6 @@ body{overflow-x:clip}
 .feat__tools{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin:0 0 16px}
 .facets{display:flex;flex-wrap:wrap;gap:8px;align-items:center;flex:1;min-width:0}
 .facet-note{font:700 12px var(--f-sign);color:var(--gold);text-transform:uppercase}
-.facet-clear{opacity:.85}
 .sort{display:flex;align-items:center;gap:8px;font:700 12px var(--f-sign);text-transform:uppercase;color:var(--cream);flex:none}
 .sort select{background:var(--cream);color:#222;border:0;border-radius:8px;height:38px;padding:0 10px;font:600 16px "DM Sans",sans-serif}
 @media(max-width:600px){.feat__tools{flex-direction:column-reverse;align-items:stretch}.sort{justify-content:flex-end}}
@@ -495,9 +490,9 @@ footer{padding-bottom:calc(78px + env(safe-area-inset-bottom,0px))}
 /* ===== Tipografia (referência PLANET EXPRESS): display = Rohn Rounded Black; assinatura = Bebas Neue ===== */
 @font-face{font-family:"Rohn Rounded Black";font-weight:900;font-display:swap;src:local("Rohn Rounded Black"),local("RohnRounded-Black"),local("Rohn Rounded")}
 /* Display: encorpado, largo, compacto, espaçamento levemente negativo */
-.brand-t b,.sec-title,.feat__title,.nav button,.hero-cta,.btn,.feat__cta,.feat-chip,.prod-tag,.prod-price,.prod-buy,.rank-i em,.rev__big,.rev__btn,.rev-card strong,.rev__num b,.rev__count b,.route__modes button,.drawer h2,.gate-box h2,.gate .yes,.gate .no,.wa,.total,.mnav__top strong,.mnav__a,.mbar__item--hero .mbar__label,.ft h3,footer p:first-of-type,.mq-t,.trust-text strong,.rank-n,.rev-card .av{font-family:var(--f-display);font-weight:400;letter-spacing:-.01em}
+.brand-t b,.sec-title,.feat__title,.nav button,.btn,.feat__cta,.feat-chip,.prod-tag,.prod-price,.prod-buy,.rank-i em,.rev__btn,.rev-card strong,.rev__num b,.rev__count b,.route__modes button,.drawer h2,.gate-box h2,.gate .yes,.gate .no,.wa,.total,.mnav__top strong,.mnav__a,.mbar__item--hero .mbar__label,.ft h3,footer p:first-of-type,.mq-t,.trust-text strong,.rank-n,.rev-card .av{font-family:var(--f-display);font-weight:400;letter-spacing:-.01em}
 .sec-title,.feat__title,.brand-t b{-webkit-text-stroke:.025em currentColor;paint-order:stroke fill}
-.nav button,.btn,.feat__cta,.hero-cta,.prod-buy,.wa,.gate .yes,.gate .no,.mnav__a{letter-spacing:.01em}
+.nav button,.btn,.feat__cta,.prod-buy,.wa,.gate .yes,.gate .no,.mnav__a{letter-spacing:.01em}
 /* Assinatura / rótulos: Bebas Neue, estreita, alta, espaçamento expandido */
 .brand-t small,.ticker,.tag,.loc,.eyebrow,.feat__eyebrow,.hint,.prod-cat,.rank-i small,.rev-card small,.rev__brand,.rev__num small,.rev__count,.loc2 dt,.ft-bot,.facet-note,.sort,.sug__i small,.mbar__label,.trust-text span,.ico em,.feat__empty{font-family:var(--f-sign);font-weight:400;letter-spacing:.14em;text-transform:uppercase}
 .brand-t small{color:var(--sign-gold);font-size:clamp(14px,1.3vw,17px);letter-spacing:.32em;margin-top:5px;line-height:1}
@@ -720,12 +715,23 @@ body:has(.drawer:not([hidden])) .home-filter-tab,body:has(.drawer:not([hidden]))
 .ck__address-modes .ck__opt span{font-size:11px;line-height:1.2;padding:6px}
 @media(max-width:380px){.ck__address-modes{grid-template-columns:1fr}}
 
-/* Conversão e acessibilidade: estados claros, alvos confortáveis e movimento respeitando preferências. */
-.prod-card{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
-.prod-card:focus-within{outline:2px solid var(--gold);outline-offset:3px}
-.prod-buy{min-height:44px;touch-action:manipulation}
-.feat-chip,.pg-filtbtn,.mbar__item,.ico,.ico-menu{touch-action:manipulation}
-.rev__intro{max-width:46ch;margin:12px 0 18px;color:var(--cream);font:500 15px/1.55 "DM Sans",sans-serif;opacity:.86}
-@media(hover:hover) and (pointer:fine){.prod-card:hover{transform:translateY(-3px)}}
-@media(prefers-reduced-motion:reduce){.prod-card{transition:none}.prod-card:hover{transform:none}}
-@media(max-width:480px){.prod-buy{width:100%;min-height:48px}.rev__intro{font-size:14px}}
+/* =====================================================================
+   Harmonização de espaçamento — ritmo vertical consistente entre as
+   seções da home (cardápio, ranking, frota, avaliações, base terrestre)
+   e entre os cabeçalhos de seção e seu conteúdo. Ajusta apenas padding/
+   margin; nenhum seletor, cor, fonte ou comportamento é alterado.
+   Escala: 56px (desktop) · 40px (≤900px) · 28px (≤600px).
+   ===================================================================== */
+.feat,.rank,.fleet,.rev,.loc2{padding-block:56px}
+.ft{padding-top:56px}
+@media(max-width:900px){
+  .feat,.rank,.fleet,.rev,.loc2{padding-block:40px}
+  .ft{padding-top:40px}
+}
+@media(max-width:600px){
+  .feat,.rank,.fleet,.rev,.loc2{padding-block:28px}
+  .ft{padding-top:28px}
+}
+/* Cabeçalhos de seção: mesmo respiro abaixo do título em todas as seções */
+.feat__head,.sec-head{margin-bottom:28px}
+@media(max-width:600px){.feat__head,.sec-head{margin-bottom:20px}}
