@@ -297,12 +297,8 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')toggle(false
 /* Ranking, marcas e avaliações — EDITE os dados abaixo */
 var topIds=[1,2,4,5,3,6,9,10];
 var brands=[{n:'Girls in Green',f:'girls-in-green'},{n:'Papelito',f:'papelito'},{n:'Smoking',f:'smoking'},{n:'ZGY Brasil',f:'zgy-brasil'},{n:'Zomo',f:'zomo'},{n:'OCB',f:'ocb'},{n:'Pay-Pay',f:'pay-pay'},{n:'Sadhu',f:'sadhu'}];
-/* Avaliações reais do Google (adicione novas no início: {n:'Nome',t:'há 1 semana',x:'Texto da avaliação'}) */
-var reviews=[
-{n:'Sabrina Duque',t:'Uma semana atrás',x:'Sempre tem tudo que a gente procura, de bebida e tabacaria, eu amo!!!!'},
-{n:'Ulisses Gomes',t:'Uma semana atrás',x:'Cerveja muito gelada, e ótimos produtos de tabacaria'},
-{n:'Leo Batista',t:'Há 2 semanas',x:'A melhor que existe, sou cliente a muitos anos, os proprietários são sensacionais e merecem todo o sucesso do mundo!!'}
-];
+/* Não exibir depoimentos locais sem integração verificável com a fonte original. */
+var reviews=[];
 (function(){
   var tr=$('rankTrack');
   topIds.forEach(function(id,i){var x=catalog.filter(function(c){return c.id===id})[0];if(!x)return;
