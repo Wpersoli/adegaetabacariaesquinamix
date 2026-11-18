@@ -26,7 +26,9 @@ const javascript = [
   'api/auth/complete.js',
   'api/auth/password.js',
   'api/auth/google.js',
-  'api/orders/index.js'
+  'api/orders/index.js',
+  'api/events.js',
+  'analytics.js'
 ];
 
 for (const file of javascript) {
@@ -34,6 +36,16 @@ for (const file of javascript) {
 }
 
 assert.equal(auth.validCpf('529.982.247-25'), true);
+
+const analyticsApi = fs.readFileSync(path.join(root, 'api/events.js'), 'utf8');
+const analyticsClient = fs.readFileSync(path.join(root, 'analytics.js'), 'utf8');
+assert.ok(analyticsApi.includes('record_store_event'));
+assert.ok(!analyticsApi.includes('customer_phone') && !analyticsApi.includes('customer_name'));
+assert.ok(analyticsClient.includes('whatsapp_handoff'));
+assert.ok(analyticsClient.includes('product_added'));
+assert.ok(analyticsClient.includes("send('checkout_opened','',0)"));
+assert.ok(!analyticsClient.includes("document.addEventListener('cart:sync'"));
+assert.ok(!analyticsClient.includes('localStorage') && !analyticsClient.includes('document.cookie'));
 assert.equal(auth.normalizePhone('(11) 99999-9999'), '+5511999999999');
 assert.equal(auth.normalizePhone('+55 11 3333-4444'), '+551133334444');
 assert.equal(auth.normalizePhone('123'), '');

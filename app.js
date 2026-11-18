@@ -98,7 +98,7 @@ function drawAll(){var a=$('allLink');if(!a)return;
 function drawHomePages(total){var box=$('homePages');if(!box)return;box.textContent='';box.hidden=total<=1;if(total<=1)return;for(var i=1;i<=total;i++){var b=document.createElement('button');b.type='button';b.textContent=i;if(i===homePage)b.setAttribute('aria-current','page');b.onclick=function(){homePage=+this.textContent;render();document.getElementById('cardapio').scrollIntoView({behavior:'smooth',block:'start'})};box.appendChild(b)}}
 
 /* Sacola */
-function add(id){cart[id]=Math.min((cart[id]||0)+1,99);sync();document.dispatchEvent(new Event('cart:add'));if($('badge').animate)$('badge').animate([{transform:'scale(1.5)'},{transform:'scale(1)'}],{duration:250})}
+function add(id){cart[id]=Math.min((cart[id]||0)+1,99);sync();document.dispatchEvent(new CustomEvent('cart:add',{detail:{productId:id,category:(catalog.find(function(x){return x.id===id})||{}).cat||''}}));if($('badge').animate)$('badge').animate([{transform:'scale(1.5)'},{transform:'scale(1)'}],{duration:250})}
 function sync(open){
   var n=0,t=0,ul=$('items');ul.textContent='';
   catalog.forEach(function(x){var q=cart[x.id];if(!q)return;n+=q;t+=q*x.p;
