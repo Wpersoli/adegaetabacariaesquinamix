@@ -48,15 +48,20 @@ function cpfOk(c){
   }
   return true;
 }
-function ageOf(iso){
+function saoPauloDate(now){
+  var parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now||new Date()),out={};
+  parts.forEach(function(p){if(p.type==='year'||p.type==='month'||p.type==='day')out[p.type]=+p.value});
+  return out;
+}
+function ageOf(iso,now){
   var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||'');if(!m)return -1;
-  var y=+m[1],mo=+m[2]-1,d=+m[3],b=new Date(y,mo,d);
-  if(y<1900||b.getFullYear()!==y||b.getMonth()!==mo||b.getDate()!==d)return -1;
-  var n=new Date(),a=n.getFullYear()-y;
-  if(n.getMonth()<mo||(n.getMonth()===mo&&n.getDate()<d))a--;
+  var y=+m[1],mo=+m[2],d=+m[3],b=new Date(Date.UTC(y,mo-1,d));
+  if(y<1900||b.getUTCFullYear()!==y||b.getUTCMonth()!==mo-1||b.getUTCDate()!==d)return -1;
+  var n=saoPauloDate(now),a=n.year-y;
+  if(n.month<mo||(n.month===mo&&n.day<d))a--;
   return a;
 }
-function todayIso(){var n=new Date(),p=function(x){return('0'+x).slice(-2)};return n.getFullYear()+'-'+p(n.getMonth()+1)+'-'+p(n.getDate())}
+function todayIso(){var n=saoPauloDate(),p=function(x){return('0'+x).slice(-2)};return n.year+'-'+p(n.month)+'-'+p(n.day)}
 
 /* validadores por campo (data-v) — devolvem '' quando esta ok */
 var V={
