@@ -1,0 +1,8 @@
+# Documentation and development-only materials (kept in Git/ZIP, not served in production)
+README.md
+docs/
+design-src/
+tools/
+supabase/
+.github/
+.env*
