@@ -185,4 +185,73 @@ assert.ok(sessionApi.includes('/auth/v1/logout?scope=global'));
 assert.ok(sessionApi.includes('A.authUserExists(c,user.id)'));
 assert.ok(sessionApi.includes('AUTH_USER_LOOKUP_UNAVAILABLE'));
 
+
+/* currentUser: rejeita JWT de usuário apagado e limpa cookies; mantém login ativo se conta existe. */
+(async function testCurrentUserAccountLookup() {
+  const originalFetch = global.fetch;
+  const headers = {};
+  const seen = [];
+  const response = (status, payload) => ({
+    ok: status >= 200 && status < 300,
+    status,
+    text: async () => JSON.stringify(payload)
+  });
+  const config = {
+    url: 'https://example.supabase.co',
+    anon: 'sb_publishable_test',
+    service: 'sb_secret_test'
+  };
+  const request = { headers: { cookie: 'esquina_access=old-access; esquina_refresh=old-refresh' } };
+  const res = { setHeader(name, value) { headers[name] = value; } };
+
+  try {
+    global.fetch = async (url, options) => {
+      const path = String(url).replace(config.url, '');
+      seen.push({ path, options });
+      if (path === '/auth/v1/user') {
+        return response(200, { id: 'deleted-user', email: 'deleted@example.test', user_metadata: {} });
+      }
+      if (path === '/auth/v1/admin/users/deleted-user') {
+        return response(404, { message: 'User not found', code: 'user_not_found' });
+      }
+      throw new Error('Unexpected request: ' + path);
+    };
+    const deleted = await auth.currentUser(request, res, config);
+    assert.equal(deleted, null);
+    assert.deepEqual(seen.map((entry) => entry.path), [
+      '/auth/v1/user',
+      '/auth/v1/admin/users/deleted-user'
+    ]);
+    assert.ok(Array.isArray(headers['Set-Cookie']));
+    assert.ok(headers['Set-Cookie'].every((cookie) => cookie.includes('Max-Age=0')));
+
+    const activeHeaders = {};
+    const activeReq = { headers: { cookie: 'esquina_access=active-access' } };
+    const activeRes = { setHeader(name, value) { activeHeaders[name] = value; } };
+    global.fetch = async (url, options) => {
+      const path = String(url).replace(config.url, '');
+      if (path === '/auth/v1/user') {
+        return response(200, {
+          id: 'active-user',
+          email: 'active@example.test',
+          email_confirmed_at: '2026-01-01T00:00:00Z',
+          user_metadata: { full_name: 'Cliente Teste' }
+        });
+      }
+      if (path === '/auth/v1/admin/users/active-user') return response(200, { user: { id: 'active-user' } });
+      if (path.indexOf('/rest/v1/customer_profiles?') === 0) return response(200, []);
+      throw new Error('Unexpected request: ' + path);
+    };
+    const active = await auth.currentUser(activeReq, activeRes, config);
+    assert.equal(active.id, 'active-user');
+    assert.equal(active.registrationStatus, 'pending');
+    assert.equal(activeReq.esquinaAccessToken, 'active-access');
+  } finally {
+    global.fetch = originalFetch;
+  }
+})().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
+
 console.log('Esquina Mix: autenticação, sessões, HMAC, filtros, checkout e navegação validados.');
