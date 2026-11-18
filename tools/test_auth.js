@@ -41,6 +41,9 @@ assert.equal(auth.validCpf('111.111.111-11'), false);
 assert.equal(auth.validCpf('52998224724'), false);
 assert.equal(auth.validBirth('1990-04-20'), true);
 assert.equal(auth.validBirth('2010-04-20'), false);
+// Maioridade considera o calendário de São Paulo, não o dia UTC antes da meia-noite local.
+assert.equal(auth.validBirth('2008-11-17', new Date('2026-11-17T02:00:00.000Z')), false);
+assert.equal(auth.validBirth('2008-11-17', new Date('2026-11-17T03:01:00.000Z')), true);
 assert.equal(auth.safeNext('/catalogo?categoria=bebidas'), '/catalogo?categoria=bebidas');
 assert.equal(auth.safeNext('//evil.example/path'), '/');
 assert.equal(auth.safeNext('https://evil.example'), '/');
@@ -52,6 +55,7 @@ assert.ok(!authUi.includes('CPF teve apenas os dígitos validados'));
 assert.ok(!authUi.includes('Telefone de contato: '));
 assert.ok(!authUi.includes('CPF verificado junto à Receita Federal'));
 assert.ok(!authUi.includes('não encontrado na Receita Federal'));
+assert.ok(authUi.includes('America/Sao_Paulo'));
 
 const modernHeaders = auth.requestHeaders(
   { anon: 'sb_publishable_public', service: 'sb_secret_server' },
