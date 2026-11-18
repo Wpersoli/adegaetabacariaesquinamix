@@ -168,4 +168,17 @@ assert.match(signupApi, /A\.requireCpfSecret\(c\)/);
 assert.match(completeApi, /A\.requireCpfSecret\(c\)/);
 assert.match(forgotEmailApi, /A\.requireCpfSecret\(c\)/);
 
-console.log('Esquina Mix: autenticação, HMAC isolado, filtros, checkout e navegação validados.');
+/* Segurança de sessão: contas excluídas não podem reabrir sessão com JWT antigo. */
+const authLib = fs.readFileSync(path.join(root, 'lib/esquina-auth.js'), 'utf8');
+assert.ok(authLib.includes('async function authUserExists'));
+assert.ok(authLib.includes('AUTH_USER_LOOKUP_UNAVAILABLE'));
+assert.ok(authLib.includes('authUserExists(c, user.id)'));
+assert.ok(authLib.includes('authUserExists(c, session.user.id)'));
+
+const sessionApi = fs.readFileSync(path.join(root, 'api/auth/session.js'), 'utf8');
+assert.ok(sessionApi.includes('req.esquinaAccessToken||jar.esquina_access'));
+assert.ok(sessionApi.includes('/auth/v1/logout?scope=global'));
+assert.ok(sessionApi.includes('A.authUserExists(c,user.id)'));
+assert.ok(sessionApi.includes('AUTH_USER_LOOKUP_UNAVAILABLE'));
+
+console.log('Esquina Mix: autenticação, sessões, HMAC, filtros, checkout e navegação validados.');
