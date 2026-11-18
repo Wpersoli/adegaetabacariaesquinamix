@@ -296,3 +296,13 @@ assert.ok(sessionApi.includes('AUTH_USER_LOOKUP_UNAVAILABLE'));
 });
 
 console.log('Esquina Mix: autenticação, sessões, HMAC, filtros, checkout e navegação validados.');
+
+
+/* Integridade comercial: não apresentar ranking inventado, avaliações locais sem fonte ou promoções de tabaco. */
+const commercialCatalog = fs.readFileSync(path.join(root, 'catalog.js'), 'utf8');
+assert.doesNotMatch(commercialCatalog, /\\{id:(?:70|71|72|73|74|75|76|77|78|79|80),[^\\n]*promo:1/);
+assert.doesNotMatch(commercialCatalog, /\\{id:(?:81|82|83|84|85|86|87|88|89|90|91|92|93|94|95|96|97|98|99|100|101|102|103|104|105|106|107),[^\\n]*promo:1/);
+assert.doesNotMatch(app, /Sabrina Duque|Ulisses Gomes|Leo Batista/);
+assert.match(app, /var reviews=\\[\\]/);
+assert.match(index, /Explore a <span class="hl">variedade<\\/span>/);
+assert.doesNotMatch(index, /Mais vendidos da|\\+80<\\/b> Avaliações verificadas|Nota 5,0 de 5/);
