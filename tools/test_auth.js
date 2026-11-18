@@ -300,9 +300,11 @@ console.log('Esquina Mix: autenticação, sessões, HMAC, filtros, checkout e na
 
 /* Integridade comercial: não apresentar ranking inventado, avaliações locais sem fonte ou promoções de tabaco. */
 const commercialCatalog = fs.readFileSync(path.join(root, 'catalog.js'), 'utf8');
-assert.doesNotMatch(commercialCatalog, /\\{id:(?:70|71|72|73|74|75|76|77|78|79|80),[^\\n]*promo:1/);
-assert.doesNotMatch(commercialCatalog, /\\{id:(?:81|82|83|84|85|86|87|88|89|90|91|92|93|94|95|96|97|98|99|100|101|102|103|104|105|106|107),[^\\n]*promo:1/);
-assert.doesNotMatch(app, /Sabrina Duque|Ulisses Gomes|Leo Batista/);
-assert.match(app, /var reviews=\\[\\]/);
-assert.match(index, /Explore a <span class="hl">variedade<\\/span>/);
-assert.doesNotMatch(index, /Mais vendidos da|\\+80<\\/b> Avaliações verificadas|Nota 5,0 de 5/);
+const commercialLines = commercialCatalog.split('\\n');
+assert.ok(!commercialLines.some((line) => /\\bcat:'tabacos'\\b/.test(line) && /promo:1/.test(line)));
+assert.ok(!commercialLines.some((line) => /\\bcat:'narguile'\\b/.test(line) && /promo:1/.test(line)));
+assert.ok(!commercialLines.some((line) => /\\bcat:'headshop'\\b/.test(line) && /promo:1/.test(line)));
+assert.ok(!app.includes('Sabrina Duque') && !app.includes('Ulisses Gomes') && !app.includes('Leo Batista'));
+assert.ok(app.includes('var reviews=[];'));
+assert.ok(index.includes('Explore a <span class="hl">variedade</span>'));
+assert.ok(!index.includes('Mais vendidos da') && !index.includes('+80</b> Avaliações verificadas') && !index.includes('Nota 5,0 de 5'));
