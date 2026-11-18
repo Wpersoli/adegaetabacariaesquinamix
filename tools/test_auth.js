@@ -176,7 +176,7 @@ assert.match(forgotEmailApi, /A\.requireCpfSecret\(c\)/);
 const authLib = fs.readFileSync(path.join(root, 'lib/esquina-auth.js'), 'utf8');
 assert.ok(authLib.includes('async function authUserExists'));
 assert.ok(authLib.includes('AUTH_USER_LOOKUP_UNAVAILABLE'));
-assert.ok(authLib.includes('authUserExists(c, user.id)'));
+assert.ok(authLib.includes('authUserExists(c, authUser.id)'));
 assert.ok(authLib.includes('authUserExists(c, session.user.id)'));
 
 const sessionApi = fs.readFileSync(path.join(root, 'api/auth/session.js'), 'utf8');
