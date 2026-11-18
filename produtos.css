@@ -134,10 +134,10 @@ a.mnav__a{text-decoration:none}
 .pg-page .fab--top{bottom:calc(max(16px,env(safe-area-inset-bottom,0px)) + 70px)}
 @media(max-width:600px){.pg-page .fab--top{bottom:calc(max(14px,env(safe-area-inset-bottom,0px)) + 66px)}}
 
-/* Filtros em destaque logo abaixo do título do catálogo */
-.pg-category-chips{margin:0 0 22px;gap:9px}
-.pg-category-chips .feat-chip{min-height:38px;padding:9px 15px;border-width:2px;font-size:12px}
-@media(max-width:700px){
-  .pg-category-chips{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;margin:0 0 16px;scroll-snap-type:x proximity;scrollbar-width:thin}
-  .pg-category-chips .feat-chip{flex:0 0 auto;scroll-snap-align:start}
-}
+/* Categorias em destaque — faixa de atalhos responsiva */
+.pg-category-chips{display:flex;align-items:center;gap:9px;overflow-x:auto;overscroll-behavior-x:contain;padding:4px 2px 14px;margin:4px 0 18px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.pg-category-chips button{flex:0 0 auto;min-height:40px;padding:9px 16px;border:1px solid rgba(255,255,255,.13);border-radius:999px;background:rgba(255,255,255,.055);color:inherit;font-family:inherit;font-size:13px;font-weight:600;line-height:1.2;white-space:nowrap;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}
+.pg-category-chips button:hover{border-color:var(--pink);transform:translateY(-1px)}
+.pg-category-chips button.is-active{background:var(--pink);border-color:var(--pink);color:#fff;box-shadow:0 5px 18px rgba(236,26,181,.2)}
+.pg-category-chips button:focus-visible{outline:2px solid var(--pink);outline-offset:3px}
+@media(max-width:600px){.pg-category-chips{gap:7px;margin:0 -2px 14px;padding-bottom:12px}.pg-category-chips button{min-height:38px;padding:8px 13px;font-size:12px}}
