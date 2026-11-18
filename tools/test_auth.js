@@ -136,14 +136,14 @@ try {
 }
 
 /* Regressões: filtros na ordem solicitada e endereço temporário restrito a um pedido. */
-const requestedCategories = ['Todos','Promoções','Bebidas','Narguile','Headshop','Cigarros e Tabacos'];
+const requestedCategories = ['Todos','Bebidas','Narguile','Headshop','Conveniência'];
 const homeChipBlock = index.match(/<div class="feat__chips" id="chips"[^>]*>([\s\S]*?)<\/div>/);
 assert.ok(homeChipBlock, 'Filtros da home precisam existir');
 const homePositions = requestedCategories.map((label) => homeChipBlock[1].indexOf('>' + label + '</button>'));
 assert.ok(homePositions.every((position) => position >= 0));
 assert.deepEqual(homePositions, [...homePositions].sort((a,b) => a-b));
 assert.equal((homeChipBlock[1].match(/data-cat=/g) || []).length, requestedCategories.length);
-assert.ok(app.includes("[['todos','Todos'],['promo','Promoções'],['bebidas','Bebidas'],['narguile','Narguile'],['headshop','Headshop'],['tabacos','Cigarros e Tabacos']]"));
+assert.ok(app.includes("[['todos','Todos'],['bebidas','Bebidas'],['narguile','Narguile'],['headshop','Headshop'],['outros','Conveniência']]"));
 assert.doesNotMatch(app, /\['outros','Outros'\]/);
 
 const productPage = fs.readFileSync(path.join(root, 'produtos.html'), 'utf8');

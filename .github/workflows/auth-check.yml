@@ -5,6 +5,7 @@ on:
       - main
       - feature/supabase-auth-esquina-mix
       - feature/growth-ux-conversion-2026-11-17
+      - feature/ux-trust-compliance-2026-11-17
   pull_request:
     branches:
       - main

@@ -595,7 +595,12 @@ function orderBody(o){
   (o.items||[]).forEach(function(x){ul.appendChild(h('li',null,(x.q||1)+'× '+(x.n||'Item')))});
   f.appendChild(ul);
   var pay=o.pay?(' · '+o.pay+(o.changeFor?' (troco para '+brl(o.changeFor)+')':'')):'';
-  f.appendChild(h('p','ord__tot','Total '+brl(o.total)+pay));
+  f.appendChild(h('p','ord__tot','Total estimado (referência) '+brl(o.total)+pay));
+  if(!isOpenOrder(o)&&(o.items||[]).length){
+    var repeat=h('button','ord__repeat','Adicionar itens novamente à sacola');repeat.type='button';
+    repeat.addEventListener('click',function(){document.dispatchEvent(new CustomEvent('esquina:repeat-order',{detail:{items:o.items}}));close()});
+    f.appendChild(repeat);
+  }
   return f;
 }
 function orderHead(o){
