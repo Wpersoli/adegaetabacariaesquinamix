@@ -743,3 +743,8 @@ body:has(.drawer:not([hidden])) .home-filter-tab,body:has(.drawer:not([hidden]))
 .ord__repeat{min-height:44px;margin-top:12px;padding:10px 15px;border:2px solid var(--pink);border-radius:10px;background:var(--pink);color:#fff;cursor:pointer;font:700 13px "DM Sans",sans-serif}
 .ord__repeat:hover,.ord__repeat:focus-visible{background:var(--hot);outline:2px solid var(--gold);outline-offset:2px}
 @media(max-width:480px){.price-disclaimer{font-size:12px}.gate__input{font-size:16px}}
+
+.sug__thumb--empty{width:40px;height:40px;flex:none;border-radius:6px;background:linear-gradient(145deg,rgba(236,26,181,.12),rgba(245,184,46,.12));border:1px dashed rgba(122,106,79,.35)}
+.rank-img{width:64px;height:64px;display:grid;place-items:center;overflow:hidden;flex:none;border-radius:8px;background:rgba(0,0,0,.05)}
+.rank-img img{width:100%;height:100%;object-fit:contain}
+.rank-img--missing{padding:5px;color:var(--dk);font:700 8px/1.2 "DM Sans",sans-serif;text-align:center;text-transform:uppercase;letter-spacing:.04em;border:1px dashed rgba(0,0,0,.22)}
