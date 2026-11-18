@@ -74,7 +74,8 @@ window.addEventListener('storage',function(e){if(e.key==='emCart'){readCart();sy
     var c=window.EsquinaAuth&&window.EsquinaAuth.user;if(!c||!c.name)return;
     e.preventDefault();
     var m='Ol\u00e1! Sou '+c.name+'. Vim pelo card\u00e1pio digital da Esquina Mix.';
-        window.open('https://wa.me/'+num+'?text='+encodeURIComponent(m),'_blank','noopener')})
+    if(c.cpfStatus)m+=' Status da conta: '+(c.cpfStatus==='verified'?'verificada':'em valida\u00e7\u00e3o')+'.';
+    window.open('https://wa.me/'+num+'?text='+encodeURIComponent(m),'_blank','noopener')})
 })();
 
 /* ---------- Filtros ---------- */
@@ -232,12 +233,9 @@ requestAnimationFrame(function(){requestAnimationFrame(function(){document.body.
 /* ---------- Barra do topo (mesma da home): categorias, busca e menu do celular ---------- */
 var bar=$('bar'),navEl=$('nav'),top=document.querySelector('.top'),sb=$('searchBtn'),mb=$('menuBtn'),mqM=window.matchMedia('(max-width:1024.98px)'),dr=null,dLast=null,hold=0,hidden=false,lastY=window.pageYOffset||0,ticking=false;
 function nd(tag,cls,txt){var n=document.createElement(tag);if(cls)n.className=cls;if(txt)n.textContent=txt;return n}
-function markNav(){
-  [].forEach.call(document.querySelectorAll('#nav button[data-cat],.mnav__a[data-cat]'),function(b){if(b.dataset.cat===st.cat)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current')});
-  var chips=$('catChips');if(chips)[].forEach.call(chips.querySelectorAll('[data-cat]'),function(b){var on=b.dataset.cat===st.cat;b.classList.toggle('is-active',on);b.setAttribute('aria-pressed',String(on))});
-}
-navEl.addEventListener('click',function(e){var b=e.target.closest('button[data-cat]');if(!b)return;if(b.dataset.cat==='outros'){location.href='/produtos?ordem=az';return}st.cat=b.dataset.cat;st.page=1;hold=Date.now()+900;render();goList()});
-var catChips=$('catChips');if(catChips)catChips.addEventListener('click',function(e){var b=e.target.closest('button[data-cat]');if(!b)return;st.cat=b.dataset.cat;st.page=1;render();goList()});
+function markNav(){[].forEach.call(document.querySelectorAll('#nav button[data-cat],.mnav__a[data-cat],#productCategoryChips button[data-cat]'),function(b){if(b.dataset.cat===st.cat){b.setAttribute('aria-current','true');b.setAttribute('aria-pressed','true');b.classList.add('is-active')}else{b.removeAttribute('aria-current');b.setAttribute('aria-pressed','false');b.classList.remove('is-active')}})}
+navEl.addEventListener('click',function(e){var b=e.target.closest('button[data-cat]');if(!b)return;st.cat=b.dataset.cat;st.page=1;hold=Date.now()+900;render();goList()});
+var quickCats=$('productCategoryChips');if(quickCats)quickCats.addEventListener('click',function(e){var b=e.target.closest('button[data-cat]');if(!b)return;st.cat=b.dataset.cat;st.page=1;hold=Date.now()+900;render();goList()});
 /* busca em linha própria (ícone) no celular */
 function searchRow(on){top.classList.toggle('is-search',on);sb.setAttribute('aria-expanded',on?'true':'false');if(on)$('hq').focus();else $('hq').blur()}
 sb.addEventListener('click',function(){searchRow(!top.classList.contains('is-search'))});

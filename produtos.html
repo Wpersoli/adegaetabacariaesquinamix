@@ -38,7 +38,7 @@
 <div class="bar" id="bar">
 <header class="top">
   <button class="ico-menu" id="menuBtn" type="button" aria-label="Abrir menu de categorias" aria-expanded="false" aria-controls="mnav"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
-  <a class="brand" href="index.html" aria-label="Esquina Mix — página inicial">
+  <a class="brand" href="https://adegaetabacariaesquinamix.vercel.app/#inicio" aria-label="Esquina Mix — página inicial">
     <img src="assets/logo.webp" width="100" height="100" alt="Logo Adega e Tabacaria Esquina Mix">
     <span class="brand-t"><b>ESQUINA</b><b>MIX</b><small>Adega · Tabacaria</small></span>
   </a>
@@ -51,13 +51,13 @@
   </div>
 </header>
 <nav class="nav" id="nav" aria-label="Categorias">
-  <a class="on pink" href="/#inicio">Início</a>
+  <a class="on pink" href="https://adegaetabacariaesquinamix.vercel.app/#inicio">Início</a>
   <button class="green" type="button" data-cat="promo">Promoções</button>
   <button type="button" data-cat="bebidas">Bebidas</button>
   <button type="button" data-cat="tabacos">Cigarros e Tabacos</button>
   <button type="button" data-cat="headshop">Headshop</button>
   <button type="button" data-cat="narguile">Narguile</button>
-  <button type="button" data-cat="outros">Outros <span class="tag">Tem de tudo</span></button>
+  <a class="nav__other" href="https://adegaetabacariaesquinamix.vercel.app/produtos?ordem=az">Outros <span class="tag">Tem de tudo</span></a>
 </nav>
 </div>
 
@@ -65,18 +65,10 @@
   <div class="wrap">
     <div class="feat__head">
       <div><p class="feat__eyebrow">// catálogo completo</p><h1 class="feat__title">Todos os produtos da <span class="hl">esquina</span></h1></div>
-      <a class="pg-back" href="/#inicio" aria-label="Voltar ao cardápio"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span>Voltar ao cardápio</span></a>
-    </div>
-    <div class="feat__chips pg-category-chips" id="catChips" role="group" aria-label="Filtrar produtos por categoria">
-      <button type="button" class="feat-chip is-active" data-cat="todos" aria-pressed="true">Todos</button>
-      <button type="button" class="feat-chip is-warn" data-cat="promo" aria-pressed="false">Promoções</button>
-      <button type="button" class="feat-chip" data-cat="bebidas" aria-pressed="false">Bebidas</button>
-      <button type="button" class="feat-chip" data-cat="narguile" aria-pressed="false">Narguile</button>
-      <button type="button" class="feat-chip" data-cat="headshop" aria-pressed="false">Headshop</button>
-      <button type="button" class="feat-chip" data-cat="tabacos" aria-pressed="false">Cigarros e Tabacos</button>
+      <a class="pg-back" href="https://adegaetabacariaesquinamix.vercel.app/#inicio" aria-label="Voltar ao cardápio"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span>Voltar ao cardápio</span></a>
     </div>
 
-    <div class="pg-layout">
+    <nav class="pg-category-chips" id="productCategoryChips" aria-label="Categorias em destaque">\n      <button type="button" data-cat="todos" aria-pressed="true" class="is-active">Todos</button>\n      <button type="button" data-cat="promo" aria-pressed="false">Promoções</button>\n      <button type="button" data-cat="bebidas" aria-pressed="false">Bebidas</button>\n      <button type="button" data-cat="narguile" aria-pressed="false">Narguile</button>\n      <button type="button" data-cat="headshop" aria-pressed="false">Headshop</button>\n      <button type="button" data-cat="tabacos" aria-pressed="false">Cigarros e Tabacos</button>\n    </nav>\n\n    <div class="pg-layout">
       <button class="pg-filtbtn" id="filtBtn" type="button" aria-expanded="false" aria-controls="filters"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span id="filtBtnTx">Filtros</span></button>
 
       
@@ -94,7 +86,7 @@
   <div class="ft">
     <div class="ft-brand"><img src="assets/logo.webp" width="100" height="100" alt="Esquina Mix" loading="lazy"><p>Adega e tabacaria com cardápio digital. Escolha, adicione à sacola e peça pelo WhatsApp.</p>
       <div class="soc"><a href="https://www.instagram.com/esquinamix2025/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/></svg></a><a href="https://wa.me/5511917221039" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.5z"/></svg></a><a href="https://www.google.com/maps/search/?api=1&amp;query=Adega+e+Tabacaria+Esquina+Mix%2C+R.+S%C3%A3o+Francisco%2C+285%2C+Guarulhos" target="_blank" rel="noopener" aria-label="Google Maps"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></a></div></div>
-    <div><h3>Navegue</h3><a href="/#inicio">Início</a><a href="index.html#cardapio">Cardápio</a><a href="index.html#ranking">Mais vendidos</a><a href="index.html#avaliacoes">Avaliações</a></div>
+    <div><h3>Navegue</h3><a href="https://adegaetabacariaesquinamix.vercel.app/#inicio">Início</a><a href="index.html#cardapio">Cardápio</a><a href="index.html#ranking">Mais vendidos</a><a href="index.html#avaliacoes">Avaliações</a></div>
     <div><h3>Atendimento</h3><a href="https://wa.me/5511917221039" target="_blank" rel="noopener">Fale conosco</a><a href="https://www.instagram.com/esquinamix2025/" target="_blank" rel="noopener">Instagram</a><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Adega+e+Tabacaria+Esquina+Mix%2C+R.+S%C3%A3o+Francisco%2C+285%2C+Guarulhos" target="_blank" rel="noopener">Como chegar</a></div>
     <div><h3>Loja</h3><p><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.6-4.7A8.5 8.5 0 1 1 8 19.5z"/></svg><a href="https://wa.me/5511917221039" target="_blank" rel="noopener">(11) 91722-1039</a></p><p><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/></svg><span>R. São Francisco, 285 – Vila Galvão, Guarulhos – SP, 07071-010</span></p><p class="hrs"><b>Horário:</b> aberto até 02:00 · reabre às 10:00</p></div>
   </div>
@@ -156,16 +148,15 @@
         <input class="ck__in" id="ckPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="(11) 99999-9999" required aria-describedby="ckPhoneErr">
         <p class="ck__err" id="ckPhoneErr" role="alert" hidden></p>
       </div>
-        <div class="ck__f" id="ckAddressBox">
-          <label class="ck__lbl" for="ckAddress">Endereço de entrega <b aria-hidden="true">*</b></label>
-          <div class="ck__opts ck__address-modes" id="ckAddressModes" hidden>
-            <label class="ck__opt"><input type="radio" name="addressMode" value="saved" checked><span>Endereço cadastrado</span></label>
-            <label class="ck__opt"><input type="radio" name="addressMode" value="new"><span>Outro endereço</span></label>
-          </div>
-          <textarea class="ck__in ck__address-input" id="ckAddress" rows="3" maxlength="300" placeholder="Rua, número, complemento, bairro e cidade" aria-describedby="ckAddressHint ckAddressErr"></textarea>
-          <p class="ck__hint" id="ckAddressHint">O endereço informado será usado apenas neste pedido, sem alterar seus dados da conta.</p>
-          <p class="ck__err" id="ckAddressErr" role="alert" hidden></p>
+      <fieldset class="ck__f ck__fs" id="ckAddressBox">
+        <legend class="ck__lbl">Endereço de entrega <b aria-hidden="true">*</b></legend>
+        <div class="ck__opts" id="ckAddressModes">
+          <label class="ck__opt" id="ckSavedMode" hidden><input type="radio" name="ckAddressMode" value="saved"><span>Usar endereço cadastrado</span></label>
+          <label class="ck__opt"><input type="radio" name="ckAddressMode" value="new" checked><span>Adicionar outro endereço para este pedido</span></label>
         </div>
+        <textarea class="ck__in" id="ckAddress" rows="3" maxlength="500" placeholder="Rua, número, complemento, bairro, cidade e referência" required></textarea>
+        <p class="ck__err" id="ckAddressErr" role="alert" hidden></p>
+      </fieldset>
       <fieldset class="ck__f ck__fs">
         <legend class="ck__lbl">Forma de pagamento <b aria-hidden="true">*</b></legend>
         <div class="ck__opts">

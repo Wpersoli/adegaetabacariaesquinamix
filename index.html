@@ -109,7 +109,7 @@
   <button data-cat="tabacos">Cigarros e Tabacos</button>
   <button data-cat="headshop">Headshop</button>
   <button data-cat="narguile">Narguile</button>
-  <button data-cat="outros">Outros <span class="tag">Tem de tudo</span></button>
+  <a href="https://adegaetabacariaesquinamix.vercel.app/produtos?ordem=az" class="nav__other">Outros <span class="tag">Tem de tudo</span></a>
 </nav>
 </div>
 <p class="loc"><span>Adega e Tabacaria em <b>Guarulhos</b> • Vila Galvão · Fecha às 02:00</span><span class="loc__age">Venda proibida p/ menores de 18 • Beba com responsabilidade</span></p>
@@ -152,7 +152,7 @@
   <section class="trust" aria-label="Diferenciais"><div class="wrap"><div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div class="trust-text"><strong>Atendimento local</strong><span>Vila Galvão · Guarulhos</span></div></div><div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span><div class="trust-text"><strong id="shopTrust">Esquina-Mix aberta</strong><span>Fecha 02:00 · abre 10:00</span></div></div><div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6zM9 8a3 3 0 0 1 6 0"/></svg></span><div class="trust-text"><strong>Pedido fácil</strong><span>Sacola → WhatsApp</span></div></div><div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg></span><div class="trust-text"><strong>Consumo responsável</strong><span>Venda só para 18+</span></div></div></div></section>
   <section class="feat" id="cardapio" aria-labelledby="title"><div class="wrap">
     <div class="feat__head"><div><p class="feat__eyebrow">// cardápio digital</p><h2 class="feat__title" id="title">Em destaque na <span class="hl">esquina</span></h2></div><a class="feat__cta" href="produtos.html">Ver tudo →</a></div>
-    <div class="feat__chips" id="chips" role="group" aria-label="Filtrar produtos por categoria"><button type="button" class="feat-chip is-active" data-cat="todos" aria-pressed="true">Todos</button><button type="button" class="feat-chip is-warn" data-cat="promo" aria-pressed="false">Promoções</button><button type="button" class="feat-chip" data-cat="bebidas" aria-pressed="false">Bebidas</button><button type="button" class="feat-chip" data-cat="narguile" aria-pressed="false">Narguile</button><button type="button" class="feat-chip" data-cat="headshop" aria-pressed="false">Headshop</button><button type="button" class="feat-chip" data-cat="tabacos" aria-pressed="false">Cigarros e Tabacos</button></div>
+    <div class="feat__chips" id="chips"><button class="feat-chip is-active" data-cat="todos">Todos</button><button class="feat-chip is-warn" data-cat="promo">Promoções</button><button class="feat-chip" data-cat="narguile">Narguile</button><button class="feat-chip" data-cat="headshop">Headshop</button><button class="feat-chip" data-cat="tabacos">Cigarros e Tabacos</button><button class="feat-chip" data-cat="bebidas">Bebidas</button></div>
     <div class="feat__tools"><div class="facets" id="facets" role="group" aria-label="Filtros do catálogo"></div><label class="sort"><span>Ordenar</span><select id="sort" aria-label="Ordenar produtos"><option value="rel">Relevância</option><option value="asc">Menor preço</option><option value="desc">Maior preço</option><option value="az" selected>A–Z</option></select></label></div>
     <div class="feat__grid" id="grid" aria-live="polite"></div>
     <nav class="home-pages" id="homePages" aria-label="Paginação do cardápio" hidden></nav>
@@ -160,7 +160,7 @@
   </div></section>
 
   <section class="rank" id="ranking" aria-labelledby="rk"><div class="wrap">
-    <div class="sec-head"><div><p class="eyebrow">// seleção do catálogo</p><h2 class="sec-title" id="rk">Explore a <span class="hl">variedade</span></h2></div><p class="hint">← arrasta →</p></div>
+    <div class="sec-head"><div><p class="eyebrow">// ranking semanal</p><h2 class="sec-title" id="rk">Mais vendidos da <span class="hl">esquina</span></h2></div><p class="hint">← arrasta →</p></div>
     <div class="rank__track" id="rankTrack"></div>
   </div></section>
 
@@ -171,9 +171,12 @@
 
   <section class="rev" id="avaliacoes" aria-labelledby="rv"><div class="wrap rev__inner">
     <div class="rev__score">
-      <h2 class="rev__sr" id="rv">Avaliações da Esquina Mix no Google</h2>
-      <span class="rev__brand"><i class="rev__g" aria-hidden="true"></i><span>Experiências de clientes</span></span>
-      <p class="rev__intro">Confira as avaliações diretamente no Google e compartilhe sua experiência com a loja.</p>
+      <h2 class="rev__sr" id="rv">Avaliações dos clientes no Google</h2>
+      <span class="rev__brand"><i class="rev__g" aria-hidden="true"></i><span>Google Reviews</span></span>
+      <div class="rev__row">
+        <p class="rev__num" aria-label="Nota 5,0 de 5"><b>5,0</b><small>/5</small></p>
+        <div class="rev__meta"><span class="rev__stars" aria-hidden="true">★★★★★</span><span class="rev__count"><b>+80</b> Avaliações verificadas</span></div>
+      </div>
       <div class="rev__btns">
         <a class="rev__btn rev__btn--dark" href="https://www.google.com/maps/place/Adega+e+Tabacaria+Esquina+Mix/@-23.454681,-46.5708606,675m/data=!3m1!1e3!4m8!3m7!1s0x94cef50e39d6a885:0xfa27d31c85b4ee1e!8m2!3d-23.4546859!4d-46.5682857!9m1!1b1!16s%2Fg%2F11yr918fj4?hl=pt-BR&amp;entry=ttu&amp;g_ep=EgoyMDI2MTExMC4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener">Ver no Google <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
         <a class="rev__btn rev__btn--light" href="https://share.google/tPx1BDS3yRPXs70cG" target="_blank" rel="noopener">Avaliar</a>
@@ -243,16 +246,15 @@
         <input class="ck__in" id="ckPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="(11) 99999-9999" required aria-describedby="ckPhoneErr">
         <p class="ck__err" id="ckPhoneErr" role="alert" hidden></p>
       </div>
-        <div class="ck__f" id="ckAddressBox">
-          <label class="ck__lbl" for="ckAddress">Endereço de entrega <b aria-hidden="true">*</b></label>
-          <div class="ck__opts ck__address-modes" id="ckAddressModes" hidden>
-            <label class="ck__opt"><input type="radio" name="addressMode" value="saved" checked><span>Endereço cadastrado</span></label>
-            <label class="ck__opt"><input type="radio" name="addressMode" value="new"><span>Outro endereço</span></label>
-          </div>
-          <textarea class="ck__in ck__address-input" id="ckAddress" rows="3" maxlength="300" placeholder="Rua, número, complemento, bairro e cidade" aria-describedby="ckAddressHint ckAddressErr"></textarea>
-          <p class="ck__hint" id="ckAddressHint">O endereço informado será usado apenas neste pedido, sem alterar seus dados da conta.</p>
-          <p class="ck__err" id="ckAddressErr" role="alert" hidden></p>
+      <fieldset class="ck__f ck__fs" id="ckAddressBox">
+        <legend class="ck__lbl">Endereço de entrega <b aria-hidden="true">*</b></legend>
+        <div class="ck__opts" id="ckAddressModes">
+          <label class="ck__opt" id="ckSavedMode" hidden><input type="radio" name="ckAddressMode" value="saved"><span>Usar endereço cadastrado</span></label>
+          <label class="ck__opt"><input type="radio" name="ckAddressMode" value="new" checked><span>Adicionar outro endereço para este pedido</span></label>
         </div>
+        <textarea class="ck__in" id="ckAddress" rows="3" maxlength="500" placeholder="Rua, número, complemento, bairro, cidade e referência" required></textarea>
+        <p class="ck__err" id="ckAddressErr" role="alert" hidden></p>
+      </fieldset>
       <fieldset class="ck__f ck__fs">
         <legend class="ck__lbl">Forma de pagamento <b aria-hidden="true">*</b></legend>
         <div class="ck__opts">
