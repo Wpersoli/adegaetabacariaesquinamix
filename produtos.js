@@ -119,7 +119,7 @@ function parsePrice(v){
   var n=parseFloat(s);return isFinite(n)&&n>=0?n:null}
 function okCat(x,c){return c==='todos'||x.cat===c}
 function okPrice(x){return(st.min==null||x.p>=st.min)&&(st.max==null||x.p<=st.max)}
-function okText(x){if(!st.q)return true;var s=norm(x.n+' '+(names[x.cat]||'')+);
+function okText(x){if(!st.q)return true;var s=norm(x.n+' '+(names[x.cat]||''));
   return norm(st.q).split(/\s+/).filter(Boolean).every(function(t){return s.indexOf(t)>-1})}
 function filtered(ignoreCat){return catalog.filter(function(x){return(ignoreCat||okCat(x,st.cat))&&okPrice(x)&&okText(x)})}
 function active(){return st.cat!=='todos'||st.min!=null||st.max!=null||!!st.q}
