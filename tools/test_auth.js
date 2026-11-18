@@ -296,3 +296,15 @@ assert.ok(sessionApi.includes('AUTH_USER_LOOKUP_UNAVAILABLE'));
 });
 
 console.log('Esquina Mix: autenticação, sessões, HMAC, filtros, checkout e navegação validados.');
+
+
+/* Integridade comercial: não apresentar ranking inventado, avaliações locais sem fonte ou promoções de tabaco. */
+const commercialCatalog = fs.readFileSync(path.join(root, 'catalog.js'), 'utf8');
+const commercialLines = commercialCatalog.split('\n');
+assert.ok(!commercialLines.some((line) => line.includes("cat:'tabacos'") && line.includes('promo:1')));
+assert.ok(!commercialLines.some((line) => line.includes("cat:'narguile'") && line.includes('promo:1')));
+assert.ok(!commercialLines.some((line) => line.includes("cat:'headshop'") && line.includes('promo:1')));
+assert.ok(!app.includes('Sabrina Duque') && !app.includes('Ulisses Gomes') && !app.includes('Leo Batista'));
+assert.ok(app.includes('var reviews=[];'));
+assert.ok(index.includes('Explore a <span class="hl">variedade</span>'));
+assert.ok(!index.includes('Mais vendidos da') && !index.includes('+80</b> Avaliações verificadas') && !index.includes('Nota 5,0 de 5'));
