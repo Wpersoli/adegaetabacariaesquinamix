@@ -179,7 +179,6 @@ function send(items){
   save(KP,maskPhone(ph));
   var u=user();if(!(u&&u.name))save(KN,nm);
   var stp=stamp();
-  document.dispatchEvent(new Event('esquina:whatsapp-handoff'));
   window.open('https://wa.me/'+num+'?text='+encodeURIComponent(build(items,ph,changeFor,stp,address)),'_blank','noopener');
   /* O endereço alternativo pertence somente ao pedido enviado; não deve reaparecer no próximo checkout. */
   resetAddressChoice();
