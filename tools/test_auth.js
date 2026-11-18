@@ -26,7 +26,9 @@ const javascript = [
   'api/auth/complete.js',
   'api/auth/password.js',
   'api/auth/google.js',
-  'api/orders/index.js'
+  'api/orders/index.js',
+  'lib/events-handler.js',
+  'analytics.js'
 ];
 
 for (const file of javascript) {
@@ -34,6 +36,16 @@ for (const file of javascript) {
 }
 
 assert.equal(auth.validCpf('529.982.247-25'), true);
+
+const analyticsApi = fs.readFileSync(path.join(root, 'lib/events-handler.js'), 'utf8');
+const analyticsClient = fs.readFileSync(path.join(root, 'analytics.js'), 'utf8');
+assert.ok(analyticsApi.includes('record_store_event'));
+assert.ok(!analyticsApi.includes('customer_phone') && !analyticsApi.includes('customer_name'));
+assert.ok(analyticsClient.includes('whatsapp_handoff'));
+assert.ok(analyticsClient.includes('product_added'));
+assert.ok(analyticsClient.includes("send('checkout_opened','',0)"));
+assert.ok(!analyticsClient.includes("document.addEventListener('cart:sync'"));
+assert.ok(!analyticsClient.includes('localStorage') && !analyticsClient.includes('document.cookie'));
 assert.equal(auth.normalizePhone('(11) 99999-9999'), '+5511999999999');
 assert.equal(auth.normalizePhone('+55 11 3333-4444'), '+551133334444');
 assert.equal(auth.normalizePhone('123'), '');
@@ -107,6 +119,23 @@ assert.match(profileMigration, /grant execute on function public\.update_custome
 
 const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 assert.match(index, /name="esquina-auth" content="api"/);
+
+/* Portão 18+: autodeclaração binária, sem solicitar data de nascimento. */
+const productsPage = fs.readFileSync(path.join(root, 'produtos.html'), 'utf8');
+function ageGateMarkup(pageName, html) {
+  const match = html.match(/<div class="gate" id="gate"[\s\S]*?<\/div>\s*<\/div>/);
+  assert.ok(match, pageName + ': modal de confirmação de idade ausente.');
+  assert.match(match[0], /id="yes"[^>]*>Sim, sou maior de 18 anos<\/button>/);
+  assert.match(match[0], /id="no"[^>]*>Não, sou menor de 18 anos<\/button>/);
+  assert.doesNotMatch(match[0], /type=["']date|data de nascimento|nascimento/i);
+}
+ageGateMarkup('Home', index);
+ageGateMarkup('Produtos', productsPage);
+for (const script of ['app.js', 'produtos.js']) {
+  const source = fs.readFileSync(path.join(root, script), 'utf8');
+  assert.ok(source.includes("$('yes').onclick=function(){save('esquinaMixAge18','yes');gate.hidden=true;lock(gate,false)};"));
+  assert.ok(source.includes("$('no').onclick=function(){$('deny').hidden=false};"));
+}
 
 const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 assert.match(sw, /u\.pathname\.indexOf\('\/api\/'\)===0/);
@@ -296,3 +325,46 @@ assert.ok(sessionApi.includes('AUTH_USER_LOOKUP_UNAVAILABLE'));
 });
 
 console.log('Esquina Mix: autenticação, sessões, HMAC, filtros, checkout e navegação validados.');
+
+
+/* Integridade comercial: não apresentar ranking inventado, avaliações locais sem fonte ou promoções de tabaco. */
+const commercialCatalog = fs.readFileSync(path.join(root, 'catalog.js'), 'utf8');
+const commercialLines = commercialCatalog.split('\n');
+assert.ok(!commercialLines.some((line) => line.includes("cat:'tabacos'") && line.includes('promo:1')));
+assert.ok(!commercialLines.some((line) => line.includes("cat:'narguile'") && line.includes('promo:1')));
+assert.ok(!commercialLines.some((line) => line.includes("cat:'headshop'") && line.includes('promo:1')));
+assert.ok(!app.includes('Sabrina Duque') && !app.includes('Ulisses Gomes') && !app.includes('Leo Batista'));
+assert.ok(app.includes('var reviews=[];'));
+assert.ok(index.includes('Explore a <span class="hl">variedade</span>'));
+assert.ok(!index.includes('Mais vendidos da') && !index.includes('+80</b> Avaliações verificadas') && !index.includes('Nota 5,0 de 5'));
+
+// Plano Hobby da Vercel: no máximo 12 Serverless Functions por deployment (cada .js em api/ conta como uma).
+(function checkFunctionBudget() {
+  const found = [];
+  (function walk(dir) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (/\.(js|mjs|cjs|ts)$/.test(entry.name)) found.push(path.relative(root, full));
+    }
+  })(path.join(root, 'api'));
+  assert.ok(found.length <= 12, 'Funções em api/ excedem o limite do plano Hobby (' + found.length + '): ' + found.join(', '));
+  assert.ok(!found.includes('api/events.js'), 'api/events.js deve ser removido: o endpoint vive em /api/orders?route=events');
+})();
+
+// Eventos de analytics passam por /api/orders?route=events (sem função extra).
+(function checkEventsRoute() {
+  const analyticsClient = fs.readFileSync(path.join(root, 'analytics.js'), 'utf8');
+  assert.ok(analyticsClient.includes('/api/orders?route=events'));
+  const orders = require('../api/orders/index.js');
+  const res = { statusCode: 0, headers: {}, body: '', setHeader(k, v) { this.headers[k] = v; }, end(b) { this.body = b || ''; } };
+  return Promise.resolve(orders({ method: 'GET', query: { route: 'events' }, url: '/api/orders?route=events', headers: {} }, res))
+    .then(() => {
+      assert.equal(res.statusCode, 405, 'GET em route=events deve ser tratado pelo handler de eventos (POST apenas)');
+      const res2 = { statusCode: 0, headers: {}, body: '', setHeader(k, v) { this.headers[k] = v; }, end(b) { this.body = b || ''; } };
+      return Promise.resolve(orders({ method: 'GET', query: {}, url: '/api/events?route=events', headers: {} }, res2)).then(() => {
+        assert.equal(res2.statusCode, 405, 'fallback por URL deve achar route=events');
+        console.log('Rota de eventos em /api/orders e limite de 12 funções validados.');
+      });
+    });
+})().catch(e => { console.error(e); process.exit(1); });
