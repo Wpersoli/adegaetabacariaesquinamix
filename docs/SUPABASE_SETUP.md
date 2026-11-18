@@ -12,7 +12,7 @@
   - `20261117235556_customer_orders.sql`
 - Tabelas confirmadas: `public.customer_profiles`, `public.customer_orders`, `private.customer_identity` e `private.email_lookup_attempts`. RLS está habilitado em todas.
 - PR #3 está integrado à `main`.
-- Produção está publicada em **https://adegaetabacariaesquinamix.vercel.app** no commit `4865d163a623146cc7a76fe025865759622bfbb0` (Vercel READY).
+- Produção está publicada em **https://adegaetabacariaesquinamix.vercel.app** a partir da branch `main`; a implantação mais recente da auditoria foi confirmada como **READY**.
 
 **Limite do plano Free:** mantenha no máximo dois projetos ativos na organização. `trotebox-prod` está pausado (INACTIVE) e `valora-credito` continua ativo e preservado. Não reative o projeto pausado sem rever o limite do plano.
 
