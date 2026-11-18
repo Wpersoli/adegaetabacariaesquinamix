@@ -120,6 +120,23 @@ assert.match(profileMigration, /grant execute on function public\.update_custome
 const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 assert.match(index, /name="esquina-auth" content="api"/);
 
+/* Portão 18+: autodeclaração binária, sem solicitar data de nascimento. */
+const productsPage = fs.readFileSync(path.join(root, 'produtos.html'), 'utf8');
+function ageGateMarkup(pageName, html) {
+  const match = html.match(/<div class="gate" id="gate"[\s\S]*?<\/div>\s*<\/div>/);
+  assert.ok(match, pageName + ': modal de confirmação de idade ausente.');
+  assert.match(match[0], /id="yes"[^>]*>Sim, sou maior de 18 anos<\/button>/);
+  assert.match(match[0], /id="no"[^>]*>Não, sou menor de 18 anos<\/button>/);
+  assert.doesNotMatch(match[0], /type=["']date|data de nascimento|nascimento/i);
+}
+ageGateMarkup('Home', index);
+ageGateMarkup('Produtos', productsPage);
+for (const script of ['app.js', 'produtos.js']) {
+  const source = fs.readFileSync(path.join(root, script), 'utf8');
+  assert.ok(source.includes("$('yes').onclick=function(){save('esquinaMixAge18','yes');gate.hidden=true;lock(gate,false)};"));
+  assert.ok(source.includes("$('no').onclick=function(){$('deny').hidden=false};"));
+}
+
 const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
 assert.match(sw, /u\.pathname\.indexOf\('\/api\/'\)===0/);
 assert.match(sw, /u\.pathname\.indexOf\('\/auth\/'\)===0/);
