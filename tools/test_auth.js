@@ -43,6 +43,8 @@ assert.ok(analyticsApi.includes('record_store_event'));
 assert.ok(!analyticsApi.includes('customer_phone') && !analyticsApi.includes('customer_name'));
 assert.ok(analyticsClient.includes('whatsapp_handoff'));
 assert.ok(analyticsClient.includes('product_added'));
+assert.ok(analyticsClient.includes("send('checkout_opened','',0)"));
+assert.ok(!analyticsClient.includes("document.addEventListener('cart:sync'"));
 assert.ok(!analyticsClient.includes('localStorage') && !analyticsClient.includes('document.cookie'));
 assert.equal(auth.normalizePhone('(11) 99999-9999'), '+5511999999999');
 assert.equal(auth.normalizePhone('+55 11 3333-4444'), '+551133334444');
