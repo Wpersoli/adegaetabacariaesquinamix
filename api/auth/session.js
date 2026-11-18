@@ -43,7 +43,7 @@ module.exports=async function(req,res){
   }catch(e){
     if(e.message==='METHOD_NOT_ALLOWED') return A.send(res,405,{code:'METHOD_NOT_ALLOWED'});
     if(e.message==='AUTH_CONFIGURATION_MISSING') return A.send(res,503,{code:'AUTH_CONFIGURATION_MISSING'});
-    if(e.message==='AUTH_USER_LOOKUP_UNAVAILABLE') return A.send(res,503,{code:'UNAVAILABLE'});
+    if(e.message==='AUTH_USER_LOOKUP_UNAVAILABLE'||e.message==='PROFILE_LOOKUP_UNAVAILABLE'||(e.status&&e.status>=500)) return A.send(res,503,{code:'UNAVAILABLE'});
     return A.send(res,401,{code:'INVALID_SESSION'});
   }
 };
