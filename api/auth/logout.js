@@ -5,7 +5,7 @@ module.exports=async function(req,res){
     A.method(req,['POST']);
     const c=A.config(),jar=A.cookies(req);
     if(jar.esquina_access){
-      try{await A.sbFetch(c,'/auth/v1/logout',{method:'POST',token:jar.esquina_access});}catch(_){}
+      try{await A.sbFetch(c,'/auth/v1/logout?scope=local',{method:'POST',token:jar.esquina_access});}catch(_){}
     }
     A.clearSession(res);
     return A.send(res,200,{ok:true});

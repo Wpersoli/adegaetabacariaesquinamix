@@ -124,12 +124,12 @@ $('send').onclick=function(){
   if(window.EsquinaOrder)window.EsquinaOrder.send(items)};
 
 /* Navegação e busca */
-function setCat(c,keep){homePage=1;cat=c;if(!keep)subF=null;
+function setCat(c,keep){if(c==='outros'){location.href='/produtos?ordem=az';return}homePage=1;cat=c;if(!keep)subF=null;
   [].forEach.call(document.querySelectorAll('#nav button'),function(x){x.classList.toggle('on',x.dataset.cat===c&&c!=='todos'?true:(c==='todos'&&x.textContent.trim()==='Início'))});
-  [].forEach.call($('chips').children,function(x){x.classList.toggle('is-active',x.dataset.cat===c)});
+  [].forEach.call($('chips').children,function(x){x.classList.toggle('is-active',x.dataset.cat===c);x.setAttribute('aria-pressed',String(x.dataset.cat===c))});
   var on=document.querySelector('#nav button.on');if(on&&on.scrollIntoView)on.scrollIntoView({inline:'center',block:'nearest'});
   render()}
-$('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;setCat(b.dataset.cat);document.getElementById('cardapio').scrollIntoView()});
+$('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.textContent.trim().indexOf('Início')===0){location.href='/#inicio';return}setCat(b.dataset.cat);document.getElementById('cardapio').scrollIntoView()});
 $('chips').addEventListener('click',function(e){var b=e.target.closest('button');if(b)setCat(b.dataset.cat)});
 $('facets').addEventListener('click',function(e){homePage=1;var b=e.target.closest('button');if(!b||b.dataset.i==null)return;var sb=(SUBS[cat]||[])[+b.dataset.i];if(!sb)return;subF=(subF&&subF.label===sb[0])?null:{label:sb[0],t:sb[1]};render()});
 $('sort').addEventListener('change',function(){sortBy=this.value;homePage=1;render()});
@@ -139,7 +139,7 @@ var qt;$('q').addEventListener('input',function(){var v=this.value;clearTimeout(
 (function(){
  var panel=$('homeFilter'),toggle=$('homeFilterToggle'),close=$('homeFilterClose'),veil=$('homeFilterVeil'),cats=$('homeFilterCats'),prices=$('homeFilterPrices'),search=$('homeFilterSearch');if(!panel||!toggle)return;
  function open(on){panel.classList.toggle('is-open',on);panel.setAttribute('aria-hidden',on?'false':'true');toggle.setAttribute('aria-expanded',on?'true':'false');toggle.setAttribute('aria-label',on?'Fechar filtros':'Abrir filtros');veil.hidden=!on;if(on){search.value=$('q').value;search.focus()}}
- function draw(){cats.textContent='';[['todos','Todos'],['promo','Promoções'],['bebidas','Bebidas'],['tabacos','Cigarros e Tabacos'],['headshop','Headshop'],['narguile','Narguile'],['outros','Outros']].forEach(function(c){var b=document.createElement('button');b.type='button';b.className='feat-chip'+(cat===c[0]?' is-active':'')+(c[0]==='promo'?' is-warn':'');b.textContent=c[1];b.onclick=function(){setCat(c[0]);homePage=1;draw()};cats.appendChild(b)});
+ function draw(){cats.textContent='';[['todos','Todos'],['promo','Promoções'],['bebidas','Bebidas'],['narguile','Narguile'],['headshop','Headshop'],['tabacos','Cigarros e Tabacos']].forEach(function(c){var b=document.createElement('button');b.type='button';b.className='feat-chip'+(cat===c[0]?' is-active':'')+(c[0]==='promo'?' is-warn':'');b.setAttribute('aria-pressed',String(cat===c[0]));b.textContent=c[1];b.onclick=function(){setCat(c[0]);homePage=1;draw()};cats.appendChild(b)});
  prices.textContent='';PR.forEach(function(r,i){var b=document.createElement('button');b.type='button';b.className='feat-chip'+(sel['p:'+i]?' is-active':'');b.textContent=r[0];b.onclick=function(){Object.keys(sel).forEach(function(k){if(k.indexOf('p:')===0)delete sel[k]});if(!b.classList.contains('is-active'))sel['p:'+i]=true;homePage=1;render();draw()};prices.appendChild(b)})}
  toggle.addEventListener('click',function(){open(!panel.classList.contains('is-open'))});close.addEventListener('click',function(){open(false)});veil.addEventListener('click',function(){open(false)});document.addEventListener('keydown',function(e){if(e.key==='Escape')open(false)});
  search.addEventListener('input',function(){ $('q').value=this.value;term=this.value;homePage=1;render() });
@@ -247,13 +247,13 @@ var qt;$('q').addEventListener('input',function(){var v=this.value;clearTimeout(
   [].forEach.call($('nav').querySelectorAll('button[data-cat]'),function(b){
     var c=b.dataset.cat,subs=SUBS[c],li=node('li'),a=node('button','mnav__a');a.type='button';
     a.appendChild(node('span','',b.firstChild.textContent.trim()));var tg=b.querySelector('.tag');if(tg)a.appendChild(tg.cloneNode(true));
-    li.appendChild(a);
+    li.appendChild(a);if(b.firstChild.textContent.trim()==='Início')a.dataset.home='1';
     if(subs){var sl=node('ul','mnav__sub');sl.hidden=true;a.setAttribute('aria-expanded','false');a.appendChild(node('span','chev','▾'));
       var add=function(t,cls,fn){var l=node('li'),bt=node('button',cls,t);bt.type='button';bt.onclick=fn;l.appendChild(bt);sl.appendChild(l)};
       add('Ver tudo em '+names[c],'all',function(){go(c,null)});subs.forEach(function(sbi){add(sbi[0],'',function(){go(c,sbi)})});li.appendChild(sl);
       a.onclick=function(){var open=a.getAttribute('aria-expanded')==='true';[].forEach.call(ul.querySelectorAll('.mnav__a[aria-expanded]'),function(o){o.setAttribute('aria-expanded','false');o.parentNode.querySelector('.mnav__sub').hidden=true});
         if(!open){a.setAttribute('aria-expanded','true');sl.hidden=false;a.scrollIntoView({block:'nearest'})}}}
-    else a.onclick=function(){go(c,null)};
+    else a.onclick=function(){if(a.dataset.home){location.href='/#inicio';return}go(c,null)};
     ul.appendChild(li)});
   document.body.appendChild(dr);
   function openD(){if(dr.classList.contains('is-open'))return;last=document.activeElement;dr.classList.add('is-open');dr.setAttribute('aria-hidden','false');mb.setAttribute('aria-expanded','true');lock(dr,true);setTimeout(function(){x.focus()},50)}
@@ -350,7 +350,6 @@ var reviews=[
       if(!customer||!customer.name)return;
       e.preventDefault();
       var message='Ol\u00e1! Sou '+customer.name+'. Vim pelo card\u00e1pio digital da Esquina Mix.';
-      if(customer.cpfStatus)message+=' Status da conta: '+(customer.cpfStatus==='verified'?'verificada':'em valida\u00e7\u00e3o')+'.';
       window.open('https://wa.me/'+num+'?text='+encodeURIComponent(message),'_blank','noopener');
     });
   }
