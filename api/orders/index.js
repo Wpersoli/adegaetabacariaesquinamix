@@ -6,6 +6,7 @@
 //   Corpo: { "id": "<uuid>" | "code": "<numero da comanda>", "status": "recebido|em_preparo|pronto|entregue|cancelado" }
 const crypto = require('node:crypto');
 const A = require('../../lib/esquina-auth');
+const eventsHandler = require('../../lib/events-handler');
 
 const STATUS = ['recebido', 'em_preparo', 'pronto', 'entregue', 'cancelado'];
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -94,7 +95,17 @@ function parseOrder(d) {
   return { items, total, code, pay, changeFor };
 }
 
+// POST /api/orders?route=events -> metricas agregadas da loja (lib/events-handler.js).
+// Fica aqui para respeitar o limite de 12 Serverless Functions do plano Hobby da Vercel.
+function routeOf(req) {
+  let r = req.query && req.query.route;
+  if (Array.isArray(r)) r = r[0];
+  if (!r) { const m = /[?&]route=([^&#]*)/.exec(String(req.url || '')); r = m && decodeURIComponent(m[1]); }
+  return String(r || '');
+}
+
 module.exports = async function (req, res) {
+  if (routeOf(req) === 'events') return eventsHandler(req, res);
   try {
     A.method(req, ['GET', 'POST', 'PATCH']);
     if (req.method === 'PATCH') return await updateStatus(req, res);

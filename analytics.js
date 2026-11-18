@@ -3,7 +3,7 @@
 var page=location.pathname.indexOf('/produtos')===0?'products':'home';
 var lastSearch=0;
 function send(event,category,productId){
-  try{fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+  try{fetch('/api/orders?route=events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
     event:event,page:page,category:category||'',productId:productId||0
   }),keepalive:true}).catch(function(){});}catch(e){}
 }
