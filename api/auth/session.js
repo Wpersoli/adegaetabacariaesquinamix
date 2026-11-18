@@ -24,7 +24,12 @@ module.exports=async function(req,res){
       const user=await A.currentUser(req,res,c);
       if(!user)return A.send(res,401,{code:'UNAUTHENTICATED'});
       if(d.confirm!=='ENCERRAR')return A.send(res,400,{code:'CONFIRMATION_REQUIRED'});
-      try{await A.sbFetch(c,'/auth/v1/admin/users/'+encodeURIComponent(user.id),{method:'DELETE',admin:true})}catch(e){return A.send(res,503,{code:'ACCOUNT_DELETE_UNAVAILABLE'})}
+      try{
+        // Revoga todos os refresh tokens antes da exclusão. JWTs de acesso já emitidos
+        // só expiram no prazo original; currentUser também confirma a existência da conta.
+        await A.sbFetch(c,'/auth/v1/logout?scope=global',{method:'POST',token:access});
+        await A.sbFetch(c,'/auth/v1/admin/users/'+encodeURIComponent(user.id),{method:'DELETE',admin:true});
+      }catch(e){return A.send(res,503,{code:'ACCOUNT_DELETE_UNAVAILABLE'})}
       A.clearSession(res);
       return A.send(res,200,{ok:true});
     }
