@@ -10,6 +10,7 @@ var $=function(i){return document.getElementById(i)};
 var save=function(k,v){try{localStorage.setItem(k,v)}catch(e){}};
 var load=function(k){try{return localStorage.getItem(k)}catch(e){return null}};
 var brl=function(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})};
+function metric(name){try{var d={event:'esquina_'+name,page:location.pathname};window.dispatchEvent(new CustomEvent('esquina:metric',{detail:d}));if(Array.isArray(window.dataLayer))window.dataLayer.push(d)}catch(e){}}
 var r2=function(v){return Math.round(v*100)/100};
 var PHONE_RE=/^[1-9][0-9][2-9][0-9]{7,8}$/;
 var KP='emPhone',KN='emName';
@@ -52,7 +53,7 @@ function paintCash(){
   var cash=st.pay==='Dinheiro';
   $('ckCash').hidden=!cash;
   $('ckChangeBox').hidden=!(cash&&st.change==='sim');
-  var h=$('ckChangeHint');if(h)h.textContent='Total do pedido: '+brl(st.total)}
+  var h=$('ckChangeHint');if(h)h.textContent='Total estimado (referência): '+brl(st.total)}
 function resetCheckout(){
   st.pay='';st.change='';
   [].forEach.call(document.querySelectorAll('#checkout input[type=radio]'),function(r){r.checked=false});
@@ -148,15 +149,14 @@ function build(items,phone,changeFor,stp,address){
   l.push('Nome: '+(custName()||'Não informado'));
   l.push('Telefone: '+maskPhone(phone));
   l.push('Endereço de entrega: '+(address||'Não informado'));
-  l.push(LINE,'*ITENS*');
+  l.push(LINE,'⚠️ *VALORES DE REFERÊNCIA*','Preço final, disponibilidade e condições serão confirmados pela loja antes da aceitação do pedido.',LINE,'*ITENS*');
   items.forEach(function(x,i){var sub=r2(x.q*x.p);total=r2(total+sub);qty+=x.q;
-    l.push(('0'+(i+1)).slice(-2)+') '+x.q+'x '+x.n,'      '+x.q+' × '+brl(x.p)+' = *'+brl(sub)+'*')});
-  l.push(LINE,'Qtde. de itens: '+qty,'*TOTAL: '+brl(total)+'*',LINE,'*PAGAMENTO*','Forma: '+st.pay);
+    l.push(('0'+(i+1)).slice(-2)+') '+x.q+'x '+x.n,'      Unitário ref. '+brl(x.p)+' · subtotal ref. *'+brl(sub)+'*')});
+  l.push(LINE,'Qtde. de itens: '+qty,'*TOTAL ESTIMADO (REFERÊNCIA): '+brl(total)+'*',LINE,'*PAGAMENTO*','Forma: '+st.pay);
   if(st.pay==='Dinheiro'){
-    if(st.change==='sim'&&changeFor>total+0.004){l.push('Troco: Sim, para '+brl(changeFor),'Valor do troco: *'+brl(r2(changeFor-total))+'*')}
-    else if(st.change==='sim'){l.push('Troco: Não precisa (valor exato)')}
+    if(st.change==='sim')l.push('Troco solicitado para '+brl(changeFor)+' (valor final a confirmar pela loja)');
     else l.push('Troco: Não precisa')}
-  l.push(LINE,'Aguardo a confirmação do pedido. Obrigado!');
+  l.push(LINE,'Pedido sujeito à confirmação de preço, estoque, entrega e maioridade pela loja. Obrigado!');
   return l.join('\n')}
 
 function send(items){
@@ -173,18 +173,19 @@ function send(items){
   if(st.pay==='Dinheiro'){
     if(!st.change){fail('ckChangeErr','Informe se precisa de troco.',document.querySelector('input[name=change]'));return}
     if(st.change==='sim'){changeFor=money($('ckChange').value);
-      if(changeFor==null||changeFor<total-0.004){fail('ckChangeErr','Informe um valor igual ou maior que o total ('+brl(total)+').',$('ckChange'));return}}}
+      if(changeFor==null){fail('ckChangeErr','Informe um valor válido para o troco.',$('ckChange'));return}}}
   var m=document.querySelector('meta[name="esquina-whatsapp"]'),num=((m&&m.content)||'').replace(/\D/g,'');
   if(!num)return;
   save(KP,maskPhone(ph));
   var u=user();if(!(u&&u.name))save(KN,nm);
   var stp=stamp();
+  metric('whatsapp_order_intent');
   window.open('https://wa.me/'+num+'?text='+encodeURIComponent(build(items,ph,changeFor,stp,address)),'_blank','noopener');
   /* O endereço alternativo pertence somente ao pedido enviado; não deve reaparecer no próximo checkout. */
   resetAddressChoice();
   /* cliente logado: guarda o pedido para acompanhar em "Pedidos" (não bloqueia nem altera o envio pelo WhatsApp) */
   if(u&&window.EsquinaAuth&&window.EsquinaAuth.recordOrder){
-    try{window.EsquinaAuth.recordOrder({code:stp.num,items:items.map(function(x){return{n:x.n,q:x.q,p:x.p}}),total:total,pay:st.pay,changeFor:changeFor||null,phone:ph}).catch(function(){})}catch(e){}}}
+    try{window.EsquinaAuth.recordOrder({code:stp.num,items:items.map(function(x){return{id:x.id,n:x.n,q:x.q,p:x.p}}),total:total,pay:st.pay,changeFor:changeFor||null,phone:ph}).catch(function(){})}catch(e){}}}
 
 window.EsquinaOrder={send:send,build:build,phone:maskPhone};
 syncAddressUser();
