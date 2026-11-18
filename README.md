@@ -19,7 +19,7 @@ Cardapio digital responsivo, sem framework e sem dependencias de build.
 - Elementos funcionais adicionados: barra de avisos com ticker animado, botao flutuante do WhatsApp, barra fixa de sacola no mobile, favoritos (coracao) por produto e microanimacao de "Adicionado" no botao de compra.
 
 ## Configuracoes pendentes
-1. Substituir os itens demonstrativos em `catalog.js` pelos produtos, descricoes e precos reais (categorias: `bebidas`, `tabacos`, `headshop`, `narguile`, `outros`; `promo:1` marca como promocao; `img:` e opcional).
+1. Atualizar `catalog.js` com produtos, descrições e preços reais confirmados. Categorias públicas: `bebidas`, `headshop`, `narguile` e `outros`. Não cadastrar produtos fumígenos derivados do tabaco no catálogo online. `img:` deve apontar apenas para foto real do produto.
 2. Numero do WhatsApp: fica na tag `<meta name="esquina-whatsapp">` do `index.html` (DDI + DDD + numero, so digitos) e nos links `wa.me` da pagina.
 3. Revisar os textos de `Atendimento` no rodape e no ticker (horario de funcionamento, bairro/regiao de entrega).
 
@@ -45,7 +45,7 @@ Projeto estatico. Basta conectar a branch `main` na Vercel; nao requer comando d
 ## Fotos de produtos
 - `assets/produtos/`: fotos padronizadas (800x800, fundo branco, WebP). No `catalog` do `app.js`, use `img:'assets/produtos/arquivo.webp'`.
 - `tools/coletar_imagens.py`: coleta e padroniza novas fotos (requer Pillow). Confirme os direitos de uso das imagens antes de publicar.
-- Os precos dos itens com foto (ids 12+) e dos itens novos (ids 40 a 119, ainda sem foto: usam a logo) sao EXEMPLO e precisam ser substituidos pelos reais.
+- Preços cadastrados são referências, não preços finais confirmados. Produtos sem foto real autorizada exibem “Foto não cadastrada”; não usar a logo como substituta da imagem do produto.
 
 ## App instalável (PWA)
 - `manifest.webmanifest` + `sw.js` + `assets/icon-*.png`: o site pode ser instalado como app/atalho.
