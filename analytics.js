@@ -11,21 +11,17 @@ function categoryOf(target){var el=target&&target.closest?target.closest('[data-
 document.addEventListener('click',function(e){
   var cat=categoryOf(e.target);
   if(cat)send('category_selected',cat,0);
-  if(e.target.closest&&e.target.closest('#cartBtn'))send('cart_opened','',0);
+  if(e.target.closest&&e.target.closest('#cartBtn')){send('cart_opened','',0);send('checkout_opened','',0);}
 });
 document.addEventListener('cart:add',function(e){
   var d=e&&e.detail||{};
   if(d.productId)send('product_added',d.category||'',d.productId);
 });
 document.addEventListener('esquina:whatsapp-handoff',function(){send('whatsapp_handoff','',0)});
-document.addEventListener('cart:sync',function(e){
-  var d=e&&e.detail||{};
-  if(d.n>0&&!window.__emCheckoutSeen){window.__emCheckoutSeen=true;send('checkout_opened','',0);}
-  if(!d.n)window.__emCheckoutSeen=false;
-});
-var search=document.querySelector('#q, #hq');
+var search=document.querySelector('#q, #hq'),searchTimer;
 if(search)search.addEventListener('input',function(){
-  var now=Date.now();if(now-lastSearch<1800)return;lastSearch=now;send('search_used','',0);
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(function(){if(search.value.trim())send('search_used','',0);},700);
 });
 send('page_view','',0);
 })();
