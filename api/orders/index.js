@@ -80,7 +80,8 @@ function parseOrder(d) {
     const q = Number(x && x.q);
     const p = money(x && x.p);
     if (!n || !Number.isInteger(q) || q < 1 || q > 99 || !(p > 0) || p > 100000) return null;
-    items.push({ n, q, p });
+    const id = Number.isSafeInteger(Number(x && x.id)) && Number(x && x.id) > 0 ? Number(x.id) : null;
+    items.push(id ? { id, n, q, p } : { n, q, p });
     total = Math.round((total + q * p) * 100) / 100;
   }
   const code = clean(d.code, 24);
