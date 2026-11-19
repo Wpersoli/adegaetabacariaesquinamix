@@ -151,7 +151,7 @@ function build(items,phone,changeFor,stp,address){
   l.push(LINE,'*ITENS*');
   items.forEach(function(x,i){var sub=r2(x.q*x.p);total=r2(total+sub);qty+=x.q;
     l.push(('0'+(i+1)).slice(-2)+') '+x.q+'x '+x.n,'      '+x.q+' × '+brl(x.p)+' = *'+brl(sub)+'*')});
-  l.push(LINE,'Qtde. de itens: '+qty,'*TOTAL: '+brl(total)+'*',LINE,'*PAGAMENTO*','Forma: '+st.pay);
+  l.push(LINE,'Qtde. de itens: '+qty,'*TOTAL: '+brl(total)+'*',LINE,'⚠️ Valores provisórios: confirmar preços e disponibilidade com a loja antes da confirmação final.',LINE,'*PAGAMENTO*','Forma: '+st.pay);
   if(st.pay==='Dinheiro'){
     if(st.change==='sim'&&changeFor>total+0.004){l.push('Troco: Sim, para '+brl(changeFor),'Valor do troco: *'+brl(r2(changeFor-total))+'*')}
     else if(st.change==='sim'){l.push('Troco: Não precisa (valor exato)')}

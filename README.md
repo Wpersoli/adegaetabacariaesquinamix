@@ -80,3 +80,9 @@ A integração está isolada na branch **feature/supabase-auth-esquina-mix** e n
 - O Service Worker ignora a API de autenticação e a rota de confirmação.
 
 Consulte **docs/SUPABASE_SETUP.md** para as variáveis Vercel, configuração de e-mail, URLs de redirecionamento e critérios de teste. Não mescle o PR nem altere as variáveis de Produção antes de concluir os testes de aceite.
+
+## Catálogo e preços
+
+O catálogo único fica em `catalog.js` e é compartilhado pela página inicial e por `produtos.html`. Os valores atuais estão marcados como **provisórios/ilustrativos**; valide preço e disponibilidade com a loja antes de confirmar pedidos. A importação de imagens de novembro de 2026 e as decisões de deduplicação estão documentadas em `docs/IMPORTACAO_CATALOGO_2026-11-19.md`.
+
+Produtos fumígenos derivados do tabaco não foram adicionados nesta importação pública; os registros antigos dessa categoria precisam de revisão regulatória antes de manter o catálogo online.
