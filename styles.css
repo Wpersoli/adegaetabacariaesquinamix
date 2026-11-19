@@ -729,3 +729,18 @@ body:has(.drawer:not([hidden])) .home-filter-tab,body:has(.drawer:not([hidden]))
 @media(hover:hover) and (pointer:fine){.prod-card:hover{transform:translateY(-3px)}}
 @media(prefers-reduced-motion:reduce){.prod-card{transition:none}.prod-card:hover{transform:none}}
 @media(max-width:480px){.prod-buy{width:100%;min-height:48px}.rev__intro{font-size:14px}}
+
+/* Transparência de preços: nota discreta, legível e responsiva no catálogo. */
+.catalog-price-note{
+  display:flex;align-items:flex-start;gap:8px;margin:0 0 16px;padding:10px 13px;
+  border:1px solid rgba(255,208,92,.42);border-left:4px solid var(--gold, #ffd05c);
+  border-radius:10px;background:rgba(255,208,92,.08);color:var(--cream, #efe5cf);
+  font:500 12px/1.5 "DM Sans",sans-serif;letter-spacing:0;
+}
+.catalog-price-note strong{color:var(--gold, #ffd05c);white-space:nowrap;font-weight:700}
+@media(max-width:600px){.catalog-price-note{font-size:11px;line-height:1.45;padding:9px 10px;gap:6px;margin-bottom:13px}.catalog-price-note strong{white-space:normal}}
+
+/* Fotos de produto importadas: preserva a embalagem inteira sem deformação ou corte. */
+.prod-img--foto{min-width:0;aspect-ratio:1/1;overflow:hidden;background:#fff}
+.prod-img--foto img{display:block;width:100%;height:100%;max-width:100%;max-height:100%;padding:6px;box-sizing:border-box;object-fit:contain;object-position:center}
+@media(max-width:420px){.prod-card{min-width:0}.prod-name{overflow-wrap:anywhere;hyphens:auto}.prod-price{font-size:clamp(17px,5vw,20px)}}
