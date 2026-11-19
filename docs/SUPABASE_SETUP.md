@@ -1,18 +1,13 @@
 # Esquina Mix — configuração da autenticação Supabase
 
-## Estado atual (2026-11-17)
+## Estado atual (2026-11-19)
 
-- Projeto Supabase: **adega-mix**.
-- Project ref: **rduwcxzegiffqgnnbhis** · região **sa-east-1**.
-- Banco: **ACTIVE_HEALTHY**.
-- As migrações abaixo estão aplicadas e foram conferidas no histórico remoto:
-  - `20261117024320_esquina_auth.sql`
-  - `20261117031101_customer_phone_required.sql`
-  - `20261117231903_customer_profile_edit.sql`
-  - `20261117235556_customer_orders.sql`
-- Tabelas confirmadas: `public.customer_profiles`, `public.customer_orders`, `private.customer_identity` e `private.email_lookup_attempts`. RLS está habilitado em todas.
-- PR #3 está integrado à `main`.
-- Produção está publicada em **https://adegaetabacariaesquinamix.vercel.app** a partir da branch `main`; a implantação mais recente da auditoria foi confirmada como **READY**.
+- Projeto Supabase: **adega-mix** · ref **rduwcxzegiffqgnnbhis** · região **sa-east-1** · estado **ACTIVE_HEALTHY**.
+- O histórico remoto do Supabase registra seis migrações aplicadas: `20261117024320`, `20261117031101`, `20261117231903`, `20261117235556`, `20261118023925` e `20261119022341`.
+- **Divergência de reprodutibilidade:** o arquivo da migração `20261119022341_pending_registration_and_hardening.sql` não foi encontrado na branch `main`, embora a versão esteja registrada como aplicada no banco. Não renomeie, reaplique nem invente uma migração substituta. Antes de reconstruir ambientes, recupere o SQL original do histórico de trabalho ou gere uma migração de baseline validada a partir do schema remoto.
+- As tabelas públicas `customer_profiles` e `customer_orders` têm RLS habilitado. As tabelas privadas de identidade, tentativas, rate limit, cadastro pendente e analytics também têm RLS habilitado e não concedem acesso direto a `anon` ou `authenticated`.
+- Produção: **https://adegaetabacariaesquinamix.vercel.app**. Deploy `08525ca8e019a04155e37119a58d7f36a6a72bdf` confirmado como **READY** no ambiente Production.
+- A Vercel não registrou erros de runtime na janela consultada de 30 minutos. O plano Hobby não reteve logs para a janela de 24 horas solicitada; ausência de logs não deve ser interpretada como ausência de erros nesse período.
 
 **Limite do plano Free:** mantenha no máximo dois projetos ativos na organização. `trotebox-prod` está pausado (INACTIVE) e `valora-credito` continua ativo e preservado. Não reative o projeto pausado sem rever o limite do plano.
 
@@ -95,23 +90,29 @@ O botão usa a meta `esquina-whatsapp` do HTML. Abre conversa manual com a loja;
 
 O pedido inclui o endereço escolhido no checkout. Quando o cliente escolhe endereço alternativo, a interface volta à opção padrão ao terminar o envio; o endereço temporário não é salvo no cadastro nem reaparece como padrão em outro pedido.
 
-## 7. Verificações já executadas nesta revisão
+## 7. Verificações executadas em 2026-11-19
 
-- `git diff --check` e workflow de validação da `main`: aprovados.
-- Sintaxe dos módulos JavaScript, incluindo `pedido.js` e `produtos.js`: aprovada.
-- Testes de CPF, telefone E.164, retorno seguro, chaves Supabase, isolamento do HMAC, filtros e navegação: aprovados.
-- Testes de regressão para reset de endereço alternativo, exclusão de conta e validação de maioridade no fuso `America/Sao_Paulo`: aprovados.
-- Migrações remotas comparadas com os arquivos locais.
-- `customer_orders`: tabela, RLS, política de leitura e grants conferidos.
-- Deploy de Produção do commit `4865d163`: READY.
-- Varredura de erros runtime da Vercel no período consultado: nenhum cluster encontrado. Isso não substitui teste real com conta de cliente.
-- Advisor de saúde do banco: sem alertas.
+- Deploy de Production do commit `08525ca8e019a04155e37119a58d7f36a6a72bdf`: **READY**; build concluído em 452 ms; alias de produção associado.
+- Combined status do commit: Vercel **success**.
+- Banco Supabase: **ACTIVE_HEALTHY**; seis versões de migração registradas no histórico remoto.
+- RLS habilitado em todas as tabelas verificadas dos schemas `public` e `private`.
+- As políticas públicas permitem leitura do próprio perfil e dos próprios pedidos; a atualização de perfil mantém `USING` e `WITH CHECK` vinculados a `auth.uid()`.
+- Tabelas privadas verificadas concedem privilégios somente a `service_role`; não foi encontrado grant de tabela para `anon`, `authenticated` ou `PUBLIC`.
+- Funções privilegiadas `check_rate_limit`, `stage_pending_registration`, `promote_pending_registration` e `update_customer_profile` têm execução concedida a `service_role` e não a `anon`, `authenticated` ou `PUBLIC`. Todas usam `search_path` fixo.
+- Security Advisor: cinco avisos INFO de RLS sem políticas em tabelas do schema privado (intencionais no modelo de acesso atual) e um WARN para proteção contra senhas vazadas desabilitada.
+- Performance Advisor: seis índices ainda sem uso observado. Não os remova sem avaliar tráfego e consultas reais.
+- Runtime Errors da Vercel: nenhum erro na janela consultada de 30 minutos.
+- A suíte `node tools/test_auth.js` e o workflow `.github/workflows/auth-check.yml` existem no repositório, mas não foi encontrada execução associada ao commit de produção nesta consulta. Não declarar os testes automatizados como aprovados sem executá-los.
+- Não foi realizado teste ponta a ponta com conta real nesta revisão.
 
-## 8. Pendências de operação
+## 8. Pendências operacionais e critérios de liberação
 
-- O Supabase Security Advisor informa **Leaked Password Protection Disabled**. Habilite em Authentication → Password Security/Settings a proteção contra senhas comprometidas antes de ampliar o cadastro. A integração disponível nesta revisão permite consultar os avisos, mas não expõe a alteração dessa configuração Auth.
-- Os avisos INFO de RLS sem políticas em `private.customer_identity` e `private.email_lookup_attempts` são esperados com o desenho atual: o schema é privado e os usuários comuns não recebem acesso direto.
-- Ainda é necessário um teste de ponta a ponta com uma conta de teste real: cadastro + e-mail de confirmação, login, salvar perfil, endereço temporário e padrão no WhatsApp, histórico de pedido, logout e encerramento de conta. Não use conta real de cliente para testes destrutivos.
-- Configure `ORDERS_ADMIN_TOKEN` somente caso queira atualizar status pela API; caso contrário, mantenha o processo administrativo pelo Table Editor.
-
+- **Proteção contra senhas vazadas:** o Supabase Security Advisor informa `auth_leaked_password_protection` desabilitada. Habilite em Authentication → Password Security quando o plano/configuração permitir. A ferramenta conectada nesta revisão não expõe a alteração dessa configuração Auth; não foi feita mudança.
+- **Migração ausente no Git:** recuperar o SQL original da versão `20261119022341` ou gerar baseline validada e versionada antes de declarar o repositório totalmente reproduzível. Não aplicar SQL reconstruído por suposição ao banco já migrado.
+- **Teste ponta a ponta obrigatório antes de ampliar o cadastro:** usar conta de teste dedicada para cadastro + confirmação por e-mail, login, renovação de sessão, edição de perfil, recuperação de senha/e-mail, endereço temporário e padrão no checkout, histórico de pedido, logout e exclusão da conta. Nunca usar conta real de cliente em testes destrutivos.
+- **Token administrativo de pedidos:** `ORDERS_ADMIN_TOKEN` não aparece entre as variáveis de ambiente listadas para o projeto Vercel. Sem ele, não habilitar atualização administrativa de status via API; manter o Table Editor com acesso administrativo restrito até configurar e testar o token no servidor.
+- **Catálogo comercial:** o README e `catalog.js` identificam produtos/preços demonstrativos. Substitua pelos dados confirmados pela loja antes de anunciar valores ou disponibilidade como reais. Não inventar preços, estoque, promoções, avaliações ou ranking.
+- **Índices sem uso:** manter até análise de volume e plano de consulta; não remover por alerta isolado.
+- **Plano Hobby/Free:** a retenção de runtime logs é limitada; não usar consultas fora da janela disponível como evidência de zero erros.
+- **Dados sensíveis:** não rotacionar `CPF_HASH_SECRET` sem plano de migração dos HMACs existentes. Não recriar nem sobrescrever segredos Vercel já cadastrados sem necessidade.
 Não reverta as migrações aplicadas, não remova variáveis sensíveis existentes e não altere `CPF_HASH_SECRET` sem plano de migração dos hashes.
