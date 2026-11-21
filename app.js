@@ -79,16 +79,38 @@ function render(){
   drawAll();
   if(sortBy==='asc')list.sort(function(a,b){return a.p-b.p});else if(sortBy==='desc')list.sort(function(a,b){return b.p-a.p});else if(sortBy==='az')list.sort(function(a,b){return a.n.localeCompare(b.n,'pt-BR',{sensitivity:'base'})});
   var g=$('grid');g.textContent='';
-  var totalPages=Math.max(1,Math.ceil(list.length/homePer));if(homePage>totalPages)homePage=totalPages;
-  var pageItems=list.slice((homePage-1)*homePer,homePage*homePer);
   if(!list.length){g.innerHTML='<p class="feat__empty">'+(subF?'Ainda não temos itens em “'+subF.label+'” no cardápio digital. Pergunte pelo WhatsApp!':'Nada encontrado. Tente outra busca.')+'</p>';drawHomePages(1);return}
-  pageItems.forEach(function(x){
-    var c=document.createElement('article');c.className='prod-card';
-    c.innerHTML='<div class="prod-filete"></div>'+(x.promo?'<span class="prod-tag">Promo</span>':'')+'<div class="prod-img'+(x.img?' prod-img--foto':'')+'"><img src="'+(x.img||'assets/logo.webp')+'" alt="" width="'+(x.img?800:120)+'" height="'+(x.img?800:120)+'" loading="lazy"></div><p class="prod-cat"></p><h3 class="prod-name"></h3><div class="prod-price"></div><button class="prod-buy">Comprar →</button>';
-    c.querySelector('.prod-cat').textContent=names[x.cat];c.querySelector('.prod-name').textContent=x.n;c.querySelector('img').alt=x.img?x.n:'';c.querySelector('.prod-price').textContent=brl(x.p);
-    var buy=c.querySelector('.prod-buy');buy.setAttribute('aria-label','Adicionar '+x.n+' à sacola');
-    buy.onclick=function(){add(x.id);buy.textContent='Adicionado ✓';clearTimeout(buy.t);buy.t=setTimeout(function(){buy.textContent='Comprar →'},1200)};
-    g.appendChild(c)});drawHomePages(totalPages)}
+  shelves(list).forEach(function(sh){g.appendChild(shelfEl(sh))});
+  drawHomePages(1);document.dispatchEvent(new Event('shelves:drawn'))}
+/* Prateleiras: uma fileira arrastável por categoria (ou por subcategoria do menu do topo), com todos os produtos disponíveis */
+function shelves(list){
+  var out=[],all=function(k){return 'produtos.html?cat='+k+'&ordem=az'},put=function(t,items,href){if(items.length)out.push({t:t,items:items,href:href})};
+  var filtered=!!(subF||term||Object.keys(sel).length);
+  if(cat==='todos'){
+    put(names.promo,list.filter(function(x){return x.promo}),all('promo'));
+    ['bebidas','tabacos','headshop','narguile','outros'].forEach(function(k){put(names[k],list.filter(function(x){return x.cat===k}),all(k))})
+  }else if(cat==='promo'||filtered||!SUBS[cat]){
+    put(subF?subF.label:names[cat],list,all(cat))
+  }else{
+    var used={};
+    SUBS[cat].forEach(function(sb){var it=list.filter(function(x){return sb[1](x,norm(x.n))});it.forEach(function(x){used[x.id]=1});put(sb[0],it,all(cat))});
+    put('Mais em '+names[cat],list.filter(function(x){return !used[x.id]}),all(cat))}
+  return out}
+function cardEl(x){
+  var c=document.createElement('article');c.className='prod-card';
+  c.innerHTML='<div class="prod-filete"></div>'+(x.promo?'<span class="prod-tag">Promo</span>':'')+'<div class="prod-img'+(x.img?' prod-img--foto':'')+'"><img src="'+(x.img||'assets/logo.webp')+'" alt="" width="'+(x.img?800:120)+'" height="'+(x.img?800:120)+'" loading="lazy"></div><p class="prod-cat"></p><h3 class="prod-name"></h3><div class="prod-price"></div><button class="prod-buy">Comprar →</button>';
+  c.querySelector('.prod-cat').textContent=names[x.cat];c.querySelector('.prod-name').textContent=x.n;c.querySelector('img').alt=x.img?x.n:'';c.querySelector('.prod-price').textContent=brl(x.p);
+  var buy=c.querySelector('.prod-buy');buy.setAttribute('aria-label','Adicionar '+x.n+' à sacola');
+  buy.onclick=function(){add(x.id);buy.textContent='Adicionado ✓';clearTimeout(buy.t);buy.t=setTimeout(function(){buy.textContent='Comprar →'},1200)};
+  return c}
+function shelfEl(sh){
+  var s=document.createElement('section');s.className='shelf';
+  var chev=function(d){return '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+d+'"/></svg>'};
+  s.innerHTML='<div class="shelf__head"><h3 class="shelf__title"></h3><span class="shelf__hint" aria-hidden="true">arraste para o lado ↔</span><a class="shelf__all" href="'+sh.href+'">Ver todos →</a></div><div class="shelf__wrap"><div class="shelf__strip" role="group"></div><button type="button" class="shelf__arrow shelf__arrow--prev" aria-label="Ver produtos anteriores">'+chev('M15 5l-7 7 7 7')+'</button><button type="button" class="shelf__arrow shelf__arrow--next" aria-label="Ver mais produtos">'+chev('M9 5l7 7-7 7')+'</button></div>';
+  s.querySelector('.shelf__title').textContent=sh.t;
+  var st=s.querySelector('.shelf__strip');st.setAttribute('aria-label',sh.t+' — arraste para o lado para ver todos');
+  sh.items.forEach(function(x){st.appendChild(cardEl(x))});
+  return s}
 /* Todos / Promoções: atalho para a página com todos os produtos disponíveis */
 function drawAll(){var a=$('allLink');if(!a)return;
   var on=(cat==='todos'||cat==='promo')&&!subF&&!term&&!Object.keys(sel).length;a.hidden=!on;if(!on)return;
@@ -129,7 +151,7 @@ function setCat(c,keep){if(c==='outros'){location.href='/produtos?ordem=az';retu
   [].forEach.call($('chips').children,function(x){x.classList.toggle('is-active',x.dataset.cat===c);x.setAttribute('aria-pressed',String(x.dataset.cat===c))});
   var on=document.querySelector('#nav button.on');if(on&&on.scrollIntoView)on.scrollIntoView({inline:'center',block:'nearest'});
   render()}
-$('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.textContent.trim().indexOf('Início')===0){location.href='/#inicio';return}setCat(b.dataset.cat);document.getElementById('cardapio').scrollIntoView()});
+$('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.textContent.trim().indexOf('Início')===0){location.href='https://adegaetabacariaesquinamix.vercel.app/#inicio';return}setCat(b.dataset.cat);document.getElementById('cardapio').scrollIntoView()});
 $('chips').addEventListener('click',function(e){var b=e.target.closest('button');if(b)setCat(b.dataset.cat)});
 $('facets').addEventListener('click',function(e){homePage=1;var b=e.target.closest('button');if(!b||b.dataset.i==null)return;var sb=(SUBS[cat]||[])[+b.dataset.i];if(!sb)return;subF=(subF&&subF.label===sb[0])?null:{label:sb[0],t:sb[1]};render()});
 $('sort').addEventListener('change',function(){sortBy=this.value;homePage=1;render()});
@@ -253,7 +275,7 @@ var qt;$('q').addEventListener('input',function(){var v=this.value;clearTimeout(
       add('Ver tudo em '+names[c],'all',function(){go(c,null)});subs.forEach(function(sbi){add(sbi[0],'',function(){go(c,sbi)})});li.appendChild(sl);
       a.onclick=function(){var open=a.getAttribute('aria-expanded')==='true';[].forEach.call(ul.querySelectorAll('.mnav__a[aria-expanded]'),function(o){o.setAttribute('aria-expanded','false');o.parentNode.querySelector('.mnav__sub').hidden=true});
         if(!open){a.setAttribute('aria-expanded','true');sl.hidden=false;a.scrollIntoView({block:'nearest'})}}}
-    else a.onclick=function(){if(a.dataset.home){location.href='/#inicio';return}go(c,null)};
+    else a.onclick=function(){if(a.dataset.home){location.href='https://adegaetabacariaesquinamix.vercel.app/#inicio';return}go(c,null)};
     ul.appendChild(li)});
   document.body.appendChild(dr);
   function openD(){if(dr.classList.contains('is-open'))return;last=document.activeElement;dr.classList.add('is-open');dr.setAttribute('aria-hidden','false');mb.setAttribute('aria-expanded','true');lock(dr,true);setTimeout(function(){x.focus()},50)}
@@ -534,7 +556,7 @@ render();sync();
   function req(){if(!raf)raf=requestAnimationFrame(paint)}
   bar.addEventListener('click',function(e){
     var b=e.target.closest('[data-act]');if(!b)return;
-    if(b.dataset.act==='home'){e.preventDefault();if(searchOpen()&&sb)sb.click();window.scrollTo({top:0,behavior:calm()?'auto':'smooth'})}
+    if(b.dataset.act==='home'){e.preventDefault();if(searchOpen()&&sb)sb.click();location.href='https://adegaetabacariaesquinamix.vercel.app/#inicio'}
     else if(b.dataset.act==='search'){e.preventDefault();if(sb)sb.click()}});
   window.addEventListener('scroll',req,{passive:true});window.addEventListener('resize',req);
   if(top&&window.MutationObserver)new MutationObserver(req).observe(top,{attributes:true,attributeFilter:['class']});
@@ -614,3 +636,47 @@ document.addEventListener('pointerleave',function(){bt.style.setProperty('--k','
     e.preventDefault();user=true;goCardapio(true);try{history.replaceState(null,'','#cardapio')}catch(x){}});
 })();
 
+/* Hero → "Como chegar": rola até o cartão do mapa (#encontre .loc2__card) dentro do próprio site e aciona a rota em tempo real */
+(function(){
+  var a=document.querySelector('[data-hero-rota]');if(!a)return;
+  a.addEventListener('click',function(e){
+    var card=document.querySelector('#encontre .loc2__card')||document.getElementById('encontre');if(!card)return;
+    e.preventDefault();
+    var calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches,
+        bar=document.getElementById('bar'),bh=bar?bar.offsetHeight:0;
+    document.dispatchEvent(new Event('bar:hold'));
+    var y=card.getBoundingClientRect().top+(window.pageYOffset||0)-bh-12;
+    window.scrollTo({top:Math.max(0,Math.round(y)),behavior:calm?'auto':'smooth'});
+    if(history.replaceState)history.replaceState(null,'','#encontre');
+    /* após a rolagem, pede a localização (se ainda não estiver em andamento) para traçar a rota no mapa embutido */
+    setTimeout(function(){var b=document.getElementById('routeBtn');if(b&&!b.disabled)b.click()},calm?150:900);
+  });
+})();
+
+/* Prateleiras do cardápio: arrastar com o mouse, deslizar no toque, setas no desktop e indicação de "tem mais" nas bordas */
+(function(){
+  var g=document.getElementById('grid');if(!g)return;
+  var calm=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function upd(w){var s=w.querySelector('.shelf__strip');if(!s)return;
+    var max=s.scrollWidth-s.clientWidth,l=s.scrollLeft,pv=l>4,nx=l<max-4;
+    w.classList.toggle('has-prev',pv);w.classList.toggle('has-next',nx);
+    w.querySelector('.shelf__arrow--prev').classList.toggle('is-on',pv);w.querySelector('.shelf__arrow--next').classList.toggle('is-on',nx)}
+  function updAll(){[].forEach.call(g.querySelectorAll('.shelf__wrap'),upd)}
+  g.addEventListener('scroll',function(e){var s=e.target;if(s.classList&&s.classList.contains('shelf__strip'))upd(s.parentNode)},true);
+  document.addEventListener('shelves:drawn',function(){updAll();setTimeout(updAll,400)});
+  window.addEventListener('resize',updAll);window.addEventListener('load',updAll);
+  g.addEventListener('click',function(e){var b=e.target.closest('.shelf__arrow');if(!b)return;
+    var s=b.parentNode.querySelector('.shelf__strip');
+    s.scrollBy({left:(b.classList.contains('shelf__arrow--prev')?-1:1)*s.clientWidth*.85,behavior:calm?'auto':'smooth'})});
+  var st=null,moved=false;
+  g.addEventListener('pointerdown',function(e){if(e.pointerType!=='mouse'||e.button!==0)return;
+    var s=e.target.closest('.shelf__strip');if(!s)return;st={s:s,x:e.clientX,l:s.scrollLeft,id:e.pointerId};moved=false});
+  window.addEventListener('pointermove',function(e){if(!st)return;var dx=e.clientX-st.x;
+    if(!moved&&Math.abs(dx)>5){moved=true;st.s.classList.add('is-drag');try{st.s.setPointerCapture(st.id)}catch(_){}}
+    if(moved)st.s.scrollLeft=st.l-dx});
+  function end(){if(!st)return;st.s.classList.remove('is-drag');st=null}
+  window.addEventListener('pointerup',end);window.addEventListener('pointercancel',end);
+  /* um arrasto não pode virar clique em "Comprar" nem no link */
+  g.addEventListener('click',function(e){if(moved){e.preventDefault();e.stopPropagation();moved=false}},true);
+  g.addEventListener('dragstart',function(e){e.preventDefault()});
+})();
