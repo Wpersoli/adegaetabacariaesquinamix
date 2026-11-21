@@ -152,8 +152,15 @@ assert.ok(productChipBlock, 'Filtros do catálogo precisam existir');
 const productPositions = requestedCategories.map((label) => productChipBlock[1].indexOf('>' + label + '</button>'));
 assert.ok(productPositions.every((position) => position >= 0));
 assert.deepEqual(productPositions, [...productPositions].sort((a,b) => a-b));
-assert.match(productPage, /href="\/#inicio"[^>]*aria-label="Voltar ao cardápio"/);
-assert.match(productPage, /<a class="on pink" href="\/#inicio">Início<\/a>/);
+const backLink = productPage.match(/<a class="pg-back" href="([^"]+)" aria-label="Voltar ao cardápio"/);
+assert.ok(backLink, 'Link de retorno ao cardápio precisa existir');
+const backUrl = new URL(backLink[1], 'https://adegaetabacariaesquinamix.vercel.app');
+assert.equal(backUrl.pathname + backUrl.hash, '/#inicio');
+const homeNavLink = productPage.match(/<a class="on pink" href="([^"]+)">Início<\/a>/);
+assert.ok(homeNavLink, 'Navegação Início precisa existir');
+const homeNavUrl = new URL(homeNavLink[1], 'https://adegaetabacariaesquinamix.vercel.app');
+assert.equal(homeNavUrl.pathname + homeNavUrl.hash, '/#inicio');
+
 
 const productJs = fs.readFileSync(path.join(root, 'produtos.js'), 'utf8');
 assert.match(productJs, /location\.href='\/produtos\?ordem=az'/);
