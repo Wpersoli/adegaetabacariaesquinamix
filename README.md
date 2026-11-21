@@ -6,7 +6,7 @@ Cardapio digital responsivo, sem framework e sem dependencias de build.
 - `index.html`: estrutura da pagina; `styles.css`: estilos; `app.js`: busca, sacola e envio por WhatsApp.
 - `catalog.js`: **catalogo de produtos** (unica fonte, lida pela home e pela pagina de produtos). Para incluir/editar produto, mexa so neste arquivo.
 - `produtos.html` + `produtos.css` + `produtos.js`: pagina "Todos os produtos" (botao "Ver tudo" da home) com filtros por categoria (Promocoes, Bebidas, Cigarros e Tabacos, Headshop, Narguile, Outros), faixa de preco (atalhos + minimo/maximo), busca e ordenacao. Usa a mesma sacola (`emCart`), o mesmo login e o mesmo portao +18 da home. Aceita link direto: `produtos.html?cat=bebidas&min=10&max=50&ordem=asc`.
-- `assets/hero-desktop.webp` / `hero-mobile.webp`: banners do hero. `assets/og-image.jpg`: imagem de compartilhamento (1200x630).
+- `assets/hero-esquina-mix.webp` / `hero-mobile.webp`: banners do hero. `assets/og-image.jpg`: imagem de compartilhamento (1200x630).
 - `design-src/`: artes-fonte (logo HD etc.). Fica no Git, mas NAO vai para o site (`.vercelignore`).
 - `assets/marcas/`: logos da secao "Frota oficial" (letreiro borda a borda, loop para a esquerda). Para incluir/remover marca, edite o array `brands` em `app.js` e adicione o `.webp` nessa pasta.
 - Animacao dos logos da frota: flutuacao escalonada, brilho que atravessa o bloco e destaque no hover, tudo em CSS (final do `styles.css`). Desativa sozinha com "reduzir movimento" do sistema.

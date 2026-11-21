@@ -129,7 +129,7 @@ function setCat(c,keep){if(c==='outros'){location.href='/produtos?ordem=az';retu
   [].forEach.call($('chips').children,function(x){x.classList.toggle('is-active',x.dataset.cat===c);x.setAttribute('aria-pressed',String(x.dataset.cat===c))});
   var on=document.querySelector('#nav button.on');if(on&&on.scrollIntoView)on.scrollIntoView({inline:'center',block:'nearest'});
   render()}
-$('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.textContent.trim().indexOf('Início')===0){location.href='/#inicio';return}setCat(b.dataset.cat);document.getElementById('cardapio').scrollIntoView()});
+$('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.textContent.trim().indexOf('Início')===0){location.href='https://adegaetabacariaesquinamix.vercel.app/#inicio';return}setCat(b.dataset.cat);document.getElementById('cardapio').scrollIntoView()});
 $('chips').addEventListener('click',function(e){var b=e.target.closest('button');if(b)setCat(b.dataset.cat)});
 $('facets').addEventListener('click',function(e){homePage=1;var b=e.target.closest('button');if(!b||b.dataset.i==null)return;var sb=(SUBS[cat]||[])[+b.dataset.i];if(!sb)return;subF=(subF&&subF.label===sb[0])?null:{label:sb[0],t:sb[1]};render()});
 $('sort').addEventListener('change',function(){sortBy=this.value;homePage=1;render()});
@@ -253,7 +253,7 @@ var qt;$('q').addEventListener('input',function(){var v=this.value;clearTimeout(
       add('Ver tudo em '+names[c],'all',function(){go(c,null)});subs.forEach(function(sbi){add(sbi[0],'',function(){go(c,sbi)})});li.appendChild(sl);
       a.onclick=function(){var open=a.getAttribute('aria-expanded')==='true';[].forEach.call(ul.querySelectorAll('.mnav__a[aria-expanded]'),function(o){o.setAttribute('aria-expanded','false');o.parentNode.querySelector('.mnav__sub').hidden=true});
         if(!open){a.setAttribute('aria-expanded','true');sl.hidden=false;a.scrollIntoView({block:'nearest'})}}}
-    else a.onclick=function(){if(a.dataset.home){location.href='/#inicio';return}go(c,null)};
+    else a.onclick=function(){if(a.dataset.home){location.href='https://adegaetabacariaesquinamix.vercel.app/#inicio';return}go(c,null)};
     ul.appendChild(li)});
   document.body.appendChild(dr);
   function openD(){if(dr.classList.contains('is-open'))return;last=document.activeElement;dr.classList.add('is-open');dr.setAttribute('aria-hidden','false');mb.setAttribute('aria-expanded','true');lock(dr,true);setTimeout(function(){x.focus()},50)}
@@ -534,7 +534,7 @@ render();sync();
   function req(){if(!raf)raf=requestAnimationFrame(paint)}
   bar.addEventListener('click',function(e){
     var b=e.target.closest('[data-act]');if(!b)return;
-    if(b.dataset.act==='home'){e.preventDefault();if(searchOpen()&&sb)sb.click();window.scrollTo({top:0,behavior:calm()?'auto':'smooth'})}
+    if(b.dataset.act==='home'){e.preventDefault();if(searchOpen()&&sb)sb.click();location.href='https://adegaetabacariaesquinamix.vercel.app/#inicio'}
     else if(b.dataset.act==='search'){e.preventDefault();if(sb)sb.click()}});
   window.addEventListener('scroll',req,{passive:true});window.addEventListener('resize',req);
   if(top&&window.MutationObserver)new MutationObserver(req).observe(top,{attributes:true,attributeFilter:['class']});
@@ -614,3 +614,19 @@ document.addEventListener('pointerleave',function(){bt.style.setProperty('--k','
     e.preventDefault();user=true;goCardapio(true);try{history.replaceState(null,'','#cardapio')}catch(x){}});
 })();
 
+/* Hero → "Como chegar": rola até o cartão do mapa (#encontre .loc2__card) dentro do próprio site e aciona a rota em tempo real */
+(function(){
+  var a=document.querySelector('[data-hero-rota]');if(!a)return;
+  a.addEventListener('click',function(e){
+    var card=document.querySelector('#encontre .loc2__card')||document.getElementById('encontre');if(!card)return;
+    e.preventDefault();
+    var calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches,
+        bar=document.getElementById('bar'),bh=bar?bar.offsetHeight:0;
+    document.dispatchEvent(new Event('bar:hold'));
+    var y=card.getBoundingClientRect().top+(window.pageYOffset||0)-bh-12;
+    window.scrollTo({top:Math.max(0,Math.round(y)),behavior:calm?'auto':'smooth'});
+    if(history.replaceState)history.replaceState(null,'','#encontre');
+    /* após a rolagem, pede a localização (se ainda não estiver em andamento) para traçar a rota no mapa embutido */
+    setTimeout(function(){var b=document.getElementById('routeBtn');if(b&&!b.disabled)b.click()},calm?150:900);
+  });
+})();
