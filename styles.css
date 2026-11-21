@@ -64,10 +64,10 @@ button{font:inherit;cursor:pointer;border:0;color:inherit;background:none}
 .hero-slide{visibility:hidden;transition:opacity 1.1s ease,visibility 0s 1.1s}
 .hero-slide.is-active{visibility:visible;transition-delay:0s}
 /* com o banner ativo, os pontos sobem para não cobrir a faixa de links */
-@media(min-width:701px){.hero:has(.hero-slide--banner.is-active) .hero-dots{bottom:17%}}
-.hero-dots{position:absolute;right:clamp(12px,6.5%,120px);bottom:clamp(14px,6%,60px);display:flex;gap:8px;z-index:5}
-.hero-dots .hero-dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.4);padding:0;transition:background .3s,transform .3s}
-.hero-dots .hero-dot.is-active{background:var(--gold);transform:scale(1.25)}
+/* Indicadores: mesma posição (centro, rodapé) e mesma altura em TODOS os slides */
+.hero-dots{position:absolute;left:50%;right:auto;bottom:2.4%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;z-index:5;padding:5px 9px;border-radius:999px;background:rgba(7,5,12,.55)}
+.hero-dots .hero-dot{width:9px;height:9px;border-radius:999px;background:rgba(255,255,255,.45);padding:0;transition:background .3s,width .3s}
+.hero-dots .hero-dot.is-active{background:var(--gold);width:22px}
 footer{text-align:center;padding:40px 16px;background:#0b0713;color:#bdb2d6;font-size:14px;display:grid;gap:8px;justify-items:center}
 .veil{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:40}
 .drawer{position:fixed;top:0;right:0;height:100%;width:min(100vw,400px);background:var(--nav);z-index:50;display:flex;flex-direction:column;padding:18px;gap:12px}
