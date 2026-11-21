@@ -29,12 +29,17 @@ function add(id){cart[id]=Math.min((cart[id]||0)+1,99);sync();if($('badge').anim
 function sync(){
   var n=0,t=0,ul=$('items');ul.textContent='';
   catalog.forEach(function(x){var q=cart[x.id];if(!q)return;n+=q;t+=q*x.p;
-    var li=document.createElement('li');
-    li.innerHTML='<span></span><b></b><div class="q"><button type="button" aria-label="Menos">−</button><span>'+q+'</span><button type="button" aria-label="Mais">+</button></div>';
-    li.children[0].textContent=x.n;li.children[1].textContent=brl(q*x.p);
-    var b=li.querySelectorAll('button');b[0].setAttribute('aria-label','Diminuir '+x.n);b[1].setAttribute('aria-label','Aumentar '+x.n);
-    b[0].onclick=function(){cart[x.id]--;if(cart[x.id]<1)delete cart[x.id];sync()};
-    b[1].onclick=function(){add(x.id)};
+    var li=document.createElement('li');li.className='ci';
+    li.innerHTML='<img class="ci__img" alt="" width="72" height="72"><div class="ci__main"><span class="ci__name"></span><span class="ci__price"><s class="ci__old" hidden></s><b class="ci__now"></b></span><div class="q"><button type="button" class="q__b q__minus">−</button><output class="q__n"></output><button type="button" class="q__b q__plus">+</button></div></div><button type="button" class="ci__rm"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"/></svg></button>';
+    var im=li.querySelector('.ci__img');im.src=x.img||'assets/logo.webp';
+    li.querySelector('.ci__name').textContent=x.n;li.querySelector('.ci__now').textContent=brl(q*x.p);
+    if(x.old&&x.old>x.p){var os=li.querySelector('.ci__old');os.textContent=brl(q*x.old);os.hidden=false}
+    li.querySelector('.q__n').textContent=q;
+    var bm=li.querySelector('.q__minus'),bp=li.querySelector('.q__plus'),br=li.querySelector('.ci__rm');
+    bm.setAttribute('aria-label','Diminuir '+x.n);bp.setAttribute('aria-label','Aumentar '+x.n);br.setAttribute('aria-label','Remover '+x.n+' da sacola');
+    bm.onclick=function(){cart[x.id]--;if(cart[x.id]<1)delete cart[x.id];sync()};
+    bp.onclick=function(){add(x.id)};
+    br.onclick=function(){delete cart[x.id];sync()};
     ul.appendChild(li)});
   $('badge').textContent=n;$('total').textContent=brl(t);$('send').disabled=!n;
   $('cartBtn').setAttribute('aria-label','Abrir sacola ('+n+(n===1?' item':' itens')+')');

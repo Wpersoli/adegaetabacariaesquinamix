@@ -75,9 +75,6 @@ footer{text-align:center;padding:40px 16px;background:#0b0713;color:#bdb2d6;font
 .drawer header{display:flex;justify-content:space-between;align-items:center}
 .drawer h2{font:400 22px var(--f-display)}
 #items{list-style:none;padding:0;flex:1;overflow:auto;display:grid;gap:10px;align-content:start}
-#items li{display:grid;grid-template-columns:1fr auto;gap:4px 10px;background:#0b0713;border-radius:10px;padding:10px}
-#items .q{display:flex;gap:8px;align-items:center}
-#items .q button{width:28px;height:28px;border-radius:6px;background:var(--pink)}
 .total{display:flex;justify-content:space-between;font:700 20px var(--f-display)}
 .wa{background:#25d366;color:#06240f;border-radius:10px;padding:15px;font:400 14px var(--f-display);text-transform:uppercase}
 .wa:disabled{opacity:.5}
@@ -276,7 +273,6 @@ footer{background:#030708;padding:0;display:block;text-align:left;color:var(--ca
 .skip{position:absolute;left:8px;top:-64px;z-index:200;background:var(--gold);color:#1a1030;padding:10px 14px;border-radius:8px;font-weight:700;text-decoration:none}
 .skip:focus{top:8px}
 .drawer{height:100dvh;padding-bottom:max(18px,env(safe-area-inset-bottom,0px))}
-#items .q button{width:40px;height:40px;border-radius:8px}
 .hint{opacity:.8}
 .prod-cat,.rank-i small,.rev-card small{opacity:.85}
 @media(hover:none){.fleet__i,.fleet__i::after{animation:none!important}}
@@ -777,3 +773,58 @@ body:has(.drawer:not([hidden])) .home-filter-tab,body:has(.drawer:not([hidden]))
 @media(max-width:900px){.shelf__hint{display:none}}
 @media(max-width:600px){.shelf{margin-bottom:26px}.shelf__strip{gap:10px}.shelf__strip .prod-card{flex-basis:calc((100vw - 28px - 10px)/2.3)}.shelf__all{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.shelf__strip{scroll-behavior:auto}}
+
+/* ===== Sacola em 2 etapas (1: lista de produtos · 2: validar dados e enviar) ===== */
+.drawer h2{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 10px;font:400 22px var(--f-display);outline:0}
+.drawer h2 .dt-step{display:inline-flex;gap:10px;font:400 16px var(--f-display);letter-spacing:.04em;text-transform:uppercase;color:var(--cream)}
+.drawer h2 .dt-step[hidden]{display:none}
+.drawer h2 .dt-step i{font-style:normal;opacity:.8}
+#closeCart{font-size:22px;line-height:1;width:40px;height:40px;border-radius:8px;color:var(--cream)}
+#closeCart:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+#items{list-style:none;margin:0;padding:0;display:grid;gap:12px;align-content:start}
+#items .ci{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:4px 12px;align-items:start;background:#fff;color:#1a1030;border-radius:10px;padding:10px;box-shadow:0 2px 0 rgba(0,0,0,.35)}
+.ci__img{width:76px;height:76px;object-fit:contain;border-radius:8px;background:#fff}
+.ci__main{display:grid;gap:6px;min-width:0;align-content:start}
+.ci__name{font:600 14px/1.25 "DM Sans",system-ui,sans-serif;color:#2b2540;overflow-wrap:anywhere}
+.ci__price{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;font:400 14px "DM Sans",system-ui,sans-serif}
+.ci__old{color:#8a849a;font-weight:500;font-size:13px}
+.ci__old[hidden]{display:none}
+.ci__now{color:#1a1030;font:700 16px "DM Sans",system-ui,sans-serif}
+.ci__rm{display:grid;place-items:center;width:36px;height:36px;border-radius:8px;color:#6b6480;background:transparent;border:0;cursor:pointer}
+.ci__rm:hover{color:#e8173a;background:#f3eef9}
+.ci__rm:focus-visible,.q__b:focus-visible,.cart-more:focus-visible,.ck__back:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+#items .q{display:inline-grid;grid-template-columns:40px minmax(44px,auto) 40px;align-items:stretch;gap:0;width:max-content;max-width:100%}
+.q__b{display:grid;place-items:center;width:40px;height:40px;border-radius:6px;background:var(--pink);color:#fff;font:700 20px/1 "DM Sans",system-ui,sans-serif;border:0;cursor:pointer}
+.q__b:active{transform:scale(.96)}
+.q__n{display:grid;place-items:center;min-width:44px;border-top:1px solid #d9d3e6;border-bottom:1px solid #d9d3e6;color:#1a1030;font:700 15px "DM Sans",system-ui,sans-serif;padding:0 8px}
+.cart-more{justify-self:center;margin:6px auto 0;padding:14px 8px 4px;min-height:44px;color:#fff;font:700 15px "DM Sans",system-ui,sans-serif;background:none;border:0;border-top:1px solid rgba(255,255,255,.7);cursor:pointer;min-width:200px;text-align:center}
+.cart-more:hover{color:var(--gold);border-top-color:var(--gold)}
+.cart-more[hidden]{display:none}
+.ck__back{justify-self:center;min-height:44px;padding:0 12px;color:var(--cream);font:700 14px "DM Sans",system-ui,sans-serif;background:none;border:0;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.ck__back:hover{color:var(--gold)}
+/* visibilidade por etapa */
+.drawer[data-step="1"] #checkout,.drawer[data-step="1"] #send{display:none!important}
+.drawer[data-step="2"] #cartTools,.drawer[data-step="2"] #items,.drawer[data-step="2"] #addMore,.drawer[data-step="2"] #confirmOrder{display:none!important}
+.drawer .wa:disabled{opacity:.45;cursor:not-allowed}
+.drawer__foot .total span{font:700 18px var(--f-display)}
+@media(max-width:380px){#items .ci{grid-template-columns:64px minmax(0,1fr) auto}.ci__img{width:64px;height:64px}}
+.ck__opts[hidden]{display:none!important}
+html.au-lock .home-filter-tab,html.au-lock .pg-tab{display:none!important}
+
+/* ===== Marca em texto (topo): ESQUINA / MIX / ADEGA · TABACARIA — proporções medidas do modelo do manual da marca =====
+   --lh = altura da logo; bloco de texto = 71,8% da logo; divisor = 77,9%; tudo escala junto (desktop, tablet e celular) */
+.brand{--lh:92px;gap:0}
+.brand-wm{display:flex;align-items:center;gap:calc(var(--lh)*.12);margin-left:calc(var(--lh)*.023);flex:none}
+.brand-wm::before{content:"";flex:none;width:max(1px,calc(var(--lh)*.0085));height:calc(var(--lh)*.779);background:#fff}
+.brand-wm svg{display:block;flex:none;height:calc(var(--lh)*.718);width:auto;aspect-ratio:2357/938;overflow:visible}
+.brand-wm text{font-family:"Archivo Black","Arial Black","Segoe UI Black","Helvetica Neue","Roboto","Arial",sans-serif;font-weight:900;text-transform:uppercase;text-rendering:geometricPrecision}
+.brand-wm .wm-w text{fill:#fff;stroke:#fff;stroke-width:3;stroke-linejoin:miter}
+.brand-wm .wm-y text{fill:#fcf505;stroke:#fcf505;stroke-width:2;stroke-linejoin:miter}
+.brand-wm .wm-y circle{fill:#fcf505}
+.brand-wm .wm-r{fill:#fff;opacity:.4}
+@media(min-width:1025px){.brand img{width:var(--lh);height:auto}}
+@media(min-width:340px) and (max-width:1024px){
+  .brand{--lh:min(78px,calc((100vw - 228px)/2.97))}
+  .brand img{width:var(--lh);height:auto}
+}
+@media(max-width:339px){.brand-wm{display:none}}

@@ -69,6 +69,7 @@ var V={
   email:function(v){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim())?'':'Informe um e-mail válido.'},
   phone:function(v){var d=onlyDigits(v);if(d.indexOf('55')===0&&d.length>11)d=d.slice(2);return /^(?:[1-9][0-9])(?:[2-9][0-9]{7,8})$/.test(d)?'':'Informe um telefone válido com DDD.'},
   cpf:function(v){return cpfOk(v)?'':'CPF inválido. Confira os 11 números.'},
+  address:function(v){v=v.trim().replace(/\s+/g,' ');return v.length>=8&&v.length<=300?'':'Informe rua, número, bairro e cidade (mínimo de 8 caracteres).'},
   birth:function(v){
     var a=ageOf(v);
     if(a<0)return 'Informe uma data de nascimento válida.';
@@ -102,9 +103,9 @@ var demo={
       if(users.some(function(u){return u.email===em}))throw err('EMAIL_IN_USE');
       var salt=rnd();
       return pbk(d.password,salt).then(function(ph){
-        users.push({email:em,name:d.name.trim(),phone:maskPhone(d.phone),cpf:ch,birth:d.birth,salt:salt,pw:ph,at:Date.now()});
+        users.push({email:em,name:d.name.trim(),phone:maskPhone(d.phone),address:(d.address||'').trim(),cpf:ch,birth:d.birth,salt:salt,pw:ph,at:Date.now()});
         if(!sset(KU,users))throw err('STORAGE');
-        var u={name:d.name.trim(),email:em,phone:maskPhone(d.phone),phoneVerified:false,registrationStatus:'pending'};sset(KS,u);return{user:u};
+        var u={name:d.name.trim(),email:em,phone:maskPhone(d.phone),address:(d.address||'').trim(),phoneVerified:false,registrationStatus:'pending'};sset(KS,u);return{user:u};
       });
     });
   },
@@ -114,7 +115,7 @@ var demo={
     if(!u)return Promise.reject(err('BAD_CREDENTIALS'));
     return pbk(d.password,u.salt).then(function(ph){
       if(ph!==u.pw)throw err('BAD_CREDENTIALS');
-      var s={name:u.name,email:u.email,phone:u.phone||'',phoneVerified:false,registrationStatus:'pending'};sset(KS,s);return{user:s};
+      var s={name:u.name,email:u.email,phone:u.phone||'',address:u.address||'',phoneVerified:false,registrationStatus:'pending'};sset(KS,s);return{user:s};
     });
   },
   complete:function(){return Promise.reject(err('UNAVAILABLE'))},
@@ -142,9 +143,9 @@ function call(path,method,body){
 }
 var api={
   me:function(){return call('/me','GET').catch(function(){return{user:null}})},
-  signup:function(d){return call('/signup','POST',{name:d.name.trim(),email:d.email.trim(),phone:d.phone,cpf:onlyDigits(d.cpf),birth:d.birth,password:d.password,consent:true,returnTo:d.returnTo})},
+  signup:function(d){return call('/signup','POST',{name:d.name.trim(),email:d.email.trim(),phone:d.phone,address:(d.address||'').trim(),cpf:onlyDigits(d.cpf),birth:d.birth,password:d.password,consent:true,returnTo:d.returnTo})},
   login:function(d){return call('/login','POST',{email:d.email.trim(),password:d.password})},
-  complete:function(d){return call('/complete','POST',{phone:d.phone,cpf:onlyDigits(d.cpf),birth:d.birth,consent:true})},
+  complete:function(d){return call('/complete','POST',{name:(d.name||'').trim(),phone:d.phone,address:(d.address||'').trim(),cpf:onlyDigits(d.cpf),birth:d.birth,consent:true})},
   forgot:function(d){return call('/forgot','POST',{email:d.email.trim()})},
   resend:function(d){return call('/resend','POST',{email:d.email.trim(),returnTo:d.returnTo})},
   forgotEmail:function(d){return call('/forgot-email','POST',{cpf:onlyDigits(d.cpf),birth:d.birth})},
@@ -182,9 +183,13 @@ var MSG={
   OFFLINE:'Sem conexão com a internet. Verifique e tente novamente.',
   UNAVAILABLE:'Serviço de cadastro indisponível no momento. Tente novamente em instantes.',
   NO_CRYPTO:'Este navegador não suporta o recurso seguro necessário. Use uma versão atualizada.',
-  STORAGE:'Não foi possível salvar neste aparelho (armazenamento bloqueado).'
+  STORAGE:'Não foi possível salvar neste aparelho (armazenamento bloqueado).',
+  ADDRESS_INVALID:'Informe um endereço de entrega válido (rua, número, bairro e cidade).',
+  PROFILE_UPDATE_UNAVAILABLE:'Não foi possível salvar os dados agora. Tente novamente em instantes.',
+  UNAUTHENTICATED:'Sua sessão expirou. Entre novamente para continuar.',
+  INVALID_SESSION:'Sua sessão expirou. Entre novamente para continuar.'
 };
-var FIELD={CPF_IN_USE:'cpf',CPF_INVALID:'cpf',CPF_NOT_MATCH:'cpf',EMAIL_IN_USE:'email',UNDERAGE:'birth',PHONE_INVALID:'phone'};
+var FIELD={CPF_IN_USE:'cpf',CPF_INVALID:'cpf',CPF_NOT_MATCH:'cpf',EMAIL_IN_USE:'email',UNDERAGE:'birth',UNDERAGE_OR_INVALID_BIRTH:'birth',PHONE_INVALID:'phone',ADDRESS_INVALID:'address',INVALID_NAME:'name'};
 
 /* ---------- marcação do modal ---------- */
 var EYE='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -195,12 +200,17 @@ function pwField(id,label,ac,v){
 function field(id,label,attrs,v,hint){
   return '<div class="au-f"><label for="'+id+'">'+label+'</label><input id="'+id+'" data-v="'+v+'" aria-describedby="'+id+'-e'+(hint?' '+id+'-h':'')+'" '+attrs+' required>'+(hint?'<p class="au-hint" id="'+id+'-h">'+hint+'</p>':'')+'<p class="au-err" id="'+id+'-e"></p></div>';
 }
+function areaField(id,label,attrs,v,hint){
+  return '<div class="au-f"><label for="'+id+'">'+label+'</label><textarea id="'+id+'" data-v="'+v+'" aria-describedby="'+id+'-e'+(hint?' '+id+'-h':'')+'" '+attrs+' required></textarea>'+(hint?'<p class="au-hint" id="'+id+'-h">'+hint+'</p>':'')+'<p class="au-err" id="'+id+'-e"></p></div>';
+}
 function consent(id,txt){
   return '<div class="au-f"><label class="au-chk" for="'+id+'"><input type="checkbox" id="'+id+'" data-v="consent" aria-describedby="'+id+'-e"><span>'+txt+'</span></label><p class="au-err" id="'+id+'-e"></p></div>';
 }
 var CPFHINT=MODE==='api'?'Um CPF por conta. O site verifica os dígitos e guarda apenas um código protegido; não consulta a Receita Federal.':'Um CPF por conta.';
 var CPFATTR='name="cpf" type="text" inputmode="numeric" autocomplete="off" maxlength="14" placeholder="000.000.000-00"';
 var BIRTHATTR='name="birth" type="date" autocomplete="bday" min="1900-01-01"';
+var ADDRATTR='name="address" rows="3" maxlength="300" autocomplete="street-address" placeholder="Rua, número, complemento, bairro e cidade"';
+var ADDRHINT='Usado como sugestão de entrega nos seus pedidos. Você pode alterar depois em "Meus dados".';
 var CONSENT='Autorizo o uso do meu CPF e dos meus dados para validar minha identidade e evitar contas duplicadas, conforme a LGPD. Declaro ter 18 anos ou mais.';
 
 function tpl(){
@@ -239,6 +249,7 @@ function tpl(){
         field('s-email','E-mail','name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="voce@email.com"','email')+
         field('s-phone','Telefone com DDD','name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="(11) 99999-9999"','phone')+
         '<p class="au-hint">Telefone obrigatório para contato da loja. Não enviaremos código por WhatsApp.</p>'+
+        areaField('s-address','Endereço de entrega',ADDRATTR,'address',ADDRHINT)+
         '<div class="au-row">'+
           field('s-cpf','CPF',CPFATTR,'cpf')+
           field('s-birth','Nascimento',BIRTHATTR,'birth')+
@@ -253,15 +264,18 @@ function tpl(){
 
     /* CONCLUIR CADASTRO (apos Google) */
     '<section data-view="complete" hidden>'+
-      '<p class="au-lead">Falta pouco! Para concluir o cadastro com o Google, informe seu telefone de contato, CPF e data de nascimento.</p>'+
+      '<p class="au-st" role="status" aria-live="polite"></p>'+
+      '<p class="au-lead">Falta pouco! Confira e valide os dados da sua conta Google e informe telefone, CPF, data de nascimento e endereço de entrega para finalizar o cadastro.</p>'+
+      '<p class="au-hint" id="c-mail"></p>'+
       '<form class="au-form" data-form="complete" novalidate>'+
+        field('c-name','Nome completo','name="name" type="text" autocomplete="name" placeholder="Nome e sobrenome"','name')+
         field('c-phone','Telefone com DDD','name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="(11) 99999-9999"','phone')+
         '<p class="au-hint">Telefone obrigatório para contato da loja. Não enviaremos código por WhatsApp.</p>'+
+        areaField('c-address','Endereço de entrega',ADDRATTR,'address',ADDRHINT)+
         '<div class="au-row">'+field('c-cpf','CPF',CPFATTR,'cpf')+field('c-birth','Nascimento',BIRTHATTR,'birth')+'</div>'+
         '<p class="au-hint">'+CPFHINT+'</p>'+
         consent('c-ok',CONSENT)+
-        '<p class="au-st" role="status" aria-live="polite"></p>'+
-        '<button type="submit" class="au-btn">Concluir cadastro</button>'+
+        '<button type="submit" class="au-btn">Validar e concluir cadastro</button>'+
         '<button type="button" class="au-link" data-act="cancel-completion">Cancelar e voltar para entrar</button>'+
       '</form>'+
     '</section>'+
@@ -303,13 +317,14 @@ function tpl(){
     '</section>'+
 
     '<section data-view="profile" hidden>'+
-      '<p class="au-lead">Mantenha seus dados atualizados. O endereço salvo será sugerido automaticamente nos próximos pedidos.</p>'+
       '<p class="au-st" role="status" aria-live="polite"></p>'+
+      '<p class="au-lead">Mantenha seus dados atualizados. O endereço salvo será sugerido automaticamente nos próximos pedidos.</p>'+
       '<form class="au-form" id="auProfileForm" novalidate>'+
         '<div class="au-f"><label for="auProfileName">Nome completo</label><input id="auProfileName" name="name" type="text" maxlength="120" autocomplete="name" required></div>'+
         '<div class="au-f"><label for="auProfilePhone">Telefone / WhatsApp</label><input id="auProfilePhone" name="phone" type="tel" inputmode="tel" maxlength="19" autocomplete="tel" required></div>'+
         '<div class="au-f"><label for="auProfileBirth">Data de nascimento</label><input id="auProfileBirth" name="birth" type="date" required><p class="au-hint">A data deve continuar compatível com os dados de identificação da conta. Apenas maiores de 18 anos podem manter cadastro.</p></div>'+
         '<div class="au-f"><label for="auProfileAddress">Endereço padrão de entrega</label><textarea id="auProfileAddress" name="address" rows="3" maxlength="300" placeholder="Rua, número, complemento, bairro e cidade"></textarea><p class="au-hint">Este endereço fica salvo na conta e será usado como sugestão. Você ainda poderá informar outro endereço em um pedido específico.</p></div>'+
+        '<p class="au-st" id="auProfileMsg" role="status" aria-live="polite"></p>'+
         '<button type="submit" class="au-btn">Salvar alterações</button>'+
       '</form>'+
       '<div class="au-danger"><strong>Encerrar conta</strong><p>Esta ação exclui permanentemente sua conta e o histórico associado. Não poderá ser desfeita.</p><button type="button" class="au-btn au-btn--danger" data-act="delete-account">Encerrar minha conta</button></div>'+
@@ -328,8 +343,20 @@ function tpl(){
 }
 
 /* ---------- controle de telas ---------- */
-var TITLES={login:'Entrar',signup:'Criar conta',complete:'Concluir cadastro',forgot:'Recuperar senha',forgotEmail:'Recuperar e-mail',account:'Minha conta',profile:'Meus dados',orders:'Meus pedidos'};
-function status(sec,type,txt){var s=$('.au-st',sec);if(!s)return;s.className='au-st'+(type?' is-'+type:'');s.textContent=txt||''}
+var TITLES={login:'Entrar',signup:'Criar conta',complete:'Meus dados',forgot:'Recuperar senha',forgotEmail:'Recuperar e-mail',account:'Minha conta',profile:'Meus dados',orders:'Meus pedidos'};
+function status(sec,type,txt){
+  var s=$('.au-st',sec);if(!s)return;
+  s.className='au-st'+(type?' is-'+type:'');s.textContent=txt||'';
+  s.setAttribute('role',type==='err'?'alert':'status');
+  if(txt&&card&&s.scrollIntoView){try{s.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){s.scrollIntoView()}}
+}
+/* mensagem do formulario "Meus dados": fica junto do botao Salvar, sempre visivel apos salvar ou falhar */
+function profileMsg(type,txt){
+  var s=document.getElementById('auProfileMsg');if(!s)return;
+  s.className='au-st'+(type?' is-'+type:'');s.textContent=txt||'';
+  s.setAttribute('role',type==='err'?'alert':'status');
+  if(txt&&s.scrollIntoView){try{s.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){s.scrollIntoView()}}
+}
 function fieldErr(el,txt){
   var e=document.getElementById(el.id+'-e');
   if(e)e.textContent=txt||'';
@@ -349,6 +376,7 @@ function setView(v,focus){
   $('#au-t').textContent=TITLES[v]||'Entrar';
   var sec=$('[data-view="'+v+'"]');clearAll(sec);
   if(v==='account')paintAccount();
+  if(v==='complete')paintComplete();
   if(v==='profile')paintProfile();
   if(v==='orders')startOrders();
   card.scrollTop=0;
@@ -363,24 +391,43 @@ function paintAccount(){
   $('#a-name').textContent=user.name||'';
   $('#a-mail').textContent=user.email||'';
   /* logo apos entrar/cadastrar: so "Fechar"; ao reabrir a conta: "Pedidos" e "Sair da conta" */
-  $('.au-acts [data-acc]').forEach(function(b){var mode=b.getAttribute('data-acc');b.hidden=mode!=='always'&&mode!==(fresh?'fresh':'menu')});
+  $$('.au-acts [data-acc]').forEach(function(b){var mode=b.getAttribute('data-acc');b.hidden=mode!=='always'&&mode!==(fresh?'fresh':'menu')});
+}
+function paintComplete(){
+  var f=$('[data-form="complete"]');if(!f||!user)return;
+  f.elements.name.value=user.name||'';
+  if(user.phone)f.elements.phone.value=maskPhone(user.phone);
+  f.elements.address.value=user.address||'';
+  var m=document.getElementById('c-mail');if(m)m.textContent=user.email?'Conta: '+user.email:'';
 }
 function paintProfile(){
   var f=$('#auProfileForm');if(!f||!user)return;
+  profileMsg('','');
   f.elements.name.value=user.name||'';
   f.elements.phone.value=maskPhone(user.phone||'');
   f.elements.birth.value=user.birth||'';
   f.elements.address.value=user.address||'';
 }
+function lcf(s){return s.charAt(0).toLowerCase()+s.slice(1)}
 function saveProfile(form){
   if(busy)return;
-  var d={name:form.elements.name.value.trim().replace(/\s+/g,' '),phone:form.elements.phone.value,birth:form.elements.birth.value,address:form.elements.address.value.trim()};
-  if(d.name.length<5||d.name.split(/\s+/).length<2){status(form.parentNode,'err','Informe nome e sobrenome.');form.elements.name.focus();return}
-  if(V.phone(d.phone)){status(form.parentNode,'err','Informe um telefone válido com DDD.');form.elements.phone.focus();return}
-  if(V.birth(d.birth)){status(form.parentNode,'err',V.birth(d.birth));form.elements.birth.focus();return}
-  if(d.address.length>300){status(form.parentNode,'err','O endereço deve ter até 300 caracteres.');return}
+  var d={name:form.elements.name.value.trim().replace(/\s+/g,' '),phone:form.elements.phone.value,birth:form.elements.birth.value,address:form.elements.address.value.trim().replace(/\s+/g,' ')};
+  function bad(msg,el){profileMsg('err',msg);if(el)el.focus({preventScroll:true})}
+  if(d.name.length<5||d.name.split(/\s+/).length<2)return bad('Não foi possível salvar: informe nome e sobrenome.',form.elements.name);
+  if(V.phone(d.phone))return bad('Não foi possível salvar: informe um telefone válido com DDD.',form.elements.phone);
+  if(V.birth(d.birth))return bad('Não foi possível salvar: '+lcf(V.birth(d.birth)),form.elements.birth);
+  if(d.address&&V.address(d.address))return bad('Não foi possível salvar: '+lcf(V.address(d.address)),form.elements.address);
+  profileMsg('info','Salvando seus dados…');
   lock(form,true,'Salvando…');
-  A.saveProfile(d).then(function(r){user=r.user||Object.assign({},user,{name:d.name,phone:d.phone,birth:d.birth,address:d.address});paintBtn();paintAccount();status(form.parentNode,'ok','Seus dados foram atualizados com sucesso.');},function(e){fail(form,e)}).then(function(){lock(form,false)});
+  A.saveProfile(d).then(function(r){
+    user=r.user||Object.assign({},user,{name:d.name,phone:d.phone,birth:d.birth,address:d.address});
+    paintBtn();paintAccount();
+    profileMsg('ok','✔ Dados atualizados com sucesso! As alterações já estão salvas na sua conta.');
+  },function(e){
+    if(e&&(e.status===401||e.code==='UNAUTHENTICATED')){user=null;paintBtn();setView('login');status($('[data-view="login"]'),'err',MSG.UNAUTHENTICATED);return}
+    var code=e&&e.code,detail=(!code||code==='PROFILE_UPDATE_UNAVAILABLE'||!MSG[code])?'Tente novamente em instantes.':MSG[code];
+    profileMsg('err','✖ Não foi possível salvar seus dados. '+detail);
+  }).then(function(){lock(form,false)});
 }
 function deleteAccount(t){
   if(busy||!user)return;
@@ -428,7 +475,8 @@ function build(){
   });
   /* mascara de CPF e limpeza de erro ao digitar */
   root.addEventListener('input',function(e){
-    var i=e.target;if(!i.matches('input'))return;
+    var i=e.target;if(!i.matches('input,textarea'))return;
+    if(i.form&&i.form.id==='auProfileForm'){var pm=document.getElementById('auProfileMsg');if(pm&&pm.textContent)profileMsg('','')}
     if(i.name==='cpf')i.value=maskCpf(i.value);
     if(i.name==='phone')i.value=maskPhone(i.value);
     if(i.getAttribute('aria-invalid')==='true'||(i.type==='checkbox'&&document.getElementById(i.id+'-e').textContent))fieldErr(i,'');
@@ -483,7 +531,7 @@ function validate(form){
   return !bad;
 }
 function data(form){
-  var d={};$$('input',form).forEach(function(i){if(i.type!=='checkbox')d[i.name]=i.value});return d;
+  var d={};$$('input,textarea',form).forEach(function(i){if(i.type!=='checkbox')d[i.name]=i.value});return d;
 }
 function lock(form,on,label){
   var b=$('.au-btn',form);if(!b)return;
@@ -499,7 +547,7 @@ function fail(form,e){
 }
 function signedIn(u,sec,welcome){
   user=u;paintBtn();
-  if(user.needsCpf||user.needsPhone){setView('complete');status($('[data-view="complete"]'),'info','Para concluir, informe seu telefone de contato e os dados solicitados.');return;}
+  if(user.needsCpf||user.needsPhone){setView('complete');status($('[data-view="complete"]'),'info','Para concluir o cadastro, valide seus dados e informe telefone, CPF, nascimento e endereço de entrega.');return;}
   fresh=true;setView('account');status($('[data-view="account"]'),'ok',welcome);
 }
 function resendConfirmation(t){
@@ -541,7 +589,12 @@ function onSubmit(e){
     },function(x){lock(form,false);fail(form,x)});
   }else if(name==='complete'){
     lock(form,true,'Validando…');
-    A.complete(d).then(function(r){lock(form,false);signedIn(r.user,form,'Cadastro concluído!')},function(x){lock(form,false);fail(form,x)});
+    A.complete(d).then(function(r){
+      lock(form,false);
+      user=r.user;paintBtn();fresh=false;
+      setView('profile');
+      status($('[data-view="profile"]'),'ok','✔ Cadastro concluído! Seus dados foram validados e salvos. Confira abaixo e ajuste o que precisar.');
+    },function(x){lock(form,false);fail(form,x)});
   }else if(name==='forgot'){
     lock(form,true,'Enviando…');
     A.forgot(d).then(function(){lock(form,false);status(form.parentNode,'ok','Se o e-mail estiver cadastrado, você receberá as instruções em instantes.')},function(x){lock(form,false);fail(form,x)});
@@ -664,10 +717,19 @@ btn.addEventListener('click',function(){open()});
 paintBtn();
 A.me().then(function(r){
   user=r&&r.user||null;paintBtn();
-  /* volta do Google: se faltar CPF, abre direto a tela de conclusao */
+  /* volta do Google: avisa e leva direto para Meus dados (validar dados e informar endereco) */
   if(MODE==='api'&&/[?&]auth=/.test(location.search)){
     try{var u=new URL(location.href);u.searchParams.delete('auth');history.replaceState(null,'',u.pathname+u.search+u.hash)}catch(e){}
-    if(user)open(user.needsCpf||user.needsPhone?'complete':'account',true);
+    if(!user)return;
+    if(user.needsCpf||user.needsPhone){
+      open('complete',true);
+      status($('[data-view="complete"]'),'info','Login com Google concluído! Agora valide seus dados e informe o endereço de entrega para finalizar o cadastro.');
+    }else if(!String(user.address||'').trim()){
+      open('profile',true);
+      status($('[data-view="profile"]'),'info','Login com Google concluído! Falta só o endereço de entrega: informe abaixo e toque em "Salvar alterações".');
+    }else{
+      open('account',true);
+    }
   }
 });
 window.EsquinaAuth={open:open,close:close,recordOrder:recordOrder,mode:MODE,get user(){return user}};
