@@ -110,6 +110,22 @@ $('checkout').addEventListener('change',function(e){
   paintCash()});
 $('ckChange').addEventListener('input',function(){this.removeAttribute('aria-invalid');$('ckChangeErr').hidden=true});
 
+/* ---------- sacola em 2 etapas: 1) lista de produtos  2) validar dados e enviar ---------- */
+function setStep(n,focus){
+  var d=$('drawer');if(!d)return;
+  n=(n===2&&st.count>0)?2:1;
+  d.setAttribute('data-step',String(n));
+  var s=$('dtStep');if(s)s.hidden=n!==2;
+  var body=d.querySelector('.drawer__body');if(body)body.scrollTop=0;
+  if(focus){var h=$('dt');if(h){try{h.focus({preventScroll:true})}catch(e){h.focus()}}}}
+var co=$('confirmOrder'),bk=$('ckBack'),am=$('addMore');
+if(co)co.addEventListener('click',function(){if(st.count>0)setStep(2,true)});
+if(bk)bk.addEventListener('click',function(){setStep(1,true)});
+if(am)am.addEventListener('click',function(){
+  var x=$('closeCart');if(x)x.click();
+  var tg=document.getElementById('cardapio')||document.getElementById('lista');
+  if(tg&&tg.scrollIntoView)setTimeout(function(){tg.scrollIntoView({behavior:'smooth',block:'start'})},80)});
+
 /* ---------- sacola vazia / botão limpar ---------- */
 var cb=$('clearCart'),cbTx=cb?cb.querySelector('span'):null,armTm=0;
 function disarm(){clearTimeout(armTm);if(!cb)return;cb.classList.remove('is-armed');cb.removeAttribute('data-armed');if(cbTx)cbTx.textContent='Limpar sacola'}
@@ -126,13 +142,14 @@ document.addEventListener('cart:sync',function(e){
   var d=(e&&e.detail)||{};st.count=d.n||0;st.total=r2(d.t||0);
   var has=st.count>0;
   $('cartEmpty').hidden=has;$('checkout').hidden=!has;$('cartTools').hidden=!has;
+  if(am)am.hidden=!has;if(co)co.disabled=!has;if(!has)setStep(1);
   var ct=$('cartCount');if(ct)ct.textContent=st.count+(st.count===1?' item':' itens');
   if(!has)disarm();
   paintCash();prefillPhone();paintWho();paintAddress()});
 
 /* ao abrir a sacola, preenche o telefone da conta (ou o último usado) */
 var dw=$('drawer');
-if(dw&&window.MutationObserver)new MutationObserver(function(){if(!dw.hidden){prefillPhone();paintWho();paintAddress()}}).observe(dw,{attributes:true,attributeFilter:['hidden']});
+if(dw&&window.MutationObserver)new MutationObserver(function(){if(!dw.hidden){setStep(1);prefillPhone();paintWho();paintAddress()}}).observe(dw,{attributes:true,attributeFilter:['hidden']});
 
 /* ---------- comanda ---------- */
 var LINE='━━━━━━━━━━━━━━━━━━━━';

@@ -80,3 +80,11 @@ A integração está isolada na branch **feature/supabase-auth-esquina-mix** e n
 - O Service Worker ignora a API de autenticação e a rota de confirmação.
 
 Consulte **docs/SUPABASE_SETUP.md** para as variáveis Vercel, configuração de e-mail, URLs de redirecionamento e critérios de teste. Não mescle o PR nem altere as variáveis de Produção antes de concluir os testes de aceite.
+
+## Sacola em 2 etapas, cadastro com endereco e "Meus dados"
+- Sacola (index.html e produtos.html, logica em pedido.js): etapa 1 lista os produtos (foto, preco, quantidade, lixeira, "Adicionar mais produtos") e etapa 2 ("Validar dados") coleta nome, telefone, endereco e pagamento e envia a comanda pelo WhatsApp. O atributo data-step do #drawer controla a etapa. Para mostrar preco "de" riscado, adicione old:<preco> ao produto em catalog.js.
+- Cadastro por e-mail e conclusao do cadastro Google pedem endereco de entrega (8 a 300 caracteres), salvo em user_metadata.delivery_address (sem migracao de banco).
+- Retorno do Google (?auth=confirmed): sem CPF/telefone abre "Meus dados" para validar os dados e informar o endereco; conta completa sem endereco abre "Meus dados" com aviso.
+- Em "Meus dados" toda alteracao mostra mensagem de sucesso ou de erro junto ao botao Salvar.
+- Todos os botoes "Inicio", a logo e "Voltar ao cardapio" levam para https://adegaetabacariaesquinamix.vercel.app/#cardapio (secao "// cardapio digital").
+

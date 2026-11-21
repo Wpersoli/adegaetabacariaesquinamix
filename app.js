@@ -124,12 +124,17 @@ function add(id){cart[id]=Math.min((cart[id]||0)+1,99);sync();document.dispatchE
 function sync(open){
   var n=0,t=0,ul=$('items');ul.textContent='';
   catalog.forEach(function(x){var q=cart[x.id];if(!q)return;n+=q;t+=q*x.p;
-    var li=document.createElement('li');
-    li.innerHTML='<span></span><b></b><div class="q"><button aria-label="Menos">−</button><span>'+q+'</span><button aria-label="Mais">+</button></div>';
-    li.children[0].textContent=x.n;li.children[1].textContent=brl(q*x.p);
-    var b=li.querySelectorAll('button');b[0].setAttribute('aria-label','Diminuir '+x.n);b[1].setAttribute('aria-label','Aumentar '+x.n);
-    b[0].onclick=function(){cart[x.id]--;if(cart[x.id]<1)delete cart[x.id];sync()};
-    b[1].onclick=function(){add(x.id)};
+    var li=document.createElement('li');li.className='ci';
+    li.innerHTML='<img class="ci__img" alt="" width="72" height="72"><div class="ci__main"><span class="ci__name"></span><span class="ci__price"><s class="ci__old" hidden></s><b class="ci__now"></b></span><div class="q"><button type="button" class="q__b q__minus">−</button><output class="q__n"></output><button type="button" class="q__b q__plus">+</button></div></div><button type="button" class="ci__rm"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"/></svg></button>';
+    var im=li.querySelector('.ci__img');im.src=x.img||'assets/logo.webp';
+    li.querySelector('.ci__name').textContent=x.n;li.querySelector('.ci__now').textContent=brl(q*x.p);
+    if(x.old&&x.old>x.p){var os=li.querySelector('.ci__old');os.textContent=brl(q*x.old);os.hidden=false}
+    li.querySelector('.q__n').textContent=q;
+    var bm=li.querySelector('.q__minus'),bp=li.querySelector('.q__plus'),br=li.querySelector('.ci__rm');
+    bm.setAttribute('aria-label','Diminuir '+x.n);bp.setAttribute('aria-label','Aumentar '+x.n);br.setAttribute('aria-label','Remover '+x.n+' da sacola');
+    bm.onclick=function(){cart[x.id]--;if(cart[x.id]<1)delete cart[x.id];sync()};
+    bp.onclick=function(){add(x.id)};
+    br.onclick=function(){delete cart[x.id];sync()};
     ul.appendChild(li)});
   $('badge').textContent=n;$('total').textContent=brl(t);$('send').disabled=!n;$('cartBtn').setAttribute('aria-label','Abrir sacola ('+n+(n===1?' item':' itens')+')');
   save('emCart',JSON.stringify(cart));
@@ -151,7 +156,7 @@ function setCat(c,keep){if(c==='outros'){location.href='/produtos?ordem=az';retu
   [].forEach.call($('chips').children,function(x){x.classList.toggle('is-active',x.dataset.cat===c);x.setAttribute('aria-pressed',String(x.dataset.cat===c))});
   var on=document.querySelector('#nav button.on');if(on&&on.scrollIntoView)on.scrollIntoView({inline:'center',block:'nearest'});
   render()}
-$('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.textContent.trim().indexOf('Início')===0){location.href='https://adegaetabacariaesquinamix.vercel.app/#inicio';return}setCat(b.dataset.cat);document.getElementById('cardapio').scrollIntoView()});
+$('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.textContent.trim().indexOf('Início')===0){location.href='https://adegaetabacariaesquinamix.vercel.app/#cardapio';return}setCat(b.dataset.cat);document.getElementById('cardapio').scrollIntoView()});
 $('chips').addEventListener('click',function(e){var b=e.target.closest('button');if(b)setCat(b.dataset.cat)});
 $('facets').addEventListener('click',function(e){homePage=1;var b=e.target.closest('button');if(!b||b.dataset.i==null)return;var sb=(SUBS[cat]||[])[+b.dataset.i];if(!sb)return;subF=(subF&&subF.label===sb[0])?null:{label:sb[0],t:sb[1]};render()});
 $('sort').addEventListener('change',function(){sortBy=this.value;homePage=1;render()});
@@ -275,7 +280,7 @@ var qt;$('q').addEventListener('input',function(){var v=this.value;clearTimeout(
       add('Ver tudo em '+names[c],'all',function(){go(c,null)});subs.forEach(function(sbi){add(sbi[0],'',function(){go(c,sbi)})});li.appendChild(sl);
       a.onclick=function(){var open=a.getAttribute('aria-expanded')==='true';[].forEach.call(ul.querySelectorAll('.mnav__a[aria-expanded]'),function(o){o.setAttribute('aria-expanded','false');o.parentNode.querySelector('.mnav__sub').hidden=true});
         if(!open){a.setAttribute('aria-expanded','true');sl.hidden=false;a.scrollIntoView({block:'nearest'})}}}
-    else a.onclick=function(){if(a.dataset.home){location.href='https://adegaetabacariaesquinamix.vercel.app/#inicio';return}go(c,null)};
+    else a.onclick=function(){if(a.dataset.home){location.href='https://adegaetabacariaesquinamix.vercel.app/#cardapio';return}go(c,null)};
     ul.appendChild(li)});
   document.body.appendChild(dr);
   function openD(){if(dr.classList.contains('is-open'))return;last=document.activeElement;dr.classList.add('is-open');dr.setAttribute('aria-hidden','false');mb.setAttribute('aria-expanded','true');lock(dr,true);setTimeout(function(){x.focus()},50)}
@@ -556,7 +561,7 @@ render();sync();
   function req(){if(!raf)raf=requestAnimationFrame(paint)}
   bar.addEventListener('click',function(e){
     var b=e.target.closest('[data-act]');if(!b)return;
-    if(b.dataset.act==='home'){e.preventDefault();if(searchOpen()&&sb)sb.click();location.href='https://adegaetabacariaesquinamix.vercel.app/#inicio'}
+    if(b.dataset.act==='home'){e.preventDefault();if(searchOpen()&&sb)sb.click();location.href='https://adegaetabacariaesquinamix.vercel.app/#cardapio'}
     else if(b.dataset.act==='search'){e.preventDefault();if(sb)sb.click()}});
   window.addEventListener('scroll',req,{passive:true});window.addEventListener('resize',req);
   if(top&&window.MutationObserver)new MutationObserver(req).observe(top,{attributes:true,attributeFilter:['class']});

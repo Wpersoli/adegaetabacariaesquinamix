@@ -89,9 +89,9 @@
 <div class="bar" id="bar">
 <header class="top">
   <button class="ico-menu" id="menuBtn" type="button" aria-label="Abrir menu de categorias" aria-expanded="false" aria-controls="mnav"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
-  <a class="brand" href="https://adegaetabacariaesquinamix.vercel.app/#inicio" aria-label="Esquina Mix">
+  <a class="brand" href="https://adegaetabacariaesquinamix.vercel.app/#cardapio" aria-label="Esquina Mix">
     <img src="assets/logo.webp" width="100" height="100" alt="Logo Adega e Tabacaria Esquina Mix">
-    <span class="brand-t"><b>ESQUINA</b><b>MIX</b><small>Adega · Tabacaria</small></span>
+    <span class="brand-wm" aria-hidden="true"><svg viewBox="0 0 2357 938" focusable="false"><g class="wm-w" font-size="430"><text lengthAdjust="spacingAndGlyphs" x="52.6" y="302" textLength="294.7">E</text><text lengthAdjust="spacingAndGlyphs" x="363.8" y="302" textLength="327.4">S</text><text lengthAdjust="spacingAndGlyphs" x="698.7" y="302" textLength="371.6">Q</text><text lengthAdjust="spacingAndGlyphs" x="1083.8" y="302" textLength="327.4">U</text><text lengthAdjust="spacingAndGlyphs" x="1439.4" y="302" textLength="105.3">I</text><text lengthAdjust="spacingAndGlyphs" x="1573.3" y="302" textLength="347.4">N</text><text lengthAdjust="spacingAndGlyphs" x="1923.0" y="302" textLength="401.1">A</text></g><g class="wm-w" font-size="471"><text lengthAdjust="spacingAndGlyphs" x="36.2" y="712" textLength="1072.6">M</text><text lengthAdjust="spacingAndGlyphs" x="1170.7" y="712" textLength="253.7">I</text><text lengthAdjust="spacingAndGlyphs" x="1445.6" y="712" textLength="935.8">X</text></g><rect class="wm-r" x="0" y="774.5" width="2351" height="2"/><g class="wm-y" font-size="140"><text lengthAdjust="spacingAndGlyphs" x="57.6" y="932" textLength="134.7">A</text><text lengthAdjust="spacingAndGlyphs" x="225.3" y="932" textLength="108.4">D</text><text lengthAdjust="spacingAndGlyphs" x="374.6" y="932" textLength="95.8">E</text><text lengthAdjust="spacingAndGlyphs" x="503.1" y="932" textLength="117.9">G</text><text lengthAdjust="spacingAndGlyphs" x="649.6" y="932" textLength="135.8">A</text><text lengthAdjust="spacingAndGlyphs" x="1044.1" y="932" textLength="115.8">T</text><text lengthAdjust="spacingAndGlyphs" x="1183.6" y="932" textLength="134.7">A</text><text lengthAdjust="spacingAndGlyphs" x="1350.3" y="932" textLength="107.4">B</text><text lengthAdjust="spacingAndGlyphs" x="1487.6" y="932" textLength="135.8">A</text><text lengthAdjust="spacingAndGlyphs" x="1652.1" y="932" textLength="116.8">C</text><text lengthAdjust="spacingAndGlyphs" x="1794.6" y="932" textLength="135.8">A</text><text lengthAdjust="spacingAndGlyphs" x="1962.2" y="932" textLength="111.6">R</text><text lengthAdjust="spacingAndGlyphs" x="2113.2" y="932" textLength="32.6">I</text><text lengthAdjust="spacingAndGlyphs" x="2181.6" y="932" textLength="134.7">A</text><circle cx="913" cy="888" r="16.5"/></g></svg></span>
   </a>
   <label class="search"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-4-4" stroke="currentColor" stroke-width="2"/></svg>
     <input id="q" type="search" aria-label="Buscar produtos" placeholder="Buscar: ipa até 9, zero álcool, lata..." autocomplete="off"></label>
@@ -226,8 +226,8 @@
   <div class="ft-bot"><span>© Esquina Mix — Adega e Tabacaria · Guarulhos</span><span>Venda proibida para menores de 18 · Beba com responsabilidade</span></div>
 </div></footer>
 
-<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt" hidden>
-  <header><h2 id="dt">Sua sacola</h2><button id="closeCart" type="button" aria-label="Fechar">✕</button></header>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dt" data-step="1" hidden>
+  <header><h2 id="dt" tabindex="-1">Sua sacola<span class="dt-step" id="dtStep" hidden><i aria-hidden="true">-</i>Validar dados</span></h2><button id="closeCart" type="button" aria-label="Fechar">✕</button></header>
   <div class="drawer__body">
     <p class="cart-empty" id="cartEmpty">Sua sacola está vazia.<br><small>Toque em “Comprar” nos produtos para adicionar.</small></p>
     <div class="cart-tools" id="cartTools" hidden>
@@ -235,6 +235,7 @@
       <button type="button" class="cart-clear" id="clearCart" aria-label="Limpar sacola (remover todos os itens)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5M14 11v5"/></svg><span>Limpar sacola</span></button>
     </div>
     <ul id="items"></ul>
+    <button type="button" class="cart-more" id="addMore" hidden>Adicionar mais produtos</button>
     <div class="ck" id="checkout" hidden>
       <div class="ck__f" id="ckNameBox">
         <label class="ck__lbl" for="ckName">Seu nome <b aria-hidden="true">*</b></label>
@@ -280,10 +281,12 @@
         </div>
         <p class="ck__err" id="ckChangeErr" role="alert" hidden></p>
       </fieldset>
+      <button type="button" class="ck__back" id="ckBack">← Voltar para a sacola</button>
     </div>
   </div>
   <div class="drawer__foot">
     <div class="total"><span>Total</span><b id="total">R$ 0,00</b></div>
+    <button class="wa" id="confirmOrder" type="button" disabled>Confirmar pedido</button>
     <button class="wa" id="send" type="button">Enviar pedido pelo WhatsApp</button>
   </div>
 </aside>
