@@ -229,7 +229,7 @@ var qt;$('q').addEventListener('input',function(){var v=this.value;clearTimeout(
   function close(){clearTimeout(tm);if(cur)cur.setAttribute('aria-expanded','false');cur=null;m.hidden=true}
   function later(){clearTimeout(tm);tm=setTimeout(close,220)}
   function place(b){var r=b.getBoundingClientRect(),w=m.offsetWidth;m.style.left=Math.max(8,Math.min(r.left,window.innerWidth-w-8))+'px';m.style.top=r.bottom+'px';m.style.maxHeight=Math.max(160,window.innerHeight-r.bottom-12)+'px'}
-  function go(c,sub){close();subF=sub?{label:sub[0],t:sub[1]}:null;setCat(c,true);var el=document.getElementById('cardapio');if(el)el.scrollIntoView()}
+  function go(c,sub){close();subF=sub?{label:sub[0],t:sub[1]}:null;setCat(c,true);var el=document.getElementById('cardapio');if(el){var top=window.scrollY+el.getBoundingClientRect().top;window.scrollTo({top:top,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}}
   function open(b){clearTimeout(tm);if(cur===b&&!m.hidden)return;close();cur=b;var c=b.dataset.cat,list=SUBS[c];ul.textContent='';
     var add=function(label,fn,cls,i){var li=document.createElement('li');li.setAttribute('role','none');var a=document.createElement('button');a.type='button';a.setAttribute('role','menuitem');a.className='mega__i'+(cls?' '+cls:'');a.style.setProperty('--i',i);a.textContent=label;a.onclick=fn;li.appendChild(a);ul.appendChild(li)};
     add('Ver tudo em '+names[c],function(){go(c,null)},'mega__all',0);
