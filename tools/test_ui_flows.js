@@ -22,7 +22,7 @@ async function ready(p){await p.waitForFunction(()=>!document.querySelector('#es
   if(v.w<=600){
     check(await p.locator('#vitrineList').evaluate(e=>e.scrollWidth>e.clientWidth),v.w+'px carrossel horizontal funcional');
     await p.locator('#vitrineDots .vitrine__dot:nth-child(2)').click();await p.waitForTimeout(260);
-    check(await p.locator('#showcaseRail').evaluate(e=>e.scrollLeft>0),v.w+'px indicador navega para o próximo destaque');
+    check(await p.locator('#vitrineList').evaluate(e=>e.scrollLeft>0),v.w+'px indicador navega para o próximo destaque');
     await p.locator('#vitrineDots .vitrine__dot:nth-child(1)').click();await p.waitForTimeout(260);
   }
   await p.locator('#vitrineFeature .vitrine__buy').click();
