@@ -67,6 +67,7 @@
       <div><p class="feat__eyebrow">// catálogo completo</p><h1 class="feat__title">Todos os produtos da <span class="hl">esquina</span></h1></div>
       <a class="pg-back" href="https://adegaetabacariaesquinamix.vercel.app/#cardapio" aria-label="Voltar ao cardápio"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span>Voltar ao cardápio</span></a>
     </div>
+    <p class="price-disclaimer" role="note">* Preços exibidos são valores de referência. Preço final, disponibilidade e condições serão confirmados pela loja no WhatsApp.</p>
     <div class="feat__chips pg-category-chips" id="catChips" role="group" aria-label="Filtrar produtos por categoria">
       <button type="button" class="feat-chip is-active" data-cat="todos" aria-pressed="true">Todos</button>
       <button type="button" class="feat-chip is-warn" data-cat="promo" aria-pressed="false">Promoções</button>
@@ -194,7 +195,8 @@
     </div>
   </div>
   <div class="drawer__foot">
-    <div class="total"><span>Total</span><b id="total">R$ 0,00</b></div>
+    <p class="cart-estimate-note">Valores de referência. A loja confirma preço e disponibilidade antes de aceitar o pedido.</p>
+    <div class="total"><span>Total estimado</span><b id="total">R$ 0,00</b></div>
     <button class="wa" id="confirmOrder" type="button" disabled>Confirmar pedido</button>
     <button class="wa" id="send" type="button">Enviar pedido pelo WhatsApp</button>
   </div>
