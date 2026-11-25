@@ -32,10 +32,30 @@ AS $$
 $$;
 SQL
 
-while IFS= read -r migration; do
+expected_migrations=(
+  "20261117024320_esquina_auth.sql"
+  "20261117031101_customer_phone_required.sql"
+  "20261117231903_customer_profile_edit.sql"
+  "20261117235556_customer_orders.sql"
+  "20261118023925_store_event_aggregation.sql"
+  "20261119022341_pending_registration_and_hardening.sql"
+)
+actual_migrations="$(find supabase/migrations -maxdepth 1 -type f -name '*.sql' -printf '%f\\n' | sort)"
+expected_list="$(printf '%s\\n' "${expected_migrations[@]}" | sort)"
+if [[ "$actual_migrations" != "$expected_list" ]]; then
+  echo "Migration directory does not match the six versions recorded in production." >&2
+  echo "Expected:" >&2
+  printf '%s\\n' "$expected_list" >&2
+  echo "Found:" >&2
+  printf '%s\\n' "$actual_migrations" >&2
+  exit 1
+fi
+
+for filename in "${expected_migrations[@]}"; do
+  migration="supabase/migrations/$filename"
   echo "Applying $migration"
   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$migration"
-done < <(find supabase/migrations -maxdepth 1 -type f -name '*.sql' | sort)
+done
 
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
 DO $$
@@ -47,6 +67,19 @@ BEGIN
   IF to_regclass('private.pending_registration') IS NULL
      OR to_regclass('private.auth_rate_limit') IS NULL THEN
     RAISE EXCEPTION 'Recovered private tables are missing';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+     WHERE table_schema = 'public'
+       AND table_name = 'customer_profiles'
+       AND column_name = 'delivery_address'
+  ) OR to_regprocedure('public.update_customer_profile(uuid,text,date,text,text)') IS NOT NULL THEN
+    RAISE EXCEPTION 'A legacy, non-production account-details migration was applied';
+  END IF;
+
+  IF to_regprocedure('public.update_customer_profile(uuid,text,date,text)') IS NULL THEN
+    RAISE EXCEPTION 'The production 4-argument profile RPC is missing';
   END IF;
 
   IF NOT (SELECT relrowsecurity FROM pg_class WHERE oid = 'private.pending_registration'::regclass)
