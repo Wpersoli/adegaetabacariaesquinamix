@@ -16,7 +16,7 @@ const check = (cond, msg) => { cond ? ok++ : (bad++, console.log('   ✗ ' + msg
     await page.goto(new URL('/produtos.html', BASE).toString());
     await page.evaluate(() => { const loader = document.getElementById('esquinaPreloader'); if (loader) loader.remove(); });
     const age = await page.$('#yes');
-    if (age && await age.isVisible()) { await age.click(); await page.waitForTimeout(200); }
+    if (age && await age.isVisible()) { await age.evaluate(e => e.click()); await page.waitForTimeout(200); }
     await page.waitForTimeout(180);
     const layout = await page.evaluate(() => {
       const rect = s => { const el = document.querySelector(s); if (!el) return null; const cs = getComputedStyle(el); if (cs.display === 'none' || cs.visibility === 'hidden') return null; const r = el.getBoundingClientRect(); return { x:r.left, y:r.top, w:r.width, h:r.height, right:r.right }; };
@@ -24,7 +24,7 @@ const check = (cond, msg) => { cond ? ok++ : (bad++, console.log('   ✗ ' + msg
       const nav = [...document.querySelectorAll('#nav > *')].map(el => { const r=el.getBoundingClientRect(); return {y:Math.round(r.top),x:r.left,right:r.right}; });
       const bar = document.getElementById('mbar');
       return {
-        overflow: document.documentElement.scrollWidth > innerWidth,
+        overflow: (() => { const x = document.documentElement.scrollLeft; document.documentElement.scrollLeft = 99999; const moved = document.documentElement.scrollLeft > 0; document.documentElement.scrollLeft = x; return moved; })(),
         menu: rect('#menuBtn'), searchButton: rect('#searchBtn'), search: rect('.search'),
         nav: rect('#nav'), navItems: nav, brand: rect('.brand img'),
         grid: rect('#grid'), cards, count: cards.length,
