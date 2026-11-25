@@ -16,14 +16,14 @@ const check = (cond, msg) => { cond ? ok++ : (bad++, console.log('   ✗ ' + msg
     const mobile = w <= 1024;
     const ctx = await b.newContext({ viewport: { width: w, height: 800 }, hasTouch: mobile, isMobile: mobile });
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
-    await p.goto(URL); await p.waitForTimeout(400);
+    await p.goto(URL); await p.evaluate(() => { const loader = document.getElementById('esquinaPreloader'); if (loader) loader.remove(); }); await p.waitForTimeout(150);
     const yes = await p.$('#yes'); if (yes && await yes.isVisible()) { await yes.click(); await p.waitForTimeout(250); }
     console.log(`\n${w}px  (${mobile ? 'CELULAR/TABLET' : 'DESKTOP'})`);
     const r = await p.evaluate(() => {
       const R = s => { const e = document.querySelector(s); if (!e) return null; const cs = getComputedStyle(e); if (cs.display === 'none' || cs.visibility === 'hidden') return null; const r = e.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, r: r.right }; };
       const nav = [...document.querySelectorAll('#nav > button')].map(e => e.getBoundingClientRect());
       return { menu: R('#menuBtn'), brand: R('.brand img'), brandT: R('.brand-t'), search: R('.search'), sBtn: R('#searchBtn'),
-        acc: R('.actions a.ico'), cart: R('#cartBtn'), nav: R('#nav'), navItems: nav.map(r => ({ l: r.left, r: r.right, t: Math.round(r.top) })),
+        acc: R('#accountBtn'), cart: R('#cartBtn'), nav: R('#nav'), navItems: nav.map(r => ({ l: r.left, r: r.right, t: Math.round(r.top) })),
         overflow: document.documentElement.scrollWidth > innerWidth, vw: innerWidth, top: R('.top') };
     });
     check(!r.overflow, 'rolagem horizontal na pagina');
