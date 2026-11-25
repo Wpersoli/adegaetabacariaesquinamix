@@ -107,7 +107,7 @@ O pedido inclui o endereço escolhido no checkout. Quando o cliente escolhe ende
 - Health Advisor: nenhum alerta. Schema `private`: sem USAGE para `anon` e `authenticated`; políticas públicas verificadas permanecem vinculadas a `auth.uid()`.
 - Performance Advisor: seis índices ainda sem uso observado. Não os remova sem avaliar tráfego e consultas reais.
 - Runtime Errors da Vercel: nenhuma ocorrência retornada na consulta anterior de 1 hora; isso não substitui testes ponta a ponta.
-- A suíte `node tools/test_auth.js` e o workflow `.github/workflows/auth-check.yml` existem no repositório, mas não foi encontrada execução associada ao commit de produção nesta consulta. Não declarar os testes automatizados como aprovados sem executá-los.
+- O workflow `45560563657` confirma que a verificação estática de autenticação passou; isso não substitui testes reais de cadastro, confirmação de e-mail, login, recuperação de senha ou exclusão de conta.
 - Não foi realizado teste ponta a ponta com conta real nesta revisão.
 
 ## 8. Pendências operacionais e critérios de liberação
