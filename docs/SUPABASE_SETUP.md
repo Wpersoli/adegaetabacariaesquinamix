@@ -96,8 +96,8 @@ O pedido inclui o endereço escolhido no checkout. Quando o cliente escolhe ende
 
 ## 7. Verificações executadas em 2026-11-25
 
-- Deploy de Production do commit `08525ca8e019a04155e37119a58d7f36a6a72bdf`: **READY**; build concluído em 452 ms; alias de produção associado.
-- Combined status do commit: Vercel **success**.
+- Deploy de Production do commit `c82d1d69c8e89074cd35b961279ad53e33195ad8`: **READY** (verificação da revisão anterior).
+- GitHub Actions `45560563657`: **success**; verificações da home (179), catálogo (182), PWA offline (6), autenticação estática e checagens de sintaxe aprovadas; testes responsivos Playwright concluídos em 24 larguras de 320 a 1920 px.
 - Banco Supabase: **ACTIVE_HEALTHY**; seis versões de migração registradas no histórico remoto; versão `20261119022341` sem arquivo correspondente na `main`.
 - RLS habilitado em todas as tabelas verificadas dos schemas `public` e `private`.
 - As políticas públicas permitem leitura do próprio perfil e dos próprios pedidos; a atualização de perfil mantém `USING` e `WITH CHECK` vinculados a `auth.uid()`.
@@ -106,7 +106,7 @@ O pedido inclui o endereço escolhido no checkout. Quando o cliente escolhe ende
 - Security Advisor: cinco avisos INFO em tabelas privadas sem políticas (intencionais porque o schema `private` não concede USAGE a `anon`/`authenticated`) e um WARN para proteção contra senhas vazadas desabilitada. As quatro funções `SECURITY DEFINER` verificadas têm ACL somente para `postgres`/`service_role` e `search_path` fixo.
 - Health Advisor: nenhum alerta. Schema `private`: sem USAGE para `anon` e `authenticated`; políticas públicas verificadas permanecem vinculadas a `auth.uid()`.
 - Performance Advisor: seis índices ainda sem uso observado. Não os remova sem avaliar tráfego e consultas reais.
-- Runtime Errors da Vercel: nenhum erro na janela consultada de 30 minutos.
+- Runtime Errors da Vercel: nenhuma ocorrência retornada na consulta anterior de 1 hora; isso não substitui testes ponta a ponta.
 - A suíte `node tools/test_auth.js` e o workflow `.github/workflows/auth-check.yml` existem no repositório, mas não foi encontrada execução associada ao commit de produção nesta consulta. Não declarar os testes automatizados como aprovados sem executá-los.
 - Não foi realizado teste ponta a ponta com conta real nesta revisão.
 
