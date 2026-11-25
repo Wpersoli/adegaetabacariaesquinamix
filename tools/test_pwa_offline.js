@@ -38,7 +38,7 @@ const check = (cond, msg) => { cond ? (ok++, console.log('   ✓ ' + msg)) : (ba
       cards: document.querySelectorAll('#grid .prod-card').length,
       title: document.title
     }));
-    check(state.path.replace(/\\/+$/, '') === '/produtos', 'URL limpa preservada');
+    check(state.path.replace(/\/+$/, '') === '/produtos', 'URL limpa preservada');
     check(state.cards > 0, 'catálogo renderizado sem conexão');
   }
   check(!errors.length, 'sem erros JavaScript: ' + errors.join('; '));
