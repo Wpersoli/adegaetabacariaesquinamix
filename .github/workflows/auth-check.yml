@@ -39,3 +39,4 @@ jobs:
             sleep 1
           done
           node tools/validar_responsivo.js http://127.0.0.1:8080
+          node tools/validar_produtos_responsivo.js http://127.0.0.1:8080
