@@ -19,7 +19,12 @@ async function ready(p){await p.waitForFunction(()=>!document.querySelector('#es
   check(await p.locator('#vitrine [data-showcase-product]').count()===5,v.w+'px cinco destaques renderizados');
   check(await p.locator('#vitrine img').evaluateAll(a=>a.every(i=>i.complete&&i.naturalWidth>0)),v.w+'px imagens da vitrine carregadas');
   check(await p.evaluate(()=>{const s=document.querySelector('#vitrine'),r=s.getBoundingClientRect(),i=s.querySelector('.showcase__inner').getBoundingClientRect();return r.left>=-1&&r.right<=innerWidth+1&&i.left>=-1&&i.right<=innerWidth+1&&document.documentElement.scrollLeft===0}),v.w+'px vitrine contida na viewport sem deslocamento horizontal');
-  if(v.w<=600)check(await p.locator('#showcaseRail').evaluate(e=>e.scrollWidth>e.clientWidth),v.w+'px carrossel horizontal funcional');
+  if(v.w<=600){
+    check(await p.locator('#showcaseRail').evaluate(e=>e.scrollWidth>e.clientWidth),v.w+'px carrossel horizontal funcional');
+    await p.locator('[data-showcase-page="1"]').click();await p.waitForTimeout(260);
+    check(await p.locator('#showcaseRail').evaluate(e=>e.scrollLeft>0),v.w+'px indicador navega para o próximo destaque');
+    await p.locator('[data-showcase-page="0"]').click();await p.waitForTimeout(260);
+  }
   await p.locator('#vitrine [data-add-product="30"]').click();
   check((await p.locator('#cartCount').innerText()).includes('1'),v.w+'px vitrine adiciona à sacola compartilhada');
   await p.evaluate(()=>document.dispatchEvent(new Event('cart:clear')));
