@@ -19,7 +19,7 @@ create table if not exists private.pending_registration (
   full_name text not null check (char_length(full_name) between 5 and 120),
   birth_date date not null,
   cpf_hash text not null check (cpf_hash ~ '^[0-9a-f]{64}$'),
-  phone_e164 text not null check (phone_e164 ~ '^\\+55[1-9][0-9][2-9][0-9]{7,8}$'),
+  phone_e164 text not null check (phone_e164 ~ '^\+55[1-9][0-9][2-9][0-9]{7,8}$'),
   created_at timestamptz not null default now()
 );
 alter table private.pending_registration enable row level security;
@@ -93,7 +93,7 @@ begin
   if p_user_id is null or p_full_name is null or char_length(trim(p_full_name)) < 5
      or p_birth_date is null or p_cpf_hash is null or p_cpf_hash !~ '^[0-9a-f]{64}$'
      or p_phone_e164 is null
-     or p_phone_e164 !~ '^\\+55[1-9][0-9][2-9][0-9]{7,8}$' then
+     or p_phone_e164 !~ '^\+55[1-9][0-9][2-9][0-9]{7,8}$' then
     raise exception 'INVALID_PROFILE' using errcode = '22023';
   end if;
 
