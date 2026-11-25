@@ -40,14 +40,14 @@ expected_migrations=(
   "20261118023925_store_event_aggregation.sql"
   "20261119022341_pending_registration_and_hardening.sql"
 )
-actual_migrations="$(find supabase/migrations -maxdepth 1 -type f -name '*.sql' -printf '%f\\n' | sort)"
-expected_list="$(printf '%s\\n' "${expected_migrations[@]}" | sort)"
+actual_migrations="$(find supabase/migrations -maxdepth 1 -type f -name '*.sql' -printf '%f\n' | sort)"
+expected_list="$(printf '%s\n' "${expected_migrations[@]}" | sort)"
 if [[ "$actual_migrations" != "$expected_list" ]]; then
   echo "Migration directory does not match the six versions recorded in production." >&2
   echo "Expected:" >&2
-  printf '%s\\n' "$expected_list" >&2
+  printf '%s\n' "$expected_list" >&2
   echo "Found:" >&2
-  printf '%s\\n' "$actual_migrations" >&2
+  printf '%s\n' "$actual_migrations" >&2
   exit 1
 fi
 
