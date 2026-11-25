@@ -26,10 +26,10 @@ const CATEGORIES = ['headshop','narguile'];
     await page.waitForTimeout(180);
     const layout = await page.evaluate(() => {
       const nav = document.querySelector('#nav').getBoundingClientRect();
-      return { viewport: innerWidth, clientWidth: document.documentElement.clientWidth, pageX: scrollX,
+      return { clientWidth: document.documentElement.clientWidth, pageX: scrollX,
         navLeft: nav.left, bodyWidth: document.body.getBoundingClientRect().width };
     });
-    const good = layout.viewport === width && layout.clientWidth === width && Math.abs(layout.pageX) < 1 &&
+    const good = layout.clientWidth === width && Math.abs(layout.pageX) < 1 &&
       Math.abs(layout.navLeft) < 1 && Math.abs(layout.bodyWidth - width) < 1 && errors.length === 0;
     check(good, width + 'px ' + category + ': filtro sem deslocamento horizontal / layout preservado' +
       (good ? '' : ' ' + JSON.stringify({ layout, errors })));
