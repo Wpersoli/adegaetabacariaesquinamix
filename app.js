@@ -100,8 +100,8 @@ function cardEl(x){
   var c=document.createElement('article');c.className='prod-card';
   c.innerHTML='<div class="prod-filete"></div>'+(x.promo?'<span class="prod-tag">Promo</span>':'')+'<div class="prod-img'+(x.img?' prod-img--foto':'')+'"><img src="'+(x.img||'assets/logo.webp')+'" alt="" width="'+(x.img?800:120)+'" height="'+(x.img?800:120)+'" loading="lazy"></div><p class="prod-cat"></p><h3 class="prod-name"></h3><div class="prod-price"></div><button class="prod-buy">Comprar →</button>';
   c.querySelector('.prod-cat').textContent=names[x.cat];c.querySelector('.prod-name').textContent=x.n;c.querySelector('img').alt=x.img?x.n:'';c.querySelector('.prod-price').textContent=brl(x.p);
-  var buy=c.querySelector('.prod-buy');buy.setAttribute('aria-label','Adicionar '+x.n+' à sacola');
-  buy.onclick=function(){add(x.id);buy.textContent='Adicionado ✓';clearTimeout(buy.t);buy.t=setTimeout(function(){buy.textContent='Comprar →'},1200)};
+  var buy=c.querySelector('.prod-buy');buy.setAttribute('aria-label','Comprar — adicionar '+x.n+' à sacola');
+  buy.onclick=function(){add(x.id);buy.textContent='Adicionado ✓';buy.setAttribute('aria-label','Adicionado — '+x.n+' na sacola');clearTimeout(buy.t);buy.t=setTimeout(function(){buy.textContent='Comprar →';buy.setAttribute('aria-label','Comprar — adicionar '+x.n+' à sacola')},1200)};
   return c}
 function shelfEl(sh){
   var s=document.createElement('section');s.className='shelf';
@@ -136,7 +136,7 @@ function sync(open){
     bp.onclick=function(){add(x.id)};
     br.onclick=function(){delete cart[x.id];sync()};
     ul.appendChild(li)});
-  $('badge').textContent=n;$('total').textContent=brl(t);$('send').disabled=!n;$('cartBtn').setAttribute('aria-label','Abrir sacola ('+n+(n===1?' item':' itens')+')');
+  $('badge').textContent=n;$('total').textContent=brl(t);$('send').disabled=!n;
   save('emCart',JSON.stringify(cart));
   document.dispatchEvent(new CustomEvent('cart:sync',{detail:{n:n,t:t}}));
   if(open)toggle(true)}
@@ -330,10 +330,10 @@ var reviews=[];
   var tr=$('rankTrack');
   topIds.forEach(function(id,i){var x=catalog.filter(function(c){return c.id===id})[0];if(!x)return;
     var a=document.createElement('button');a.className='rank-card';
-    a.innerHTML='<b class="rank-n"></b><img src="assets/logo.webp" alt="" width="64" height="64" loading="lazy"><span class="rank-i"><small></small><strong></strong><em></em></span>';
+    a.innerHTML='<b class="rank-n"></b><img src="assets/logo.webp" alt="" width="64" height="64" loading="lazy"><span class="rank-i"><small></small><strong></strong><em></em></span><span class="sr-only">Adicionar à sacola</span>';
     a.querySelector('.rank-n').textContent=('0'+(i+1)).slice(-2);a.querySelector('small').textContent=names[x.cat];
     a.querySelector('strong').textContent=x.n;a.querySelector('em').textContent=brl(x.p);
-    a.setAttribute('aria-label','Adicionar '+x.n+' à sacola');a.onclick=function(){add(x.id)};tr.appendChild(a)});
+    a.onclick=function(){add(x.id)};tr.appendChild(a)});
   var d=0,sx=0,sl=0;
   tr.addEventListener('pointerdown',function(e){if(e.pointerType!=='mouse')return;d=1;sx=e.clientX;sl=tr.scrollLeft;tr.classList.add('is-grabbing')});
   window.addEventListener('pointermove',function(e){if(d)tr.scrollLeft=sl-(e.clientX-sx)});
