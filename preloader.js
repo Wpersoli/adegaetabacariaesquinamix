@@ -1,5 +1,5 @@
 /* Esquina Mix — abertura (preloader) + loader de transição.
-   • Abertura: só controla a saída; a animação é toda CSS e termina em ~6 s.
+   • Abertura: animação curta em CSS; libera a navegação em ~1,4 s.
    • Loader de transição: barra de cerveja + caneca em laço, mostrado quando o usuário troca de
      página/tela e é preciso aguardar (links internos, recarregar, mapa/iframes, imagens da tela).
      Só aparece se a espera passar de ~0,2 s e fica no mínimo ~0,7 s para não piscar.
@@ -26,8 +26,8 @@
     var fill=el.querySelector('.pl__fill');
     if(fill){
       fill.addEventListener('animationend',function(e){if(e.animationName==='plFill')finish()});
-      setTimeout(finish,6200);
-    }else setTimeout(finish,6000);
+      setTimeout(finish,2600);
+    }else setTimeout(finish,2400);
   }
 
   /* ---------- loader de transição ---------- */
