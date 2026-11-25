@@ -13,6 +13,8 @@ async function ready(p){await p.waitForFunction(()=>!document.querySelector('#es
   p.on('pageerror',e=>errs.push(e.message));
   p.on('response',r=>{if(r.status()>=500)http.push(r.status()+' '+r.url())});
   await p.goto(BASE+'/',{waitUntil:'networkidle'});await ready(p);await p.locator('#yes').click();
+  await p.locator('#vitrine').scrollIntoViewIfNeeded();
+  await p.waitForFunction(()=>Array.from(document.querySelectorAll('#vitrine img')).every(i=>i.complete&&i.naturalWidth>0),{timeout:10000});
   check(await p.locator('#vitrine').isVisible(),v.w+'px vitrine aparece');
   check(await p.locator('#vitrine [data-showcase-product]').count()===5,v.w+'px cinco destaques renderizados');
   check(await p.locator('#vitrine img').evaluateAll(a=>a.every(i=>i.complete&&i.naturalWidth>0)),v.w+'px imagens da vitrine carregadas');
@@ -21,6 +23,7 @@ async function ready(p){await p.waitForFunction(()=>!document.querySelector('#es
   await p.locator('#vitrine [data-add-product="30"]').click();
   check((await p.locator('#cartCount').innerText()).includes('1'),v.w+'px vitrine adiciona à sacola compartilhada');
   await p.evaluate(()=>document.dispatchEvent(new Event('cart:clear')));
+  await p.evaluate(()=>scrollTo(0,0));
   if(v.m){
    await p.click('#menuBtn');await p.waitForTimeout(180);
    check(await p.locator('#mnav').evaluate(e=>e.classList.contains('is-open')),v.w+'px menu abre');
