@@ -19,10 +19,13 @@ const check = (cond, msg) => { cond ? (ok++, console.log('   ✓ ' + msg)) : (ba
   await page.reload();
   await page.waitForFunction(() => !!navigator.serviceWorker.controller, { timeout: 10000 });
   const cached = await page.evaluate(async () => {
-    const c = await caches.open('esquina-mix-v27');
+    const sw = await fetch('/sw.js').then(r => r.text());
+    const version = (sw.match(/var VERSAO='([^']+)'/) || [])[1];
+    if (!version) throw new Error('Versão do cache não encontrada em sw.js');
+    const c = await caches.open(version);
     const product = await c.match(new URL('/produtos.html', location.origin).href);
     const hero = await c.match(new URL('/assets/hero-promo-desktop.webp', location.origin).href);
-    return { product: !!product, hero: !!hero };
+    return { version, product: !!product, hero: !!hero };
   });
   check(cached.product, 'produtos.html incluído no pré-cache');
   check(cached.hero, 'banner promocional incluído no pré-cache');

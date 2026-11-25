@@ -16,16 +16,16 @@ async function ready(p){await p.waitForFunction(()=>!document.querySelector('#es
   await p.locator('#vitrine').scrollIntoViewIfNeeded();
   await p.waitForFunction(()=>Array.from(document.querySelectorAll('#vitrine img')).every(i=>i.complete&&i.naturalWidth>0),{timeout:10000});
   check(await p.locator('#vitrine').isVisible(),v.w+'px vitrine aparece');
-  check(await p.locator('#vitrine [data-showcase-product]').count()===5,v.w+'px cinco destaques renderizados');
+  check(await (await p.locator('#vitrineFeature').count())===1&&(await p.locator('#vitrineList .prod-card').count())===4,v.w+'px cinco destaques renderizados');
   check(await p.locator('#vitrine img').evaluateAll(a=>a.every(i=>i.complete&&i.naturalWidth>0)),v.w+'px imagens da vitrine carregadas');
-  check(await p.evaluate(()=>{const s=document.querySelector('#vitrine'),r=s.getBoundingClientRect(),i=s.querySelector('.showcase__inner').getBoundingClientRect();return r.left>=-1&&r.right<=innerWidth+1&&i.left>=-1&&i.right<=innerWidth+1&&document.documentElement.scrollLeft===0}),v.w+'px vitrine contida na viewport sem deslocamento horizontal');
+  check(await p.evaluate(()=>{const s=document.querySelector('#vitrine'),r=s.getBoundingClientRect(),i=s.querySelector('.wrap').getBoundingClientRect();return r.left>=-1&&r.right<=innerWidth+1&&i.left>=-1&&i.right<=innerWidth+1&&document.documentElement.scrollLeft===0}),v.w+'px vitrine contida na viewport sem deslocamento horizontal');
   if(v.w<=600){
-    check(await p.locator('#showcaseRail').evaluate(e=>e.scrollWidth>e.clientWidth),v.w+'px carrossel horizontal funcional');
-    await p.locator('[data-showcase-page="1"]').click();await p.waitForTimeout(260);
-    check(await p.locator('#showcaseRail').evaluate(e=>e.scrollLeft>0),v.w+'px indicador navega para o próximo destaque');
-    await p.locator('[data-showcase-page="0"]').click();await p.waitForTimeout(260);
+    check(await p.locator('#vitrineList').evaluate(e=>e.scrollWidth>e.clientWidth),v.w+'px carrossel horizontal funcional');
+    await p.locator('#vitrineDots .vitrine__dot:nth-child(2)').click();await p.waitForTimeout(260);
+    check(await p.locator('#vitrineList').evaluate(e=>e.scrollLeft>0),v.w+'px indicador navega para o próximo destaque');
+    await p.locator('#vitrineDots .vitrine__dot:nth-child(1)').click();await p.waitForTimeout(260);
   }
-  await p.locator('#vitrine [data-add-product="30"]').click();
+  await p.locator('#vitrineFeature .vitrine__buy').click();
   check((await p.locator('#cartCount').innerText()).includes('1'),v.w+'px vitrine adiciona à sacola compartilhada');
   await p.evaluate(()=>document.dispatchEvent(new Event('cart:clear')));
   await p.evaluate(()=>scrollTo(0,0));
