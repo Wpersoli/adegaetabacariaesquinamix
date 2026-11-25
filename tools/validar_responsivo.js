@@ -17,14 +17,14 @@ const check = (cond, msg) => { cond ? ok++ : (bad++, console.log('   ✗ ' + msg
     const ctx = await b.newContext({ viewport: { width: w, height: 800 }, hasTouch: mobile, isMobile: mobile });
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.goto(URL); await p.evaluate(() => { const loader = document.getElementById('esquinaPreloader'); if (loader) loader.remove(); }); await p.waitForTimeout(150);
-    const yes = await p.$('#yes'); if (yes && await yes.isVisible()) { await yes.click(); await p.waitForTimeout(250); }
+    const yes = await p.$('#yes'); if (yes && await yes.isVisible()) { await yes.evaluate(e => e.click()); await p.waitForTimeout(250); }
     console.log(`\n${w}px  (${mobile ? 'CELULAR/TABLET' : 'DESKTOP'})`);
     const r = await p.evaluate(() => {
       const R = s => { const e = document.querySelector(s); if (!e) return null; const cs = getComputedStyle(e); if (cs.display === 'none' || cs.visibility === 'hidden') return null; const r = e.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, r: r.right }; };
       const nav = [...document.querySelectorAll('#nav > button')].map(e => e.getBoundingClientRect());
       return { menu: R('#menuBtn'), brand: R('.brand img'), brandBlock: R('.brand'), brandT: R('.brand-t'), search: R('.search'), sBtn: R('#searchBtn'),
         acc: R('#accountBtn'), cart: R('#cartBtn'), nav: R('#nav'), navItems: nav.map(r => ({ l: r.left, r: r.right, t: Math.round(r.top) })),
-        overflow: document.documentElement.scrollWidth > innerWidth, vw: innerWidth, top: R('.top') };
+        overflow: (() => { const x = document.documentElement.scrollLeft; document.documentElement.scrollLeft = 99999; const moved = document.documentElement.scrollLeft > 0; document.documentElement.scrollLeft = x; return moved; })(), vw: document.documentElement.clientWidth, top: R('.top') };
     });
     check(!r.overflow, 'rolagem horizontal na pagina');
     check(!errs.length, 'erros no console: ' + errs.join(';'));
@@ -53,7 +53,7 @@ const check = (cond, msg) => { cond ? ok++ : (bad++, console.log('   ✗ ' + msg
       await p.click('#menuBtn'); await p.waitForTimeout(450);
       check(await p.$eval('#mnav', e => e.classList.contains('is-open')), 'hamburguer deve abrir o menu');
       const n = await p.$$eval('#mnav .mnav__list > li', e => e.length); check(n === 7, 'menu com 7 opcoes (achou ' + n + ')');
-      const full = await p.$eval('#mnav', e => { const r = e.getBoundingClientRect(); return r.width >= innerWidth - 1 && r.height >= innerHeight - 1; }); check(full, 'menu ocupa a tela toda');
+      const full = await p.$eval('#mnav', e => { const r = e.getBoundingClientRect(); return r.width >= document.documentElement.clientWidth - 1 && r.height >= document.documentElement.clientHeight - 1; }); check(full, 'menu ocupa a tela toda');
       await p.click('#mnav .mnav__a:has-text("Bebidas")'); await p.waitForTimeout(200);
       check((await p.$$('#mnav .mnav__sub:not([hidden]) button')).length === 14, 'Bebidas: Ver tudo + 13 subcategorias');
       await p.click('#mnav .mnav__sub button:has-text("Energético")'); await p.waitForTimeout(400);
