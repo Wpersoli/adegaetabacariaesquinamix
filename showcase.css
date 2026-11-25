@@ -93,3 +93,21 @@
  .showcase::before,.showcase__featured,.showcase__product{animation:none!important}
  .showcase__all,.showcase__buy,.showcase__hero-image img,.showcase__product-image img,.showcase__dots button{transition:none!important}
 }
+
+/* Ajuste fino de preços e ações: valores nunca quebram em múltiplas linhas. */
+@media (max-width:600px){
+ .showcase__featured-bottom{display:flex;align-items:center;flex-wrap:nowrap;gap:clamp(8px,2.5vw,12px)}
+ .showcase__featured-bottom strong{flex:1 1 auto;min-width:0;max-width:none;font-size:clamp(21px,6.8vw,30px);line-height:1;letter-spacing:-.045em;white-space:nowrap;overflow-wrap:normal;word-break:keep-all;font-variant-numeric:tabular-nums}
+ .showcase__buy--gold{flex:0 0 auto;min-width:clamp(108px,32vw,126px);padding-inline:clamp(8px,2.5vw,12px)}
+ .showcase__product-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:4px;min-width:0}
+ .showcase__product-bottom strong{display:block;flex:1 1 auto;min-width:0;max-width:100%;font-size:clamp(11px,3.4vw,14px);line-height:1;letter-spacing:-.045em;white-space:nowrap;overflow-wrap:normal;word-break:keep-all;font-variant-numeric:tabular-nums}
+ .showcase__product-bottom .showcase__buy{display:inline-flex;flex:0 0 clamp(48px,15vw,64px);width:clamp(48px,15vw,64px);min-width:0;min-height:40px;padding:6px 3px;font-size:clamp(8px,2.4vw,10px);letter-spacing:-.025em;white-space:nowrap}
+}
+@media (max-width:360px){
+ .showcase__product{padding:8px}
+ .showcase__product-bottom{gap:3px}
+ .showcase__product-bottom strong{font-size:clamp(10.5px,3.3vw,12px);letter-spacing:-.05em}
+ .showcase__product-bottom .showcase__buy{flex-basis:46px;width:46px;padding-inline:2px;font-size:8px}
+ .showcase__featured-bottom strong{font-size:clamp(20px,6.4vw,25px)}
+ .showcase__buy--gold{min-width:104px}
+}
