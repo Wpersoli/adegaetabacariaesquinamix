@@ -98,6 +98,7 @@ module.exports = async function (req, res) {
   try {
     A.method(req, ['GET', 'POST', 'PATCH']);
     if (req.method === 'PATCH') return await updateStatus(req, res);
+    if (req.method === 'POST' && !A.sameOrigin(req)) return A.send(res, 403, { code: 'ORIGIN_NOT_ALLOWED' });
     const c = A.config();
     const user = await A.currentUser(req, res, c);
     if (!user) return A.send(res, 401, { code: 'UNAUTH' });

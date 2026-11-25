@@ -3,6 +3,7 @@ const A=require('../../lib/esquina-auth');
 module.exports=async function(req,res){
   try{
     A.method(req,['PUT']);
+    if(!A.sameOrigin(req)) return A.send(res,403,{code:'ORIGIN_NOT_ALLOWED'});
     const c=A.config(),d=await A.body(req),jar=A.cookies(req);
     const password=String(d.password||'');
     if(password.length<8||!/[A-Za-z]/.test(password)||!/\d/.test(password)) return A.send(res,400,{code:'WEAK_PASSWORD'});

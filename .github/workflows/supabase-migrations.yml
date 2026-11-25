@@ -16,9 +16,13 @@ on:
       - "tools/test_supabase_migrations.sh"
       - ".github/workflows/supabase-migrations.yml"
 
+permissions:
+  contents: read
+
 jobs:
   migration-integration:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     services:
       postgres:
         image: postgres:16
@@ -36,7 +40,9 @@ jobs:
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/esquina_test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
       - name: Install PostgreSQL client
         run: |
           sudo apt-get update

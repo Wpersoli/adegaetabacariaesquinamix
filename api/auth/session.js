@@ -3,6 +3,7 @@ const A=require('../../lib/esquina-auth');
 module.exports=async function(req,res){
   try{
     A.method(req,['POST']);
+    if(!A.sameOrigin(req)) return A.send(res,403,{code:'ORIGIN_NOT_ALLOWED'});
     const c=A.config(),d=await A.body(req);
     if(d.action==='profile'){
       const jar=A.cookies(req),user=await A.currentUser(req,res,c),access=req.esquinaAccessToken||jar.esquina_access;

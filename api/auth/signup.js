@@ -3,6 +3,7 @@ const A = require('../../lib/esquina-auth');
 module.exports = async function(req, res) {
   try {
     A.method(req, ['POST']);
+    if(!A.sameOrigin(req)) return A.send(res,403,{code:'ORIGIN_NOT_ALLOWED'});
     const c = A.config();
     const d = await A.body(req);
     const name = String(d.name || '').trim().replace(/\s+/g, ' ');
