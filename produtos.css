@@ -116,11 +116,6 @@ select.pg-in{appearance:auto;padding-right:8px}
   .pg-pg--txt span{display:none}
 }
 
-/* Esta página não tem barra inferior: desfaz os espaços reservados a ela em styles.css */
-@media(max-width:820px){
-  .pg-page footer{padding-bottom:0}
-  .pg-page .fab--wa{bottom:max(14px,env(safe-area-inset-bottom,0px))}
-}
 @media(prefers-reduced-motion:reduce){
   .pg-page .prod-card,.pg-ready .pg-shell,.pg-ready .pg-filters,.pg-ready .pg-tab,.pg-tab svg,.pg-pg{transition:none!important}
 }
@@ -129,10 +124,6 @@ select.pg-in{appearance:auto;padding-right:8px}
 a.mnav__a{text-decoration:none}
 .mnav__a[aria-current="true"]{color:var(--gold)}
 .pg-filters{touch-action:pan-y}
-
-/* Botão "Voltar ao topo" desta página (sem a barra inferior da home, fica logo acima do WhatsApp) */
-.pg-page .fab--top{bottom:calc(max(16px,env(safe-area-inset-bottom,0px)) + 70px)}
-@media(max-width:600px){.pg-page .fab--top{bottom:calc(max(14px,env(safe-area-inset-bottom,0px)) + 66px)}}
 
 /* Filtros em destaque logo abaixo do título do catálogo */
 .pg-category-chips{margin:0 0 22px;gap:9px}

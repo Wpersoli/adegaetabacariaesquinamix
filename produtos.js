@@ -294,4 +294,15 @@ document.addEventListener('cart:add',function(){hold=Date.now()+1500;barShow()})
 if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
 
 readCart();fromUrl();sync_inputs();render();sync();
+
+/* Barra flutuante inferior (celulares): mesma barra da home — início, busca, como chegar, whatsapp e produtos */
+(function(){
+  var mbar=document.getElementById('mbar');if(!mbar)return;
+  var mq=window.matchMedia('(max-width:820px)'),s=mbar.querySelector('[data-act="search"]');
+  function syncSearch(){if(s)s.setAttribute('aria-expanded',top.classList.contains('is-search')?'true':'false')}
+  if(s)s.addEventListener('click',function(){sb.click()});
+  if(window.MutationObserver)new MutationObserver(syncSearch).observe(top,{attributes:true,attributeFilter:['class']});
+  document.addEventListener('focusin',function(e){if(mq.matches&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))mbar.classList.add('is-kb')});
+  document.addEventListener('focusout',function(){setTimeout(function(){var a=document.activeElement;if(!a||!/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))mbar.classList.remove('is-kb')},60)});
+})();
 })();
