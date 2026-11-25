@@ -33,7 +33,7 @@ window.addEventListener('resize',nearest,{passive:true});
     if(!Number.isInteger(id)||id<=0)return;
     document.dispatchEvent(new CustomEvent('em:cart-add',{detail:{id:id}}));
     var original=button.innerHTML,originalLabel=button.getAttribute('aria-label');
-    button.textContent='Adicionado ✓';button.setAttribute('aria-label','Produto adicionado à sacola');
+    button.textContent='Adicionado ✓';button.setAttribute('aria-label','Adicionado à sacola');
     button.disabled=true;
     window.setTimeout(function(){button.innerHTML=original;button.disabled=false;if(originalLabel)button.setAttribute('aria-label',originalLabel);else button.removeAttribute('aria-label')},1200);
   });
