@@ -13,7 +13,7 @@ const check = (cond, msg) => { cond ? ok++ : (bad++, console.log('   ✗ ' + msg
     const context = await browser.newContext({ viewport: { width, height: 800 }, hasTouch: mobile, isMobile: mobile });
     const page = await context.newPage(), errors = [];
     page.on('pageerror', e => errors.push(e.message));
-    await page.goto(new URL('/produtos', BASE).toString());
+    await page.goto(new URL('/produtos.html', BASE).toString());
     await page.evaluate(() => { const loader = document.getElementById('esquinaPreloader'); if (loader) loader.remove(); });
     const age = await page.$('#yes');
     if (age && await age.isVisible()) { await age.click(); await page.waitForTimeout(200); }
