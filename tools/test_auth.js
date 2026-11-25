@@ -308,3 +308,16 @@ assert.ok(!app.includes('Sabrina Duque') && !app.includes('Ulisses Gomes') && !a
 assert.ok(app.includes('var reviews=[];'));
 assert.ok(index.includes('Explore a <span class="hl">variedade</span>'));
 assert.ok(!index.includes('Mais vendidos da') && !index.includes('+80</b> Avaliações verificadas') && !index.includes('Nota 5,0 de 5'));
+
+/* Transparência comercial: preços demonstrativos devem ser identificados como referência. */
+const homePriceDisclosure = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const productsPriceDisclosure = fs.readFileSync(path.join(root, 'produtos.html'), 'utf8');
+const orderPriceDisclosure = fs.readFileSync(path.join(root, 'pedido.js'), 'utf8');
+for (const markup of [homePriceDisclosure, productsPriceDisclosure]) {
+  assert.ok(markup.includes('price-disclaimer'));
+  assert.ok(markup.includes('cart-estimate-note'));
+  assert.ok(markup.includes('Total estimado'));
+}
+assert.ok(orderPriceDisclosure.includes('VALORES DE REFERÊNCIA'));
+assert.ok(orderPriceDisclosure.includes('TOTAL ESTIMADO (REFERÊNCIA)'));
+assert.ok(orderPriceDisclosure.includes('valor final a confirmar pela loja'));

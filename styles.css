@@ -828,3 +828,9 @@ html.au-lock .home-filter-tab,html.au-lock .pg-tab{display:none!important}
   .brand img{width:var(--lh);height:auto}
 }
 @media(max-width:339px){.brand-wm{display:none}}
+
+/* Transparência comercial: preços do catálogo são referências até a confirmação da loja. */
+.price-disclaimer,.cart-estimate-note{margin:0 0 14px;padding:10px 13px;border-left:3px solid var(--gold);background:rgba(245,184,46,.08);color:var(--cream);font:500 13px/1.45 "DM Sans",sans-serif}
+.price-disclaimer{border-radius:0 9px 9px 0}
+.cart-estimate-note{margin:0 0 10px;font-size:12px}
+@media(max-width:600px){.price-disclaimer{font-size:12px;padding:9px 11px}.cart-estimate-note{font-size:11px}}

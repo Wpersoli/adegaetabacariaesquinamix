@@ -52,7 +52,7 @@ function paintCash(){
   var cash=st.pay==='Dinheiro';
   $('ckCash').hidden=!cash;
   $('ckChangeBox').hidden=!(cash&&st.change==='sim');
-  var h=$('ckChangeHint');if(h)h.textContent='Total do pedido: '+brl(st.total)}
+  var h=$('ckChangeHint');if(h)h.textContent='Total estimado (referência): '+brl(st.total)}
 function resetCheckout(){
   st.pay='';st.change='';
   [].forEach.call(document.querySelectorAll('#checkout input[type=radio]'),function(r){r.checked=false});
@@ -165,15 +165,14 @@ function build(items,phone,changeFor,stp,address){
   l.push('Nome: '+(custName()||'Não informado'));
   l.push('Telefone: '+maskPhone(phone));
   l.push('Endereço de entrega: '+(address||'Não informado'));
-  l.push(LINE,'*ITENS*');
+  l.push(LINE,'⚠️ *VALORES DE REFERÊNCIA*','Preço final, disponibilidade e condições serão confirmados pela loja antes da aceitação do pedido.',LINE,'*ITENS*');
   items.forEach(function(x,i){var sub=r2(x.q*x.p);total=r2(total+sub);qty+=x.q;
-    l.push(('0'+(i+1)).slice(-2)+') '+x.q+'x '+x.n,'      '+x.q+' × '+brl(x.p)+' = *'+brl(sub)+'*')});
-  l.push(LINE,'Qtde. de itens: '+qty,'*TOTAL: '+brl(total)+'*',LINE,'*PAGAMENTO*','Forma: '+st.pay);
+    l.push(('0'+(i+1)).slice(-2)+') '+x.q+'x '+x.n,'      Unitário ref. '+brl(x.p)+' · subtotal ref. *'+brl(sub)+'*')});
+  l.push(LINE,'Qtde. de itens: '+qty,'*TOTAL ESTIMADO (REFERÊNCIA): '+brl(total)+'*',LINE,'*PAGAMENTO*','Forma: '+st.pay);
   if(st.pay==='Dinheiro'){
-    if(st.change==='sim'&&changeFor>total+0.004){l.push('Troco: Sim, para '+brl(changeFor),'Valor do troco: *'+brl(r2(changeFor-total))+'*')}
-    else if(st.change==='sim'){l.push('Troco: Não precisa (valor exato)')}
+    if(st.change==='sim')l.push('Troco solicitado para '+brl(changeFor)+' (valor final a confirmar pela loja)');
     else l.push('Troco: Não precisa')}
-  l.push(LINE,'Aguardo a confirmação do pedido. Obrigado!');
+  l.push(LINE,'Pedido sujeito à confirmação de preço, estoque, entrega e maioridade pela loja. Obrigado!');
   return l.join('\n')}
 
 function send(items){
