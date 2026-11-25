@@ -121,7 +121,6 @@ function drawHomePages(total){var box=$('homePages');if(!box)return;box.textCont
 
 /* Sacola */
 function add(id){cart[id]=Math.min((cart[id]||0)+1,99);sync();document.dispatchEvent(new Event('cart:add'));if($('badge').animate)$('badge').animate([{transform:'scale(1.5)'},{transform:'scale(1)'}],{duration:250})}
-document.addEventListener('em:cart-add',function(e){var id=Number(e.detail&&e.detail.id);if(Number.isInteger(id)&&catalog.some(function(x){return x.id===id}))add(id)});
 function sync(open){
   var n=0,t=0,ul=$('items');ul.textContent='';
   catalog.forEach(function(x){var q=cart[x.id];if(!q)return;n+=q;t+=q*x.p;
@@ -363,6 +362,59 @@ var reviews=[];
       c.querySelector('strong').textContent=v.n;c.querySelector('small').textContent=v.t;c.querySelector('p').textContent=v.x;rt.appendChild(c)});
     if(reviews.length)slide(rt);
   }
+})();
+/* Vitrine da esquina: destaque da semana + grade de produtos (NOVA SEÇÃO). EDITE os ids abaixo para trocar os destaques */
+var vitrineFeaturedId=30,vitrineIds=[32,31,35,20];
+(function(){
+  var feat=$('vitrineFeature');
+  if(feat){
+    var f=catalog.filter(function(c){return c.id===vitrineFeaturedId})[0];
+    if(f){
+      var im=feat.querySelector('img');im.src=f.img||'assets/logo.webp';im.alt=f.n;
+      feat.querySelector('.vitrine__cat').textContent=names[f.cat];
+      feat.querySelector('.vitrine__name').textContent=f.n;
+      feat.querySelector('.vitrine__price').textContent=brl(f.p);
+      var fbuy=feat.querySelector('.vitrine__buy');
+      fbuy.setAttribute('aria-label','Comprar — adicionar '+f.n+' à sacola');
+      fbuy.onclick=function(){add(f.id);fbuy.textContent='Adicionado ✓';fbuy.setAttribute('aria-label','Adicionado — '+f.n+' na sacola');clearTimeout(fbuy.t);fbuy.t=setTimeout(function(){fbuy.textContent='Comprar →';fbuy.setAttribute('aria-label','Comprar — adicionar '+f.n+' à sacola')},1200)};
+    }else{feat.hidden=true}
+  }
+  var vl=$('vitrineList');
+  if(vl){
+    vitrineIds.forEach(function(id){var x=catalog.filter(function(c){return c.id===id})[0];if(x)vl.appendChild(cardEl(x))});
+    [].forEach.call(vl.children,function(c,i){c.style.setProperty('--i',i)});
+    var d=0,sx=0,sl=0;
+    vl.addEventListener('pointerdown',function(e){if(e.pointerType!=='mouse')return;d=1;sx=e.clientX;sl=vl.scrollLeft;vl.classList.add('is-grabbing')});
+    window.addEventListener('pointermove',function(e){if(d)vl.scrollLeft=sl-(e.clientX-sx)});
+    window.addEventListener('pointerup',function(){d=0;vl.classList.remove('is-grabbing')});
+  }
+  var vd=$('vitrineDots');
+  if(vl&&vd){
+    var perView=function(){return window.innerWidth<=600?2:vitrineIds.length};
+    var pages=function(){return Math.max(1,Math.ceil(vitrineIds.length/perView()))};
+    function buildDots(){
+      vd.textContent='';var n=pages();vd.hidden=n<=1;if(n<=1)return;
+      for(var i=0;i<n;i++){
+        var b=document.createElement('button');b.type='button';b.className='vitrine__dot'+(i===0?' is-active':'');
+        b.setAttribute('role','tab');b.setAttribute('aria-selected',i===0?'true':'false');b.setAttribute('aria-label','Página '+(i+1)+' de produtos');
+        b.onclick=(function(idx){return function(){vl.scrollTo({left:idx*vl.clientWidth,behavior:'smooth'})}})(i);
+        vd.appendChild(b)}}
+    buildDots();
+    var rt2;window.addEventListener('resize',function(){clearTimeout(rt2);rt2=setTimeout(buildDots,200)});
+    vl.addEventListener('scroll',function(){
+      if(vd.hidden)return;
+      var idx=Math.round(vl.scrollLeft/(vl.clientWidth||1));
+      [].forEach.call(vd.children,function(b,i){var on=i===idx;b.classList.toggle('is-active',on);b.setAttribute('aria-selected',on?'true':'false')})});
+  }
+})();
+/* Vitrine: entrada animada ao rolar (sem IntersectionObserver ou erro => aparece normal) */
+(function(){
+  var s=document.getElementById('vitrine');if(!s)return;
+  if(!('IntersectionObserver' in window)||(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches))return;
+  s.classList.add('vt-pre');
+  var done=false,go=function(){if(done)return;done=true;s.classList.remove('vt-pre');s.classList.add('vt-in')};
+  var io=new IntersectionObserver(function(en){if(en.some(function(e){return e.isIntersecting})){go();io.disconnect()}},{threshold:.12});
+  io.observe(s);setTimeout(go,6000);
 })();
 /* Botoes flutuantes: WhatsApp (numero vem da meta esquina-whatsapp) e voltar ao topo */
 (function(){
