@@ -1,3 +1,7 @@
+-- ARCHIVED LEGACY MIGRATION: not part of the production migration history.
+-- Preserved for audit/reference only. Do not move back into supabase/migrations
+-- or apply to the active Supabase project.
+
 -- Dados editáveis da conta e endereço padrão de entrega.
 alter table public.customer_profiles
   add column if not exists delivery_address text;

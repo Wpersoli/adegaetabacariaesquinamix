@@ -1,3 +1,7 @@
+-- ARCHIVED LEGACY MIGRATION: not part of the production migration history.
+-- Preserved for audit/reference only. Do not move back into supabase/migrations
+-- or apply to the active Supabase project.
+
 -- Esquina Mix: identity/profile storage for Supabase Auth.
 -- CPF is never stored in clear text; the Vercel API stores only an HMAC-SHA256 digest.
 create schema if not exists private;

@@ -1,3 +1,7 @@
+-- ARCHIVED LEGACY MIGRATION: not part of the production migration history.
+-- Preserved for audit/reference only. Do not move back into supabase/migrations
+-- or apply to the active Supabase project.
+
 -- Esquina Mix: pedidos enviados pela sacola por clientes logados (historico + andamento).
 -- A gravacao e a leitura passam pela API do site (service_role). O cliente so le os proprios pedidos.
 create table if not exists public.customer_orders (
