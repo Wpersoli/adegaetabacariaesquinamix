@@ -5,6 +5,7 @@
 - Projeto Supabase: **adega-mix** · ref **rduwcxzegiffqgnnbhis** · região **sa-east-1** · estado **ACTIVE_HEALTHY**. Organização no plano **Free**.
 - O histórico remoto registra seis migrações aplicadas: `20261117024320`, `20261117031101`, `20261117231903`, `20261117235556`, `20261118023925` e `20261119022341`.
 - **Recuperação em andamento:** o arquivo `20261119022341_pending_registration_and_hardening.sql` foi reconstruído em branch separada a partir dos catálogos reais do banco (tabelas, constraints, índices, funções, `search_path` e ACLs). É uma reconstrução funcional do estado observado, não uma cópia byte a byte do SQL perdido; está em revisão e ainda não foi aplicada a nenhum banco.
+- **Sequência de migrations saneada na branch de recuperação:** três arquivos SQL adicionais encontrados no diretório não constam no histórico remoto. Foram retirados de `supabase/migrations/` e preservados em `docs/legacy-migrations/`. Um deles criava `customer_profiles.delivery_address` e uma RPC de perfil com cinco parâmetros — objetos ausentes na produção atual. A suíte agora exige correspondência exata com as seis versões remotas.
 - RLS está ativo nas tabelas públicas e privadas verificadas. `customer_profiles` tem duas políticas vinculadas a `auth.uid()` (SELECT e UPDATE com `USING` e `WITH CHECK`); `customer_orders` tem uma política de SELECT vinculada a `auth.uid()`.
 - O schema `private` não concede `USAGE` a `anon` nem a `authenticated`; as cinco tabelas privadas verificadas não têm políticas RLS, o que é intencional com o schema inacessível a esses papéis.
 - As quatro funções `SECURITY DEFINER` verificadas (`check_rate_limit`, `promote_pending_registration`, `stage_pending_registration`, `update_customer_profile`) usam `search_path` fixo e têm ACL de execução somente para `postgres` e `service_role`.
@@ -58,7 +59,9 @@ Não use curingas amplos. Mantenha somente URLs realmente usadas.
 
 ## 3. Modelo do banco e migrações
 
-**Atenção:** a migration `20261119022341` já está registrada como aplicada em produção. O arquivo recuperado nesta revisão reproduz os objetos observados no banco (tabelas `private.pending_registration` e `private.auth_rate_limit`, índices e RPCs de cadastro pendente/limite de tentativas), mas não é o SQL original byte a byte. Ele está em branch/PR para revisão. Não executar manualmente em produção e não alterar o histórico remoto; em uma instalação nova, validar a sequência completa das seis migrations antes de usar.
+**Atenção:** a migration `20261119022341` já está registrada como aplicada em produção. O arquivo recuperado nesta revisão reproduz os objetos observados no banco (tabelas `private.pending_registration` e `private.auth_rate_limit`, índices e RPCs de cadastro pendente/limite de tentativas), mas não é o SQL original byte a byte. Ele está em branch/PR para revisão. Não executar manualmente em produção e não alterar o histórico remoto.
+
+A pasta `supabase/migrations/` deve conter exatamente as seis versões do histórico remoto. Três arquivos legados não registrados foram arquivados em `docs/legacy-migrations/`; em especial, não aplicar a versão antiga que adicionava `delivery_address` a `customer_profiles`, pois esse campo não existe no banco ativo.
 
 - **`public.customer_profiles`**: nome, nascimento, consentimento e telefone E.164, com estado de verificação separado e RLS limitado ao próprio usuário.
 - **`public.update_customer_profile`**: RPC administrativa que sincroniza nome, nascimento e telefone em `customer_profiles` e nascimento em `private.customer_identity`. A execução está restrita a `service_role`.
@@ -99,6 +102,7 @@ O pedido inclui o endereço escolhido no checkout. Quando o cliente escolhe ende
 - Deploy de Production do commit `c82d1d69c8e89074cd35b961279ad53e33195ad8`: **READY** (verificação da revisão anterior).
 - GitHub Actions `45560563657`: **success**; verificações da home (179), catálogo (182), PWA offline (6), autenticação estática e checagens de sintaxe aprovadas; testes responsivos Playwright concluídos em 24 larguras de 320 a 1920 px.
 - Banco Supabase: **ACTIVE_HEALTHY**; seis versões de migração registradas no histórico remoto. A versão `20261119022341` foi recuperada em arquivo SQL a partir do catálogo remoto e está em revisão via PR; não foi executada em produção.
+- Três SQL legados não registrados no histórico remoto foram movidos para `docs/legacy-migrations/`; a suíte de integração verifica que apenas as seis migrations de produção permanecem no diretório executável.
 - RLS habilitado em todas as tabelas verificadas dos schemas `public` e `private`.
 - As políticas públicas permitem leitura do próprio perfil e dos próprios pedidos; a atualização de perfil mantém `USING` e `WITH CHECK` vinculados a `auth.uid()`.
 - Tabelas privadas verificadas concedem privilégios somente a `service_role`; não foi encontrado grant de tabela para `anon`, `authenticated` ou `PUBLIC`.
