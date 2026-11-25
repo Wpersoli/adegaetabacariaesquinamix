@@ -152,8 +152,8 @@ assert.ok(productChipBlock, 'Filtros do catálogo precisam existir');
 const productPositions = requestedCategories.map((label) => productChipBlock[1].indexOf('>' + label + '</button>'));
 assert.ok(productPositions.every((position) => position >= 0));
 assert.deepEqual(productPositions, [...productPositions].sort((a,b) => a-b));
-assert.match(productPage, /href="https:\/\/adegaetabacariaesquinamix\.vercel\.app\/#inicio"[^>]*aria-label="Voltar ao cardápio"/);
-assert.match(productPage, /<a class="on pink" href="https:\/\/adegaetabacariaesquinamix\.vercel\.app\/#inicio">Início<\/a>/);
+assert.match(productPage, /href="https:\/\/adegaetabacariaesquinamix\.vercel\.app\/#cardapio"[^>]*aria-label="Voltar ao cardápio"/);
+assert.match(productPage, /<a class="on pink" href="https:\/\/adegaetabacariaesquinamix\.vercel\.app\/#cardapio">Início<\/a>/);
 
 const productJs = fs.readFileSync(path.join(root, 'produtos.js'), 'utf8');
 assert.match(productJs, /location\.href='\/produtos\?ordem=az'/);
