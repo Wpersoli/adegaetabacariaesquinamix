@@ -3,6 +3,7 @@ const A=require('../../lib/esquina-auth');
 module.exports=async function(req,res){
   try{
     A.method(req,['POST']);
+    if(!A.sameOrigin(req)) return A.send(res,403,{code:'ORIGIN_NOT_ALLOWED'});
     const c=A.config(),d=await A.body(req);
     const email=String(d.email||'').trim().toLowerCase();
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return A.send(res,400,{code:'INVALID_EMAIL'});
