@@ -121,6 +121,7 @@ function drawHomePages(total){var box=$('homePages');if(!box)return;box.textCont
 
 /* Sacola */
 function add(id){cart[id]=Math.min((cart[id]||0)+1,99);sync();document.dispatchEvent(new Event('cart:add'));if($('badge').animate)$('badge').animate([{transform:'scale(1.5)'},{transform:'scale(1)'}],{duration:250})}
+document.addEventListener('em:cart-add',function(e){var id=Number(e.detail&&e.detail.id);if(Number.isInteger(id)&&catalog.some(function(x){return x.id===id}))add(id)});
 function sync(open){
   var n=0,t=0,ul=$('items');ul.textContent='';
   catalog.forEach(function(x){var q=cart[x.id];if(!q)return;n+=q;t+=q*x.p;
