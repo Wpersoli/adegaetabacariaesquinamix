@@ -4,7 +4,7 @@
 
 - Projeto Supabase: **adega-mix** · ref **rduwcxzegiffqgnnbhis** · região **sa-east-1** · estado **ACTIVE_HEALTHY**. Organização no plano **Free**.
 - O histórico remoto registra seis migrações aplicadas: `20261117024320`, `20261117031101`, `20261117231903`, `20261117235556`, `20261118023925` e `20261119022341`.
-- **Divergência de reprodutibilidade confirmada:** `20261119022341_pending_registration_and_hardening.sql` não está na branch `main`, embora a versão esteja aplicada no banco. Não renomear, reaplicar nem inventar SQL substituto; recuperar o SQL original ou gerar baseline validada antes de reconstruir ambientes.
+- **Recuperação em andamento:** o arquivo `20261119022341_pending_registration_and_hardening.sql` foi reconstruído em branch separada a partir dos catálogos reais do banco (tabelas, constraints, índices, funções, `search_path` e ACLs). É uma reconstrução funcional do estado observado, não uma cópia byte a byte do SQL perdido; está em revisão e ainda não foi aplicada a nenhum banco.
 - RLS está ativo nas tabelas públicas e privadas verificadas. `customer_profiles` tem duas políticas vinculadas a `auth.uid()` (SELECT e UPDATE com `USING` e `WITH CHECK`); `customer_orders` tem uma política de SELECT vinculada a `auth.uid()`.
 - O schema `private` não concede `USAGE` a `anon` nem a `authenticated`; as cinco tabelas privadas verificadas não têm políticas RLS, o que é intencional com o schema inacessível a esses papéis.
 - As quatro funções `SECURITY DEFINER` verificadas (`check_rate_limit`, `promote_pending_registration`, `stage_pending_registration`, `update_customer_profile`) usam `search_path` fixo e têm ACL de execução somente para `postgres` e `service_role`.
@@ -58,7 +58,7 @@ Não use curingas amplos. Mantenha somente URLs realmente usadas.
 
 ## 3. Modelo do banco e migrações
 
-**Atenção:** a branch `main` não contém o arquivo original da versão remota `20261119022341`. Portanto, não declare que as migrações locais reproduzem integralmente o banco remoto. Não renomeie arquivos nem reaplique migrations já registradas; recupere o SQL original ou produza baseline revisada antes de configurar outro ambiente.
+**Atenção:** a migration `20261119022341` já está registrada como aplicada em produção. O arquivo recuperado nesta revisão reproduz os objetos observados no banco (tabelas `private.pending_registration` e `private.auth_rate_limit`, índices e RPCs de cadastro pendente/limite de tentativas), mas não é o SQL original byte a byte. Ele está em branch/PR para revisão. Não executar manualmente em produção e não alterar o histórico remoto; em uma instalação nova, validar a sequência completa das seis migrations antes de usar.
 
 - **`public.customer_profiles`**: nome, nascimento, consentimento e telefone E.164, com estado de verificação separado e RLS limitado ao próprio usuário.
 - **`public.update_customer_profile`**: RPC administrativa que sincroniza nome, nascimento e telefone em `customer_profiles` e nascimento em `private.customer_identity`. A execução está restrita a `service_role`.
@@ -98,7 +98,7 @@ O pedido inclui o endereço escolhido no checkout. Quando o cliente escolhe ende
 
 - Deploy de Production do commit `c82d1d69c8e89074cd35b961279ad53e33195ad8`: **READY** (verificação da revisão anterior).
 - GitHub Actions `45560563657`: **success**; verificações da home (179), catálogo (182), PWA offline (6), autenticação estática e checagens de sintaxe aprovadas; testes responsivos Playwright concluídos em 24 larguras de 320 a 1920 px.
-- Banco Supabase: **ACTIVE_HEALTHY**; seis versões de migração registradas no histórico remoto; versão `20261119022341` sem arquivo correspondente na `main`.
+- Banco Supabase: **ACTIVE_HEALTHY**; seis versões de migração registradas no histórico remoto. A versão `20261119022341` foi recuperada em arquivo SQL a partir do catálogo remoto e está em revisão via PR; não foi executada em produção.
 - RLS habilitado em todas as tabelas verificadas dos schemas `public` e `private`.
 - As políticas públicas permitem leitura do próprio perfil e dos próprios pedidos; a atualização de perfil mantém `USING` e `WITH CHECK` vinculados a `auth.uid()`.
 - Tabelas privadas verificadas concedem privilégios somente a `service_role`; não foi encontrado grant de tabela para `anon`, `authenticated` ou `PUBLIC`.
@@ -113,7 +113,7 @@ O pedido inclui o endereço escolhido no checkout. Quando o cliente escolhe ende
 ## 8. Pendências operacionais e critérios de liberação
 
 - **Proteção contra senhas vazadas:** `auth_leaked_password_protection` está desabilitada. A documentação Supabase informa disponibilidade no plano Pro ou superior; a organização está no Free. Não houve upgrade nem alteração Auth. Reavaliar somente após decisão explícita sobre plano.
-- **Migração ausente no Git:** recuperar o SQL original da versão `20261119022341` ou gerar baseline validada e versionada antes de declarar o repositório totalmente reproduzível. Não aplicar SQL reconstruído por suposição ao banco já migrado.
+- **Migração recuperada:** revisar e aprovar o arquivo `20261119022341_pending_registration_and_hardening.sql` no PR antes de mesclar. A reconstrução veio do catálogo vivo e é funcionalmente orientada ao estado observado, mas não garante igualdade textual com o original perdido. Não executá-la manualmente em produção, onde a versão já consta como aplicada.
 - **Teste ponta a ponta obrigatório antes de ampliar o cadastro:** usar conta de teste dedicada para cadastro + confirmação por e-mail, login, renovação de sessão, edição de perfil, recuperação de senha/e-mail, endereço temporário e padrão no checkout, histórico de pedido, logout e exclusão da conta. Nunca usar conta real de cliente em testes destrutivos.
 - **Token administrativo de pedidos:** `ORDERS_ADMIN_TOKEN` não aparece entre as variáveis de ambiente listadas para o projeto Vercel. Sem ele, não habilitar atualização administrativa de status via API; manter o Table Editor com acesso administrativo restrito até configurar e testar o token no servidor.
 - **Catálogo comercial:** o README e `catalog.js` identificam produtos/preços demonstrativos. Substitua pelos dados confirmados pela loja antes de anunciar valores ou disponibilidade como reais. Não inventar preços, estoque, promoções, avaliações ou ranking.
