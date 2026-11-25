@@ -24,10 +24,11 @@
       setTimeout(remove,800);
     };
     var fill=el.querySelector('.pl__fill');
+    var reduced=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     if(fill){
       fill.addEventListener('animationend',function(e){if(e.animationName==='plFill')finish()});
-      setTimeout(finish,2600);
-    }else setTimeout(finish,2400);
+      setTimeout(finish,reduced?1200:2600);
+    }else setTimeout(finish,reduced?1100:2400);
   }
 
   /* ---------- loader de transição ---------- */
