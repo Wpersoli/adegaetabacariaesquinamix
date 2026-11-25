@@ -195,7 +195,7 @@ assert.ok(authLib.includes('authUserExists(c, authUser.id)'));
 assert.ok(authLib.includes('authUserExists(c, authUser.id)'));
 
 const sessionApi = fs.readFileSync(path.join(root, 'api/auth/session.js'), 'utf8');
-for (const protectedRoute of ['api/auth/session.js','api/auth/complete.js','api/auth/password.js','api/auth/logout.js']) {
+for (const protectedRoute of ['api/auth/session.js','api/auth/complete.js','api/auth/password.js','api/auth/logout.js','api/auth/signup.js','api/auth/login.js','api/auth/forgot.js','api/auth/forgot-email.js','api/auth/resend.js']) {
   const source = fs.readFileSync(path.join(root, protectedRoute), 'utf8');
   assert.ok(source.includes('A.sameOrigin(req)'), protectedRoute + ' must enforce same-origin requests');
 }
