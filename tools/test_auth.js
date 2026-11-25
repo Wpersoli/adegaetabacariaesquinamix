@@ -47,6 +47,21 @@ assert.equal(auth.validBirth('2008-11-17', new Date('2026-11-17T03:01:00.000Z'))
 assert.equal(auth.safeNext('/catalogo?categoria=bebidas'), '/catalogo?categoria=bebidas');
 assert.equal(auth.safeNext('//evil.example/path'), '/');
 assert.equal(auth.safeNext('https://evil.example'), '/');
+
+const previousNodeEnvForOrigin = process.env.NODE_ENV;
+try {
+  delete process.env.NODE_ENV;
+  assert.equal(auth.sameOrigin({ headers: { origin: 'http://shop.example', host: 'shop.example' } }), true);
+  assert.equal(auth.sameOrigin({ headers: { origin: 'http://evil.example', host: 'shop.example' } }), false);
+  assert.equal(auth.sameOrigin({ headers: { origin: 'null', host: 'shop.example' } }), false);
+  assert.equal(auth.sameOrigin({ headers: { host: 'shop.example' } }), false);
+  process.env.NODE_ENV = 'production';
+  assert.equal(auth.sameOrigin({ headers: { origin: 'https://shop.example', host: 'shop.example' } }), true);
+  assert.equal(auth.sameOrigin({ headers: { origin: 'http://shop.example', host: 'shop.example' } }), false);
+} finally {
+  if (previousNodeEnvForOrigin === undefined) delete process.env.NODE_ENV;
+  else process.env.NODE_ENV = previousNodeEnvForOrigin;
+}
 assert.equal(auth.maskEmail('cliente@example.com'), 'cl•••@example.com');
 
 const authUi = fs.readFileSync(path.join(root, 'auth.js'), 'utf8');
@@ -180,6 +195,12 @@ assert.ok(authLib.includes('authUserExists(c, authUser.id)'));
 assert.ok(authLib.includes('authUserExists(c, authUser.id)'));
 
 const sessionApi = fs.readFileSync(path.join(root, 'api/auth/session.js'), 'utf8');
+for (const protectedRoute of ['api/auth/session.js','api/auth/complete.js','api/auth/password.js','api/auth/logout.js']) {
+  const source = fs.readFileSync(path.join(root, protectedRoute), 'utf8');
+  assert.ok(source.includes('A.sameOrigin(req)'), protectedRoute + ' must enforce same-origin requests');
+}
+const ordersApi = fs.readFileSync(path.join(root, 'api/orders/index.js'), 'utf8');
+assert.ok(ordersApi.includes("req.method === 'POST' && !A.sameOrigin(req)"));
 assert.ok(sessionApi.includes('req.esquinaAccessToken||jar.esquina_access'));
 assert.ok(sessionApi.includes('/auth/v1/logout?scope=global'));
 const logoutApi = fs.readFileSync(path.join(root, 'api/auth/logout.js'), 'utf8');
