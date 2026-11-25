@@ -27,3 +27,16 @@ jobs:
           fi
       - name: Run auth static and unit checks
         run: node tools/test_auth.js
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright
+          npx playwright install --with-deps chromium
+      - name: Run responsive browser checks
+        run: |
+          python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/esquina-http.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8080/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node tools/validar_responsivo.js http://127.0.0.1:8080
+          node tools/validar_produtos_responsivo.js http://127.0.0.1:8080
