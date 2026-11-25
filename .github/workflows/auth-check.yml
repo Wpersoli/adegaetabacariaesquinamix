@@ -32,7 +32,9 @@ jobs:
           npm install --no-save --package-lock=false playwright
           npx playwright install --with-deps chromium
       - name: Validate service worker syntax
-        run: node --check sw.js
+        run: |
+          node --check sw.js
+          node --check tools/test_pwa_offline.js
       - name: Run responsive browser checks
         run: |
           python3 -m http.server 8080 --bind 127.0.0.1 >/tmp/esquina-http.log 2>&1 &
