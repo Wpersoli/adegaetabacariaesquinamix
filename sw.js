@@ -12,4 +12,4 @@ self.addEventListener('fetch',function(e){
   if(estatico){ /* imagens: cache primeiro */
     e.respondWith(caches.match(r).then(function(h){return h||fetch(r).then(function(res){if(res.ok){var c=res.clone();caches.open(VERSAO).then(function(ca){ca.put(r,c)})}return res})}));return}
   /* pagina, CSS e JS: rede primeiro, cache se estiver sem internet */
-  e.respondWith(fetch(r).then(function(res){if(res.ok){var c=res.clone();caches.open(VERSAO).then(function(ca){ca.put(r,c)})}return res}).catch(function(){return caches.match(r).then(function(h){if(h)return h;if(u.pathname.replace(/\\/+$/,'')==='/produtos')return caches.match('produtos.html');return caches.match('index.html')})}));
+  e.respondWith(fetch(r).then(function(res){if(res.ok){var c=res.clone();caches.open(VERSAO).then(function(ca){ca.put(r,c)})}return res}).catch(function(){return caches.match(r).then(function(h){if(h)return h;if(u.pathname.replace(/\/+$/,'')==='/produtos')return caches.match('produtos.html');return caches.match('index.html')})}));
