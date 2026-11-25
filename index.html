@@ -40,6 +40,7 @@
 <link rel="preload" as="image" href="assets/logo.webp">
 <link rel="stylesheet" href="preloader.css">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="showcase.css">
 <link rel="stylesheet" href="auth.css">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "LiquorStore", "name": "Esquina Mix — Adega e Tabacaria", "url": "https://adegaetabacariaesquinamix.vercel.app/", "image": "https://adegaetabacariaesquinamix.vercel.app/assets/og-image.jpg", "telephone": "+55 11 91722-1039", "address": {"@type": "PostalAddress", "streetAddress": "R. São Francisco, 285", "addressLocality": "Guarulhos", "addressRegion": "SP", "postalCode": "07071-010", "addressCountry": "BR"}, "geo": {"@type": "GeoCoordinates", "latitude": -23.4546859, "longitude": -46.5682857}, "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "10:00", "closes": "02:00"}], "sameAs": ["https://www.instagram.com/esquinamix2025/"]}</script>
 </head>
@@ -153,6 +154,52 @@
 
 <div class="mq" id="mq" aria-label="Destaques"><div class="mq-t"><span>↯ Retira no balcão em Guarulhos</span><span>⚡ Fecha às 02:00 · reabre às 10:00</span><span>★ Peça pelo WhatsApp</span></div></div>
   <section class="trust" aria-label="Diferenciais"><div class="wrap" tabindex="0"><div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div class="trust-text"><strong>Atendimento local</strong><span>Vila Galvão · Guarulhos</span></div></div><div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span><div class="trust-text"><strong id="shopTrust">Esquina-Mix aberta</strong><span>Fecha 02:00 · abre 10:00</span></div></div><div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6zM9 8a3 3 0 0 1 6 0"/></svg></span><div class="trust-text"><strong>Pedido fácil</strong><span>Sacola → WhatsApp</span></div></div><div class="trust-item"><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg></span><div class="trust-text"><strong>Consumo responsável</strong><span>Venda só para 18+</span></div></div></div></section>
+  <section class="showcase" id="vitrine" aria-labelledby="showcaseTitle">
+    <div class="showcase__inner">
+      <header class="showcase__head">
+        <div><p class="showcase__eyebrow">// vitrine da esquina</p><h2 class="showcase__title" id="showcaseTitle">Destaques que <span>chamam atenção</span></h2></div>
+        <a class="showcase__all showcase__all--desktop" href="produtos.html?ordem=az">Ver tudo <span aria-hidden="true">→</span></a>
+      </header>
+      <div class="showcase__layout">
+        <article class="showcase__featured" data-showcase-product="30">
+          <span class="showcase__ribbon">★ Destaque da semana</span>
+          <div class="showcase__hero-image"><img src="assets/produtos/barril-de-cerveja-heineken-5-litros.webp" alt="Barril de cerveja Heineken 5 litros" width="800" height="800" loading="lazy"></div>
+          <div class="showcase__featured-copy">
+            <p class="showcase__category">Bebidas</p>
+            <h3>Barril de cerveja Heineken 5 litros</h3>
+            <div class="showcase__featured-bottom"><strong>R$ 129,90</strong><button class="showcase__buy showcase__buy--gold" type="button" data-add-product="30" aria-label="Comprar — adicionar Barril de cerveja Heineken 5 litros à sacola">Comprar <span aria-hidden="true">→</span></button></div>
+          </div>
+        </article>
+        <div class="showcase__rail" id="showcaseRail" aria-label="Outros produtos em destaque">
+          <article class="showcase__product" data-showcase-product="32">
+            <div class="showcase__product-image"><img src="assets/produtos/aperol-aperitivo-750ml.webp" alt="Aperitivo Aperol 750ml" width="800" height="800" loading="lazy"></div>
+            <p class="showcase__category">Bebidas</p><h3>Aperitivo Aperol 750ml</h3>
+            <div class="showcase__product-bottom"><strong>R$ 64,90</strong><button class="showcase__buy" type="button" data-add-product="32" aria-label="Comprar — adicionar Aperitivo Aperol 750ml à sacola">Comprar <span aria-hidden="true">→</span></button></div>
+          </article>
+          <article class="showcase__product" data-showcase-product="31">
+            <div class="showcase__product-image"><img src="assets/produtos/aperitivo-campari-998ml.webp" alt="Aperitivo Campari 998ml" width="800" height="800" loading="lazy"></div>
+            <p class="showcase__category">Bebidas</p><h3>Aperitivo Campari 998ml</h3>
+            <div class="showcase__product-bottom"><strong>R$ 69,90</strong><button class="showcase__buy" type="button" data-add-product="31" aria-label="Comprar — adicionar Aperitivo Campari 998ml à sacola">Comprar <span aria-hidden="true">→</span></button></div>
+          </article>
+          <article class="showcase__product showcase__product--promo" data-showcase-product="35">
+            <span class="showcase__promo">Promo</span>
+            <div class="showcase__product-image"><img src="assets/produtos/bebida-mista-cabare-ice-frutas-vermelhas-long-neck-275ml.webp" alt="Cabaré Ice frutas vermelhas long neck 275ml" width="800" height="800" loading="lazy"></div>
+            <p class="showcase__category">Bebidas</p><h3>Cabaré Ice frutas vermelhas 275ml</h3>
+            <div class="showcase__product-bottom"><strong>R$ 7,90</strong><button class="showcase__buy" type="button" data-add-product="35" aria-label="Comprar — adicionar Cabaré Ice frutas vermelhas long neck 275ml à sacola">Comprar <span aria-hidden="true">→</span></button></div>
+          </article>
+          <article class="showcase__product" data-showcase-product="20">
+            <div class="showcase__product-image"><img src="assets/produtos/cerveja-blue-moon-lata-350ml.webp" alt="Cerveja Blue Moon lata 350ml" width="800" height="800" loading="lazy"></div>
+            <p class="showcase__category">Bebidas</p><h3>Cerveja Blue Moon lata 350ml</h3>
+            <div class="showcase__product-bottom"><strong>R$ 7,90</strong><button class="showcase__buy" type="button" data-add-product="20" aria-label="Comprar — adicionar Cerveja Blue Moon lata 350ml à sacola">Comprar <span aria-hidden="true">→</span></button></div>
+          </article>
+        </div>
+      </div>
+      <p class="showcase__note">* Preços de referência. Valor final e disponibilidade confirmados pela loja no WhatsApp.</p>
+      <div class="showcase__mobile-controls" aria-label="Navegação dos destaques"><div class="showcase__dots" id="showcaseDots" role="group" aria-label="Escolher página de destaques"><button type="button" class="is-active" data-showcase-page="0" aria-label="Ver primeiro grupo de produtos" aria-pressed="true"></button><button type="button" data-showcase-page="1" aria-label="Ver segundo grupo de produtos" aria-pressed="false"></button><button type="button" data-showcase-page="2" aria-label="Ver terceiro grupo de produtos" aria-pressed="false"></button></div></div>
+      <a class="showcase__all showcase__all--mobile" href="produtos.html?ordem=az">Ver todos os produtos <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
   <section class="feat" id="cardapio" aria-labelledby="title"><div class="wrap">
     <div class="feat__head"><div><p class="feat__eyebrow">// cardápio digital</p><h2 class="feat__title" id="title">Em destaque na <span class="hl">esquina</span></h2></div><a class="feat__cta" href="produtos.html">Ver tudo →</a></div>
     <p class="price-disclaimer" role="note">* Preços exibidos são valores de referência. Preço final, disponibilidade e condições serão confirmados pela loja no WhatsApp.</p>
@@ -339,6 +386,7 @@
 <script src="catalog.js" defer></script>
 <script src="pedido.js" defer></script>
 <script src="app.js" defer></script>
+<script src="showcase.js" defer></script>
 <script src="auth.js" defer></script>
 </body>
 </html>
