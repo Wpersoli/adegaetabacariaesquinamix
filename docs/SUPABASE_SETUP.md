@@ -4,7 +4,7 @@
 
 - Projeto Supabase: **adega-mix** · ref **rduwcxzegiffqgnnbhis** · região **sa-east-1** · estado **ACTIVE_HEALTHY**. Organização no plano **Free**.
 - O histórico remoto registra seis migrações aplicadas: `20261117024320`, `20261117031101`, `20261117231903`, `20261117235556`, `20261118023925` e `20261119022341`.
-- **Recuperação em andamento:** o arquivo `20261119022341_pending_registration_and_hardening.sql` foi reconstruído em branch separada a partir dos catálogos reais do banco (tabelas, constraints, índices, funções, `search_path` e ACLs). É uma reconstrução funcional do estado observado, não uma cópia byte a byte do SQL perdido; está em revisão e ainda não foi aplicada a nenhum banco.
+- **Recuperação concluída no Git:** `20261119022341_pending_registration_and_hardening.sql` foi reconstruído a partir dos catálogos reais do banco e integrado à `main` pelo PR #33. É uma reconstrução funcional do estado observado, não uma cópia byte a byte do SQL perdido. Não foi aplicado nem reaplicado em produção.
 - **Sequência de migrations saneada na branch de recuperação:** três arquivos SQL adicionais encontrados no diretório não constam no histórico remoto. Foram retirados de `supabase/migrations/` e preservados em `docs/legacy-migrations/`. Um deles criava `customer_profiles.delivery_address` e uma RPC de perfil com cinco parâmetros — objetos ausentes na produção atual. A suíte agora exige correspondência exata com as seis versões remotas.
 - RLS está ativo nas tabelas públicas e privadas verificadas. `customer_profiles` tem duas políticas vinculadas a `auth.uid()` (SELECT e UPDATE com `USING` e `WITH CHECK`); `customer_orders` tem uma política de SELECT vinculada a `auth.uid()`.
 - O schema `private` não concede `USAGE` a `anon` nem a `authenticated`; as cinco tabelas privadas verificadas não têm políticas RLS, o que é intencional com o schema inacessível a esses papéis.
@@ -59,7 +59,7 @@ Não use curingas amplos. Mantenha somente URLs realmente usadas.
 
 ## 3. Modelo do banco e migrações
 
-**Atenção:** a migration `20261119022341` já está registrada como aplicada em produção. O arquivo recuperado nesta revisão reproduz os objetos observados no banco (tabelas `private.pending_registration` e `private.auth_rate_limit`, índices e RPCs de cadastro pendente/limite de tentativas), mas não é o SQL original byte a byte. Ele está em branch/PR para revisão. Não executar manualmente em produção e não alterar o histórico remoto.
+**Atenção:** a migration `20261119022341` já está registrada como aplicada em produção. O arquivo recuperado reproduz os objetos observados no banco (tabelas `private.pending_registration` e `private.auth_rate_limit`, índices e RPCs de cadastro pendente/limite de tentativas), mas não é o SQL original byte a byte. O arquivo agora está versionado na `main`; não o executar manualmente em produção nem alterar o histórico remoto.
 
 A pasta `supabase/migrations/` deve conter exatamente as seis versões do histórico remoto. Três arquivos legados não registrados foram arquivados em `docs/legacy-migrations/`; em especial, não aplicar a versão antiga que adicionava `delivery_address` a `customer_profiles`, pois esse campo não existe no banco ativo.
 
@@ -99,9 +99,10 @@ O pedido inclui o endereço escolhido no checkout. Quando o cliente escolhe ende
 
 ## 7. Verificações executadas em 2026-11-25
 
-- Deploy de Production do commit `c82d1d69c8e89074cd35b961279ad53e33195ad8`: **READY** (verificação da revisão anterior).
-- GitHub Actions `45560563657`: **success**; verificações da home (179), catálogo (182), PWA offline (6), autenticação estática e checagens de sintaxe aprovadas; testes responsivos Playwright concluídos em 24 larguras de 320 a 1920 px.
-- Banco Supabase: **ACTIVE_HEALTHY**; seis versões de migração registradas no histórico remoto. A versão `20261119022341` foi recuperada em arquivo SQL a partir do catálogo remoto e está em revisão via PR; não foi executada em produção.
+- Deploy de Production do commit `7a5eb01378964c035eb77a26d5778f9edc45ec77`: **READY** após o merge do PR #33.
+- GitHub Actions `45688361467`: **success**; as seis migrations foram executadas em PostgreSQL 16 descartável e os fluxos de cadastro pendente, confirmação, promoção e rate limit foram testados.
+- GitHub Actions `45688361461`: **success**; testes estáticos de autenticação, sintaxe, service worker e testes responsivos Playwright concluídos.
+- Banco Supabase: **ACTIVE_HEALTHY**; seis versões de migração registradas no histórico remoto. O arquivo recuperado da versão `20261119022341` foi integrado ao Git pelo PR #33, sem executar DDL em produção.
 - Três SQL legados não registrados no histórico remoto foram movidos para `docs/legacy-migrations/`; a suíte de integração verifica que apenas as seis migrations de produção permanecem no diretório executável.
 - RLS habilitado em todas as tabelas verificadas dos schemas `public` e `private`.
 - As políticas públicas permitem leitura do próprio perfil e dos próprios pedidos; a atualização de perfil mantém `USING` e `WITH CHECK` vinculados a `auth.uid()`.
@@ -117,7 +118,7 @@ O pedido inclui o endereço escolhido no checkout. Quando o cliente escolhe ende
 ## 8. Pendências operacionais e critérios de liberação
 
 - **Proteção contra senhas vazadas:** `auth_leaked_password_protection` está desabilitada. A documentação Supabase informa disponibilidade no plano Pro ou superior; a organização está no Free. Não houve upgrade nem alteração Auth. Reavaliar somente após decisão explícita sobre plano.
-- **Migração recuperada:** revisar e aprovar o arquivo `20261119022341_pending_registration_and_hardening.sql` no PR antes de mesclar. A reconstrução veio do catálogo vivo e é funcionalmente orientada ao estado observado, mas não garante igualdade textual com o original perdido. Não executá-la manualmente em produção, onde a versão já consta como aplicada.
+- **Migração recuperada:** o arquivo `20261119022341_pending_registration_and_hardening.sql` já está na `main`. A reconstrução veio do catálogo vivo e é funcionalmente orientada ao estado observado, mas não garante igualdade textual com o original perdido. Não executá-la manualmente em produção, onde a versão já consta como aplicada.
 - **Teste ponta a ponta obrigatório antes de ampliar o cadastro:** usar conta de teste dedicada para cadastro + confirmação por e-mail, login, renovação de sessão, edição de perfil, recuperação de senha/e-mail, endereço temporário e padrão no checkout, histórico de pedido, logout e exclusão da conta. Nunca usar conta real de cliente em testes destrutivos.
 - **Token administrativo de pedidos:** `ORDERS_ADMIN_TOKEN` não aparece entre as variáveis de ambiente listadas para o projeto Vercel. Sem ele, não habilitar atualização administrativa de status via API; manter o Table Editor com acesso administrativo restrito até configurar e testar o token no servidor.
 - **Catálogo comercial:** o README e `catalog.js` identificam produtos/preços demonstrativos. Substitua pelos dados confirmados pela loja antes de anunciar valores ou disponibilidade como reais. Não inventar preços, estoque, promoções, avaliações ou ranking.
