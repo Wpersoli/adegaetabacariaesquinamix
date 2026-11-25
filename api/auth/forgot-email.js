@@ -3,6 +3,7 @@ const A=require('../../lib/esquina-auth');
 module.exports=async function(req,res){
   try{
     A.method(req,['POST']);
+    if(!A.sameOrigin(req)) return A.send(res,403,{code:'ORIGIN_NOT_ALLOWED'});
     const c=A.config(),d=await A.body(req);
     const cpf=A.digits(d.cpf),birth=String(d.birth||'');
     if(!A.validCpf(cpf)||!A.validBirth(birth)) return A.send(res,400,{code:'IDENTITY_NOT_MATCHED'});
