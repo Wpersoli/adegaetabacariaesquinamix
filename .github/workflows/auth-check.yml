@@ -40,3 +40,4 @@ jobs:
           done
           node tools/validar_responsivo.js http://127.0.0.1:8080
           node tools/validar_produtos_responsivo.js http://127.0.0.1:8080
+          node tools/test_pwa_offline.js http://127.0.0.1:8080
