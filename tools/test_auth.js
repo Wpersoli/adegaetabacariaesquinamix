@@ -209,6 +209,49 @@ assert.ok(sessionApi.includes('A.authUserExists(c,user.id)'));
 assert.ok(sessionApi.includes('AUTH_USER_LOOKUP_UNAVAILABLE'));
 
 
+/* Rotas mutáveis rejeitam CSRF antes de consultar serviços externos ou tocar na sessão. */
+(async function testOriginGuards() {
+  const previousNodeEnv = process.env.NODE_ENV;
+  try {
+    delete process.env.NODE_ENV;
+    const cases = [
+      ['api/auth/signup.js', 'POST'],
+      ['api/auth/login.js', 'POST'],
+      ['api/auth/forgot.js', 'POST'],
+      ['api/auth/forgot-email.js', 'POST'],
+      ['api/auth/resend.js', 'POST'],
+      ['api/auth/session.js', 'POST'],
+      ['api/auth/complete.js', 'POST'],
+      ['api/auth/password.js', 'PUT'],
+      ['api/auth/logout.js', 'POST'],
+      ['api/orders/index.js', 'POST']
+    ];
+    for (const [file, method] of cases) {
+      const handler = require(path.join(root, file));
+      const response = {
+        statusCode: 200,
+        headers: {},
+        body: '',
+        setHeader(name, value) { this.headers[name] = value; },
+        end(value) { this.body = value || ''; }
+      };
+      await handler({
+        method,
+        headers: { origin: 'http://attacker.example', host: 'shop.example', 'x-forwarded-proto': 'http' },
+        body: {}
+      }, response);
+      assert.equal(response.statusCode, 403, file + ' must reject a cross-origin request');
+      assert.equal(JSON.parse(response.body).code, 'ORIGIN_NOT_ALLOWED');
+    }
+  } finally {
+    if (previousNodeEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = previousNodeEnv;
+  }
+})().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
+
 /* currentUser: rejeita JWT de usuário apagado e limpa cookies; mantém login ativo se conta existe. */
 (async function testCurrentUserAccountLookup() {
   const originalFetch = global.fetch;
