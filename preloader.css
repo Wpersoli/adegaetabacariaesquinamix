@@ -1,12 +1,12 @@
 /* ==========================================================================
    ABERTURA (preloader) — Esquina Mix
-   Sequência total: 6,0 s  →  logo tela cheia (0–2,3s) → barra de chope (2,2–5,4s) → saída (5,4–6,0s)
+   Sequência visual: ~1,9 s  →  logo (0–1,2s) → barra/enchimento (0,1–1,35s) → saída (1,35–1,9s)
    Tudo isolado em classes .pl* (não toca em nenhum estilo existente).
    Para ajustar os tempos, mude só as variáveis abaixo (e o tempo total no preloader.js).
    ========================================================================== */
 .pl{
-  --logo-t:2.3s;          /* duração da fase do logo */
-  --load-d:2.2s;          /* quando a barra começa a aparecer */
+  --logo-t:1.2s;          /* duração da fase do logo */
+  --load-d:.1s;          /* quando a barra começa a aparecer */
   --fill-d:.15s;          /* quando o líquido começa a encher */
   --fill-t:1.2s;            /* duração do enchimento (termina em 1,35s) */
   --amber:#f6a800;
