@@ -22,7 +22,7 @@ const check = (cond, msg) => { cond ? ok++ : (bad++, console.log('   ✗ ' + msg
     const r = await p.evaluate(() => {
       const R = s => { const e = document.querySelector(s); if (!e) return null; const cs = getComputedStyle(e); if (cs.display === 'none' || cs.visibility === 'hidden') return null; const r = e.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, r: r.right }; };
       const nav = [...document.querySelectorAll('#nav > button')].map(e => e.getBoundingClientRect());
-      return { menu: R('#menuBtn'), brand: R('.brand img'), brandT: R('.brand-t'), search: R('.search'), sBtn: R('#searchBtn'),
+      return { menu: R('#menuBtn'), brand: R('.brand img'), brandBlock: R('.brand'), brandT: R('.brand-t'), search: R('.search'), sBtn: R('#searchBtn'),
         acc: R('#accountBtn'), cart: R('#cartBtn'), nav: R('#nav'), navItems: nav.map(r => ({ l: r.left, r: r.right, t: Math.round(r.top) })),
         overflow: document.documentElement.scrollWidth > innerWidth, vw: innerWidth, top: R('.top') };
     });
@@ -32,7 +32,9 @@ const check = (cond, msg) => { cond ? ok++ : (bad++, console.log('   ✗ ' + msg
       check(r.menu && Math.round(r.menu.w) === 44 && Math.round(r.menu.h) === 44, 'hamburguer deve ter 44x44');
       check(!r.nav, 'barra horizontal deve estar oculta');
       check(!r.brandT, 'texto da marca deve estar oculto');
-      check(r.brand && r.brand.w >= 64 && r.brand.w <= 80, 'logo ~78px (66px em <=360): ' + (r.brand && Math.round(r.brand.w)));
+      const logoMin = w >= 340 && w <= 400 ? 40 : 64, logoMax = w >= 340 && w <= 400 ? 60 : 80;
+      check(r.brand && r.brand.w >= logoMin && r.brand.w <= logoMax, 'largura responsiva da logo: ' + (r.brand && Math.round(r.brand.w)) + 'px');
+      check(r.brandBlock && r.menu && r.sBtn && r.brandBlock.x >= r.menu.r && r.brandBlock.r <= r.sBtn.x, 'bloco completo da marca não pode sobrepor menu ou lupa');
       check(r.sBtn && r.acc && r.cart && [r.sBtn, r.acc, r.cart].every(e => Math.round(e.w) === 44 && Math.round(e.h) === 44), 'icones busca/conta/sacola 44x44');
       check(r.menu && r.brand && r.sBtn && r.menu.x < r.brand.x && r.brand.x < r.sBtn.x && r.sBtn.x < r.acc.x && r.acc.x < r.cart.x, 'ordem: hamburguer | logo | busca | conta | sacola');
       check(r.cart && r.cart.r <= w, 'sacola dentro da tela');
