@@ -294,4 +294,20 @@ document.addEventListener('cart:add',function(){hold=Date.now()+1500;barShow()})
 if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
 
 readCart();fromUrl();sync_inputs();render();sync();
+
+/* Barra flutuante inferior (celulares): mesma barra da home — início, busca, como chegar, whatsapp e produtos */
+(function(){
+  var mbar=document.getElementById('mbar');if(!mbar||!top||!sb)return;
+  var mq=window.matchMedia('(max-width:820px)'),s=mbar.querySelector('[data-act="search"]'),pr=mbar.querySelector('[data-k="products"]');
+  /* estado visual: com a busca aberta, "Buscar" fica ativo e "Produtos" volta ao normal (igual à home) */
+  function syncSearch(){var on=top.classList.contains('is-search');
+    if(s){s.setAttribute('aria-expanded',on?'true':'false');s.classList.toggle('is-active',on);if(on)s.setAttribute('aria-current','true');else s.removeAttribute('aria-current')}
+    if(pr){pr.classList.toggle('is-active',!on);if(on)pr.removeAttribute('aria-current');else pr.setAttribute('aria-current','true')}}
+  /* mostra a barra do topo antes de abrir a busca (ela pode estar escondida pela rolagem) */
+  if(s)s.addEventListener('click',function(){barShow();sb.click()});
+  if(window.MutationObserver)new MutationObserver(syncSearch).observe(top,{attributes:true,attributeFilter:['class']});
+  syncSearch();
+  document.addEventListener('focusin',function(e){if(mq.matches&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))mbar.classList.add('is-kb')});
+  document.addEventListener('focusout',function(){setTimeout(function(){var a=document.activeElement;if(!a||!/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))mbar.classList.remove('is-kb')},60)});
+})();
 })();
