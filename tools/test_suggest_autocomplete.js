@@ -62,7 +62,7 @@ async function pageVisible(locator) {
   const products = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   products.on('pageerror', error => failures.push('produtos: ' + error.message));
   await prepare(products, '/produtos.html');
-  const topResult = await exercise(products, products.locator('#hq'), 'ul.sug--float:visible', 'busca superior do catálogo');
+  const topResult = await exercise(products, products.locator('#hq'), '.search ul.sug--shared:visible', 'busca superior do catálogo');
   await products.locator('#filtTab').click();
   const panelResult = await exercise(products, products.locator('#pq'), 'ul.sug--float:visible', 'busca do painel lateral do catálogo');
   await products.close();
