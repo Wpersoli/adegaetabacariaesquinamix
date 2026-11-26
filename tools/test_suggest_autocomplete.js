@@ -14,7 +14,7 @@ async function prepare(page, url) {
 
 async function exercise(input, boxSelector, label) {
   await input.fill('ipa');
-  const box = input.locator('xpath=following-sibling::ul[contains(@class,"sug--shared")]');
+  const box = page.locator(boxSelector);
   await box.locator('.sug__i').first().waitFor({ state: 'visible', timeout: 8000 });
   const count = await box.locator('.sug__i').count();
   if (!count) throw new Error(label + ': nenhuma sugestão foi exibida');
