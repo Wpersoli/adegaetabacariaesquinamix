@@ -952,3 +952,19 @@ html{max-width:100%;overscroll-behavior-x:none}
 body{max-width:100%}
 /* carrosséis e faixas nunca podem alargar a página */
 .shelf__wrap,.shelf__strip,.vitrine__list,.rev__list,.fleet__row,.mq{max-width:100%}
+
+
+/* =====================================================================
+   Auto-preenchimento com foto (busca do topo e da barra lateral de filtros) — responsivo
+   ===================================================================== */
+.sug{overscroll-behavior:contain;-webkit-overflow-scrolling:touch;max-height:min(70vh,430px);max-height:min(62dvh,430px)}
+.sug__i{min-height:52px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.sug__i img{width:44px;height:44px}
+.sug__i .sug__n>span:first-child,.sug__i .sug__nm{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.sug__i b{white-space:nowrap}
+.sug__more{min-height:46px}
+/* dentro das barras laterais de filtros: lista na própria coluna (não é cortada pelo painel com rolagem) */
+.sug--inline{position:static;top:auto;left:auto;right:auto;width:100%;margin:2px 0 0;max-height:min(44vh,320px);max-height:min(44dvh,320px);box-shadow:0 6px 18px rgba(0,0,0,.45)}
+@media(max-width:1024.98px){.sug:not(.sug--inline){left:-2px;right:-2px;top:calc(100% + 8px);max-height:min(58vh,420px);max-height:min(58dvh,420px)}}
+@media(max-width:380px){.sug{padding:4px}.sug__i{gap:9px;padding:6px}.sug__i img{width:38px;height:38px}.sug__i{font-size:14px}.sug__i b{font-size:13px}}
+@media(prefers-reduced-motion:no-preference){.sug:not([hidden]){animation:megaIn .14s ease-out}}
