@@ -37,11 +37,38 @@
     if(!input||input._sugOn)return;input._sugOn=true;opts=opts||{};
     var id='sg'+(++uid),box=document.createElement('ul'),items=[],act=-1,muted=false;
     box.id=id;box.className='sug sug--shared'+(opts.inline?' sug--inline':'');box.setAttribute('role','listbox');box.hidden=true;
-    if(opts.inline)input.insertAdjacentElement('afterend',box);
+    if(opts.float){box.className='sug sug--shared sug--float';document.body.appendChild(box)}
+    else if(opts.inline)input.insertAdjacentElement('afterend',box);
     else (opts.host||input.closest('.search')||input.parentNode).appendChild(box);
     input.setAttribute('role','combobox');input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-controls',id);
     input.setAttribute('aria-expanded','false');input.setAttribute('autocomplete','off');input.setAttribute('autocapitalize','off');input.setAttribute('spellcheck','false');
     input.setAttribute('enterkeyhint','search');
+
+    /* Sugestão flutuante: posiciona fora de painéis com overflow e respeita o teclado virtual. */
+    function place(){
+      if(!opts.float||box.hidden)return;
+      var vv=window.visualViewport,vw=vv?vv.width:window.innerWidth;
+      var top0=vv?vv.offsetTop:0,left0=vv?vv.offsetLeft:0,vh=vv?vv.height:window.innerHeight;
+      var r=input.getBoundingClientRect(),gap=6,pad=8;
+      var w=Math.min(Math.max(r.width,280),Math.max(160,vw-pad*2));
+      var left=Math.min(Math.max(r.left,left0+pad),left0+vw-w-pad);
+      var below=top0+vh-r.bottom-gap-pad,above=r.top-top0-gap-pad;
+      box.style.width=w+'px';box.style.left=left+'px';box.style.right='auto';
+      if(below>=170||below>=above){
+        box.style.top=(r.bottom+gap)+'px';box.style.bottom='auto';
+        box.style.maxHeight=Math.max(110,Math.min(360,below))+'px';
+      }else{
+        box.style.top='auto';box.style.bottom=Math.max(8,window.innerHeight-(r.top+top0)+gap)+'px';
+        box.style.maxHeight=Math.max(110,Math.min(360,above))+'px';
+      }
+    }
+    if(opts.float){
+      window.addEventListener('scroll',place,true);window.addEventListener('resize',place);
+      if(window.visualViewport){
+        window.visualViewport.addEventListener('resize',place);
+        window.visualViewport.addEventListener('scroll',place);
+      }
+    }
 
     function fire(name,detail){input.dispatchEvent(new CustomEvent('suggest:'+name,{bubbles:true,detail:detail}))}
     function close(){box.hidden=true;input.setAttribute('aria-expanded','false');input.removeAttribute('aria-activedescendant');act=-1}
@@ -51,7 +78,7 @@
       if(!v.trim()){close();return}
       var r=find(v),total=r.list.length;
       r.list.slice(0,MAX).forEach(function(x){items.push({x:x})});
-      if(!items.length){var n=document.createElement('li');n.className='sug__empty';n.textContent='Nenhum produto encontrado';box.appendChild(n);box.hidden=false;input.setAttribute('aria-expanded','true');return}
+      if(!items.length){var n=document.createElement('li');n.className='sug__empty';n.textContent='Nenhum produto encontrado';box.appendChild(n);box.hidden=false;input.setAttribute('aria-expanded','true');place();return}
       if(total>MAX)items.push({more:1});
       items.forEach(function(o,k){
         var li=document.createElement('li');li.id=id+'-'+k;li.setAttribute('role','option');li.setAttribute('aria-selected','false');
@@ -65,11 +92,14 @@
         }
         box.appendChild(li);
       });
-      box.hidden=false;input.setAttribute('aria-expanded','true');
+      box.hidden=false;input.setAttribute('aria-expanded','true');place();
     }
     function setAct(k){var all=box.querySelectorAll('.sug__i');if(!all.length)return;act=(k+all.length)%all.length;
       [].forEach.call(all,function(e,i){e.classList.toggle('is-act',i===act);e.setAttribute('aria-selected',i===act?'true':'false')});
-      input.setAttribute('aria-activedescendant',all[act].id);all[act].scrollIntoView({block:'nearest'})}
+      input.setAttribute('aria-activedescendant',all[act].id);
+      var item=all[act],itemTop=item.offsetTop,itemBottom=itemTop+item.offsetHeight;
+      if(itemTop<box.scrollTop)box.scrollTop=itemTop;
+      else if(itemBottom>box.scrollTop+box.clientHeight)box.scrollTop=itemBottom-box.clientHeight}
     function pick(k){var o=items[k];if(!o)return;
       if(o.more){close();fire('more',input.value);return}
       muted=true;input.value=o.x.n;
