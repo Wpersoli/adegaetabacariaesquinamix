@@ -310,3 +310,10 @@ readCart();fromUrl();sync_inputs();render();sync();
   document.addEventListener('focusout',function(){setTimeout(function(){var a=document.activeElement;if(!a||!/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))mbar.classList.remove('is-kb')},60)});
 })();
 })();
+
+
+/* Trava de rolagem horizontal: a página nunca fica deslocada para o lado (foco, scrollIntoView, filtros). */
+(function(){
+  function fix(){var d=document.documentElement;if(window.scrollX||d.scrollLeft||document.body.scrollLeft){d.scrollLeft=0;document.body.scrollLeft=0}}
+  window.addEventListener('scroll',fix,{passive:true});window.addEventListener('resize',fix);window.addEventListener('orientationchange',fix);fix();
+})();

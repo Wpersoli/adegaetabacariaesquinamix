@@ -1,6 +1,6 @@
 /* Service worker do Esquina Mix: deixa o site instalavel e abre mesmo com internet ruim.
    Aumente VERSAO a cada publicacao grande para renovar o cache. */
-var VERSAO='esquina-mix-v29',BASE=['./','index.html','produtos.html','styles.css','catalog.js','app.js','pedido.js','produtos.css','produtos.js','preloader.css','preloader.js','auth.css','auth.js','manifest.webmanifest','assets/logo.webp','assets/icon-192.png','assets/hero-mobile.webp','assets/hero-promo-desktop.webp','assets/hero-drinks-desktop.webp','assets/hero-drinks-3-desktop.webp','assets/hero-esquina-mix.webp'];
+var VERSAO='esquina-mix-v30',BASE=['./','index.html','produtos.html','styles.css','catalog.js','app.js','pedido.js','produtos.css','produtos.js','preloader.css','preloader.js','auth.css','auth.js','manifest.webmanifest','assets/logo.webp','assets/icon-192.png','assets/hero-mobile.webp','assets/hero-promo-desktop.webp','assets/hero-drinks-desktop.webp','assets/hero-drinks-3-desktop.webp','assets/hero-esquina-mix.webp'];
 self.addEventListener('install',function(e){e.waitUntil(caches.open(VERSAO).then(function(c){return c.addAll(BASE)}).then(function(){return self.skipWaiting()}))});
 self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==VERSAO}).map(function(k){return caches.delete(k)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener('fetch',function(e){
