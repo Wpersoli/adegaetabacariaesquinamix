@@ -251,7 +251,7 @@ $('hq').addEventListener('keydown',function(e){if(e.key==='Escape'&&mqM.matches&
 /* Autocomplete compartilhado: busca superior e campo de busca do painel lateral. */
 if(window.EsquinaSuggest){
   window.EsquinaSuggest.attach($('hq'));
-  window.EsquinaSuggest.attach($('pq'),{inline:true});
+  window.EsquinaSuggest.attach($('pq'),{float:true});
   ['suggest:pick','suggest:more','suggest:submit'].forEach(function(ev){$('hq').addEventListener(ev,function(){
     if(mqM.matches&&top.classList.contains('is-search'))searchRow(false);
     scrollToElementY(document.querySelector('.pg-res'));
