@@ -965,6 +965,12 @@ body{max-width:100%}
 .sug__more{min-height:46px}
 /* dentro das barras laterais de filtros: lista na própria coluna (não é cortada pelo painel com rolagem) */
 .sug--inline{position:static;top:auto;left:auto;right:auto;width:100%;margin:2px 0 0;max-height:min(44vh,320px);max-height:min(44dvh,320px);box-shadow:0 6px 18px rgba(0,0,0,.45)}
-@media(max-width:1024.98px){.sug:not(.sug--inline){left:-2px;right:-2px;top:calc(100% + 8px);max-height:min(58vh,420px);max-height:min(58dvh,420px)}}
+@media(max-width:1024.98px){.sug:not(.sug--inline):not(.sug--float){left:-2px;right:-2px;top:calc(100% + 8px);max-height:min(58vh,420px);max-height:min(58dvh,420px)}}
 @media(max-width:380px){.sug{padding:4px}.sug__i{gap:9px;padding:6px}.sug__i img{width:38px;height:38px}.sug__i{font-size:14px}.sug__i b{font-size:13px}}
 @media(prefers-reduced-motion:no-preference){.sug:not([hidden]){animation:megaIn .14s ease-out}}
+
+
+/* Lista flutuante das barras laterais: fora do overflow dos painéis e acima das camadas da interface. */
+.sug--float{position:fixed;z-index:400;margin:0;padding:6px;border:2px solid var(--pink);
+  box-shadow:0 14px 36px rgba(0,0,0,.6);max-height:min(360px,60vh);max-height:min(360px,60dvh);
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
