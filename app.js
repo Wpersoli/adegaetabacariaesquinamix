@@ -175,7 +175,7 @@ var qt;$('q').addEventListener('input',function(){var v=this.value;clearTimeout(
  search.addEventListener('input',function(){ $('q').value=this.value;term=this.value;homePage=1;render() });
  /* autocomplete com foto no filtro lateral; escolha/confirmacao fecha o painel sem deslocar o eixo horizontal */
  if(window.EsquinaSuggest){
-  window.EsquinaSuggest.attach(search,{inline:true});
+  window.EsquinaSuggest.attach(search,{float:true});
   ['suggest:pick','suggest:more','suggest:submit'].forEach(function(ev){search.addEventListener(ev,function(){open(false);scrollToElementY(document.getElementById('cardapio'))})});
  }
  $('homeFilterClear').addEventListener('click',function(){sel={};subF=null;cat='todos';term='';$('q').value='';search.value='';homePage=1;setCat('todos');render();draw()});
