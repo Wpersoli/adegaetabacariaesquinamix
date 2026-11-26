@@ -5,6 +5,8 @@ var catalog=window.EM_CATALOG||[];
 var $=function(i){return document.getElementById(i)};
 var save=function(k,v){try{localStorage.setItem(k,v)}catch(e){}};
 var load=function(k){try{return localStorage.getItem(k)}catch(e){return null}};
+/* Rola a página somente no eixo vertical; evita que carrosséis e menus horizontais desloquem o documento. */
+function scrollToElementY(el,behavior){if(!el)return;var top=window.pageYOffset+el.getBoundingClientRect().top;window.scrollTo({left:window.pageXOffset,top:Math.max(0,top),behavior:behavior||(window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth')})}
 var cat='todos',term='',cart={};
 try{var raw=JSON.parse(load('emCart')||'{}')||{};catalog.forEach(function(x){var q=parseInt(raw[x.id],10);if(q>0)cart[x.id]=Math.min(q,99)})}catch(e){cart={}}
 var brl=function(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})};
@@ -117,7 +119,7 @@ function drawAll(){var a=$('allLink');if(!a)return;
   var promos=catalog.filter(function(x){return x.promo}).length,n=catalog.length;
   $('allTitle').textContent='Ver todos os produtos disponíveis';
   $('allSub').textContent=cat==='promo'?promos+(promos===1?' promoção':' promoções')+' aqui · catálogo completo com '+n+' produtos':'Catálogo completo com '+n+' produtos e '+promos+(promos===1?' promoção':' promoções')}
-function drawHomePages(total){var box=$('homePages');if(!box)return;box.textContent='';box.hidden=total<=1;if(total<=1)return;for(var i=1;i<=total;i++){var b=document.createElement('button');b.type='button';b.textContent=i;if(i===homePage)b.setAttribute('aria-current','page');b.onclick=function(){homePage=+this.textContent;render();document.getElementById('cardapio').scrollIntoView({behavior:'smooth',block:'start'})};box.appendChild(b)}}
+function drawHomePages(total){var box=$('homePages');if(!box)return;box.textContent='';box.hidden=total<=1;if(total<=1)return;for(var i=1;i<=total;i++){var b=document.createElement('button');b.type='button';b.textContent=i;if(i===homePage)b.setAttribute('aria-current','page');b.onclick=function(){homePage=+this.textContent;render();scrollToElementY(document.getElementById('cardapio'))};box.appendChild(b)}}
 
 /* Sacola */
 function add(id){cart[id]=Math.min((cart[id]||0)+1,99);sync();document.dispatchEvent(new Event('cart:add'));if($('badge').animate)$('badge').animate([{transform:'scale(1.5)'},{transform:'scale(1)'}],{duration:250})}
@@ -157,7 +159,7 @@ function setCat(c,keep){if(c==='outros'){location.href='/produtos?ordem=az';retu
   [].forEach.call($('chips').children,function(x){x.classList.toggle('is-active',x.dataset.cat===c);x.setAttribute('aria-pressed',String(x.dataset.cat===c))});
   var on=document.querySelector('#nav button.on');if(on&&on.scrollIntoView)on.scrollIntoView({inline:'center',block:'nearest'});
   render()}
-$('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.textContent.trim().indexOf('Início')===0){location.href='https://adegaetabacariaesquinamix.vercel.app/#cardapio';return}setCat(b.dataset.cat);document.getElementById('cardapio').scrollIntoView()});
+$('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.textContent.trim().indexOf('Início')===0){location.href='https://adegaetabacariaesquinamix.vercel.app/#cardapio';return}setCat(b.dataset.cat);scrollToElementY(document.getElementById('cardapio'))});
 $('chips').addEventListener('click',function(e){var b=e.target.closest('button');if(b)setCat(b.dataset.cat)});
 $('facets').addEventListener('click',function(e){homePage=1;var b=e.target.closest('button');if(!b||b.dataset.i==null)return;var sb=(SUBS[cat]||[])[+b.dataset.i];if(!sb)return;subF=(subF&&subF.label===sb[0])?null:{label:sb[0],t:sb[1]};render()});
 $('sort').addEventListener('change',function(){sortBy=this.value;homePage=1;render()});
@@ -190,7 +192,7 @@ var qt;$('q').addEventListener('input',function(){var v=this.value;clearTimeout(
   function close(){box.hidden=true;q.setAttribute('aria-expanded','false');q.removeAttribute('aria-activedescendant');act=-1}
   function mark(el,name,t){var k=t?norm(name).indexOf(t):-1;if(k<0){el.textContent=name;return}
     el.appendChild(document.createTextNode(name.slice(0,k)));var m=document.createElement('mark');m.textContent=name.slice(k,k+t.length);el.appendChild(m);el.appendChild(document.createTextNode(name.slice(k+t.length)))}
-  function go(){var t=document.querySelector('.top'),sbt=$('searchBtn');if(t)t.classList.remove('is-search');if(sbt)sbt.setAttribute('aria-expanded','false');var el=document.getElementById('cardapio');if(el)el.scrollIntoView()}
+  function go(){var t=document.querySelector('.top'),sbt=$('searchBtn');if(t)t.classList.remove('is-search');if(sbt)sbt.setAttribute('aria-expanded','false');var el=document.getElementById('cardapio');if(el)scrollToElementY(el)}
   function pick(k){var o=items[k];if(!o)return;
     if(o.more){term=q.value;sel={};close();render();go();return}
     q.value=o.x.n;term=o.x.n;sel={};close();if(cat!=='todos')setCat('todos');else render();go()}
@@ -271,7 +273,7 @@ var qt;$('q').addEventListener('input',function(){var v=this.value;clearTimeout(
   var hd=node('div','mnav__top'),lg=node('img');lg.src='assets/logo.webp';lg.alt='';lg.width=48;lg.height=48;hd.appendChild(lg);hd.appendChild(node('strong','','Menu'));
   var x=node('button','mnav__x','✕');x.type='button';x.setAttribute('aria-label','Fechar menu');hd.appendChild(x);dr.appendChild(hd);
   var ul=node('ul','mnav__list');dr.appendChild(ul);
-  function go(c,sub){close();subF=sub?{label:sub[0],t:sub[1]}:null;setCat(c,true);var el=document.getElementById('cardapio');if(el)el.scrollIntoView()}
+  function go(c,sub){close();subF=sub?{label:sub[0],t:sub[1]}:null;setCat(c,true);var el=document.getElementById('cardapio');if(el)scrollToElementY(el)}
   [].forEach.call($('nav').querySelectorAll('button[data-cat]'),function(b){
     var c=b.dataset.cat,subs=SUBS[c],li=node('li'),a=node('button','mnav__a');a.type='button';
     a.appendChild(node('span','',b.firstChild.textContent.trim()));var tg=b.querySelector('.tag');if(tg)a.appendChild(tg.cloneNode(true));
