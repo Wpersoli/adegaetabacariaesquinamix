@@ -38,17 +38,17 @@ async function pageVisible(locator) {
   home.on('pageerror', error => failures.push('home: ' + error.message));
   await prepare(home, '/');
   await home.locator('#homeFilterToggle').click();
-  const homeResult = await exercise(home, home.locator('#homeFilterSearch'), '#homeFilterSearch + .sug', 'filtro lateral da home');
+  const homeResult = await exercise(home, home.locator('#homeFilterSearch'), 'ul.sug--float:visible', 'filtro lateral da home');
   const homeClosed = !(await home.locator('#homeFilter').evaluate(el => el.classList.contains('is-open')));
   if (!homeClosed) failures.push('home: o painel de filtros não fechou após selecionar sugestão');
   await home.close();
 
   const products = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   products.on('pageerror', error => failures.push('produtos: ' + error.message));
-  await prepare(products, '/produtos');
-  const topResult = await exercise(products, products.locator('#hq'), '#hq + .sug', 'busca superior do catálogo');
+  await prepare(products, '/produtos.html');
+  const topResult = await exercise(products, products.locator('#hq'), 'ul.sug--float:visible', 'busca superior do catálogo');
   await products.locator('#filtTab').click();
-  const panelResult = await exercise(products, products.locator('#pq'), '#pq + .sug--inline', 'busca do painel lateral do catálogo');
+  const panelResult = await exercise(products, products.locator('#pq'), 'ul.sug--float:visible', 'busca do painel lateral do catálogo');
   await products.close();
   await browser.close();
 
