@@ -739,3 +739,10 @@ document.addEventListener('pointerleave',function(){bt.style.setProperty('--k','
   g.addEventListener('click',function(e){if(moved){e.preventDefault();e.stopPropagation();moved=false}},true);
   g.addEventListener('dragstart',function(e){e.preventDefault()});
 })();
+
+
+/* Trava de rolagem horizontal: a página nunca fica deslocada para o lado (foco, scrollIntoView, filtros). */
+(function(){
+  function fix(){var d=document.documentElement;if(window.scrollX||d.scrollLeft||document.body.scrollLeft){d.scrollLeft=0;document.body.scrollLeft=0}}
+  window.addEventListener('scroll',fix,{passive:true});window.addEventListener('resize',fix);window.addEventListener('orientationchange',fix);fix();
+})();
