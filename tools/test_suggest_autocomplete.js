@@ -15,7 +15,23 @@ async function prepare(page, url) {
 async function exercise(page, input, boxSelector, label) {
   await input.fill('ipa');
   const box = page.locator(boxSelector);
-  await box.locator('.sug__i').first().waitFor({ state: 'visible', timeout: 8000 });
+  try {
+    await box.locator('.sug__i').first().waitFor({ state: 'visible', timeout: 8000 });
+  } catch (error) {
+    const diagnostics = await page.evaluate(() => ({
+      catalogCount: window.EM_CATALOG && window.EM_CATALOG.length,
+      ipaProducts: (window.EM_CATALOG || []).filter(x => /ipa/i.test(x.n)).map(x => x.n),
+      input: ['hq','pq','homeFilterSearch'].map(id => {
+        const e = document.getElementById(id);
+        return e ? { id, value: e.value, ariaControls: e.getAttribute('aria-controls'), ariaExpanded: e.getAttribute('aria-expanded') } : null;
+      }).filter(Boolean),
+      boxes: Array.from(document.querySelectorAll('ul.sug')).map(e => ({
+        id:e.id, classes:e.className, hidden:e.hidden, text:e.textContent.slice(0,100),
+        display:getComputedStyle(e).display, rect:(r => ({x:r.x,y:r.y,w:r.width,h:r.height}))(e.getBoundingClientRect())
+      }))
+    }));
+    throw new Error(label + ': autocomplete sem itens; ' + JSON.stringify(diagnostics) + '; ' + error.message);
+  }
   const count = await box.locator('.sug__i').count();
   if (!count) throw new Error(label + ': nenhuma sugestão foi exibida');
   await input.press('ArrowDown');
