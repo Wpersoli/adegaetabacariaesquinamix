@@ -3,6 +3,8 @@
 /* Página "Todos os produtos": lê o mesmo catálogo da home (catalog.js) e a mesma sacola (localStorage "emCart"). */
 var catalog=window.EM_CATALOG||[];
 var $=function(i){return document.getElementById(i)};
+/* Rola apenas no eixo vertical, mantendo a posicao horizontal dos carrosseis. */
+function scrollToElementY(el,behavior){if(!el)return;var top=window.pageYOffset+el.getBoundingClientRect().top;var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;window.scrollTo({left:window.pageXOffset,top:Math.max(0,top),behavior:behavior||(reduced?'auto':'smooth')});}
 var save=function(k,v){try{localStorage.setItem(k,v)}catch(e){}};
 var load=function(k){try{return localStorage.getItem(k)}catch(e){return null}};
 var brl=function(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})};
@@ -159,7 +161,7 @@ $('pages').addEventListener('click',function(e){var b=e.target.closest('button')
   var n=parseInt(b.dataset.page,10);if(!(n>0)||n===st.page)return;
   st.page=n;render();goList()});
 function goList(){var el=$('lista');if(!el)return;hold=Date.now()+1200;barShow();
-  el.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'})}
+  scrollToElementY(el)}
 
 /* endereço compartilhável: produtos.html?cat=bebidas&min=10&max=50 */
 function url(){try{var p=[];
@@ -246,6 +248,15 @@ var catChips=$('catChips');if(catChips)catChips.addEventListener('click',functio
 function searchRow(on){top.classList.toggle('is-search',on);sb.setAttribute('aria-expanded',on?'true':'false');if(on)$('hq').focus();else $('hq').blur()}
 sb.addEventListener('click',function(){searchRow(!top.classList.contains('is-search'))});
 $('hq').addEventListener('keydown',function(e){if(e.key==='Escape'&&mqM.matches&&top.classList.contains('is-search'))searchRow(false)});
+/* Autocomplete compartilhado: busca superior e campo de busca do painel lateral. */
+if(window.EsquinaSuggest){
+  window.EsquinaSuggest.attach($('hq'));
+  window.EsquinaSuggest.attach($('pq'),{inline:true});
+  ['suggest:pick','suggest:more','suggest:submit'].forEach(function(ev){$('hq').addEventListener(ev,function(){
+    if(mqM.matches&&top.classList.contains('is-search'))searchRow(false);
+    scrollToElementY(document.querySelector('.pg-res'));
+  })});
+}
 /* menu de categorias em tela cheia (celular/tablet) */
 dr=nd('aside','mnav');dr.id='mnav';dr.setAttribute('role','dialog');dr.setAttribute('aria-modal','true');dr.setAttribute('aria-label','Menu de categorias');dr.setAttribute('aria-hidden','true');
 (function(){
