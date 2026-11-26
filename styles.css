@@ -939,3 +939,16 @@ html.au-lock .home-filter-tab,html.au-lock .pg-tab{display:none!important}
   .vitrine__cta-bottom{display:flex;margin-top:16px}
 }
 @media(min-width:481px) and (max-width:600px){.vitrine__img{aspect-ratio:4/3}}
+
+
+/* =====================================================================
+   Correção de rolagem lateral (print: tela deslocada e fora do centro ao usar filtros / Narguile / Headshop)
+   Causa: o rótulo .sr-only dos cards do ranking é position:absolute sem ancestral posicionado; ele escapava do
+   carrossel e esticava a página (scrollWidth > largura da tela), deixando a tela rolar para o lado.
+   ===================================================================== */
+.rank__track,.rank-card{position:relative}
+.rank__track{max-width:100%;overscroll-behavior-x:contain}
+html{max-width:100%;overscroll-behavior-x:none}
+body{max-width:100%}
+/* carrosséis e faixas nunca podem alargar a página */
+.shelf__wrap,.shelf__strip,.vitrine__list,.rev__list,.fleet__row,.mq{max-width:100%}
