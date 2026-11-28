@@ -1036,5 +1036,3 @@ body{max-width:100%}
   .ft-bot{justify-content:center;gap:10px;padding-top:18px;padding-bottom:calc(100px + env(safe-area-inset-bottom,0px));text-align:center}
   .ft-bot span:first-child,.ft-bot span:last-child{flex:1 1 100%;text-align:center}
 }
-
-
