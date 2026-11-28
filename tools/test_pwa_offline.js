@@ -47,6 +47,7 @@ const check = (cond, msg) => { cond ? (ok++, console.log('   ✓ ' + msg)) : (ba
     const footer = document.querySelector('#heroMobile .hm-footer');
     const imgs = await Promise.all(slides.map(async slide => {
       const img = slide.querySelector('img');
+      img.loading = 'eager';
       if (!img.complete) await new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
       return { src: img.getAttribute('src'), width: img.naturalWidth, height: img.naturalHeight };
     }));
