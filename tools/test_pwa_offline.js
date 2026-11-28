@@ -42,18 +42,40 @@ const check = (cond, msg) => { cond ? (ok++, console.log('   ✓ ' + msg)) : (ba
   check(cached.heroM2Status === 200 && cached.heroM2Width > 0 && cached.heroM2Height > 0, 'banner mobile 2 responde e decodifica: ' + cached.heroM2Width + '×' + cached.heroM2Height);
   check(Math.abs(cached.heroM2Width / cached.heroM2Height - 1003 / 2048) < 0.002, 'banner mobile 2 mantém proporção original sem deformação');
   await page.setViewportSize({ width: 390, height: 844 });
-  const hotspots = await page.evaluate(() => {
-    const slide = document.querySelector('#heroMobile .hm-slide[data-hm="1"]');
-    if (!slide) return null;
-    const base = slide.getBoundingClientRect();
+  const heroAudit = await page.evaluate(async () => {
+    const slides = Array.from(document.querySelectorAll('#heroMobile .hm-slide'));
+    const footer = document.querySelector('#heroMobile .hm-footer');
+    const imgs = await Promise.all(slides.map(async slide => {
+      const img = slide.querySelector('img');
+      if (!img.complete) await new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+      return { src: img.getAttribute('src'), width: img.naturalWidth, height: img.naturalHeight };
+    }));
     const rect = selector => {
-      const r = slide.querySelector(selector).getBoundingClientRect();
-      return { top: (r.top - base.top) / base.height, left: (r.left - base.left) / base.width, width: r.width / base.width, height: r.height / base.height };
+      const el = footer && footer.querySelector(selector);
+      if (!el) return null;
+      const r = el.getBoundingClientRect(), b = footer.getBoundingClientRect();
+      return { left:(r.left-b.left)/b.width, width:r.width/b.width, top:(r.top-b.top)/b.height };
     };
-    return { ig: rect('.hm-hit--ig'), route: rect('.hm-hit--rota'), whatsapp: rect('.hm-hit--zap'), cta: rect('.hm-hit--btn') };
+    return {
+      slideCount: slides.length, imgs,
+      footer: !!footer,
+      instagram: footer && footer.querySelector('.hm-footer__link[href*="instagram.com"]')?.getAttribute('href'),
+      route: footer && footer.querySelector('[data-hero-rota]')?.getAttribute('href'),
+      whatsapp: footer && footer.querySelector('.hm-footer__link[href*="wa.me"]')?.getAttribute('href'),
+      catalog: footer && footer.querySelector('.hm-footer__cta')?.getAttribute('href'),
+      columns: ['.hm-footer__link:nth-child(1)','.hm-footer__link:nth-child(2)','.hm-footer__link:nth-child(3)'].map(rect),
+      cta: rect('.hm-footer__cta')
+    };
   });
-  check(!!hotspots && Math.abs(hotspots.ig.top - 0.572) < 0.01 && Math.abs(hotspots.route.left - 0.3333) < 0.01 && Math.abs(hotspots.whatsapp.left - 0.6667) < 0.01, 'ícones Instagram, rota e WhatsApp alinhados em três colunas iguais');
-  check(!!hotspots && hotspots.cta.top > 0.73 && hotspots.cta.top < 0.77 && hotspots.cta.width > 0.95, 'área clicável do CTA alinhada ao botão magenta');
+  check(heroAudit.slideCount === 3, 'carrossel mobile mantém os três slides');
+  check(heroAudit.imgs.every(i => i.width > 0 && i.height > 0 && Math.abs(i.width/i.height - 440/896) < 0.004), 'as três artes carregam e preservam a mesma proporção vertical');
+  check(heroAudit.footer, 'rodapé HTML único compartilhado por todos os slides');
+  check(heroAudit.instagram === 'https://www.instagram.com/esquinamix2025/', 'link do Instagram aponta para o perfil oficial');
+  check(heroAudit.route === '#encontre', 'link Como Chegar aponta para o mapa interno');
+  check(!!heroAudit.whatsapp && heroAudit.whatsapp.startsWith('https://wa.me/5511917221039'), 'link WhatsApp aponta para o número comercial');
+  check(heroAudit.catalog === '#cardapio', 'CTA abre o catálogo');
+  check(heroAudit.columns.every((r,i,a) => !!r && Math.abs(r.width-1/3) < 0.015 && (i===0 || Math.abs(r.left-(a[i-1].left+a[i-1].width)) < 0.015)), 'três colunas de contato têm largura e alinhamento uniformes');
+  check(!!heroAudit.cta && heroAudit.cta.width > 0.94 && heroAudit.cta.top > 0.68, 'CTA magenta ocupa a faixa inferior compartilhada');
   await context.setOffline(true);
   let response = null, navigationError = '';
   try { response = await page.goto(BASE + '/produtos', { waitUntil: 'domcontentloaded', timeout: 10000 }); }
