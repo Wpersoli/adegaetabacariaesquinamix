@@ -1024,6 +1024,14 @@ body{max-width:100%}
   #heroMobile .hm-hit--zap{left:65.8%;top:68.9%;width:34.2%;height:13.4%}
   #heroMobile .hm-hit--btn{left:1.2%;top:88.1%;width:97.6%;height:10.3%}
   #heroMobile .hm-dots{gap:9px;padding:9px 0 11px}
+
+  /* Slide 2: arte-fonte 1003×2048; hotspots alinhados à faixa real do rodapé. */
+  #heroMobile .hm-slide[data-hm="1"]{aspect-ratio:1003/2048}
+  #heroMobile .hm-slide[data-hm="1"] img{object-fit:contain;object-position:center}
+  #heroMobile .hm-slide[data-hm="1"] .hm-hit--ig{left:0;top:57.2%;width:33.33%;height:11.5%}
+  #heroMobile .hm-slide[data-hm="1"] .hm-hit--rota{left:33.33%;top:57.2%;width:33.34%;height:11.5%}
+  #heroMobile .hm-slide[data-hm="1"] .hm-hit--zap{left:66.67%;top:57.2%;width:33.33%;height:11.5%}
+  #heroMobile .hm-slide[data-hm="1"] .hm-hit--btn{left:1.5%;top:74.8%;width:97%;height:8.1%}
 }
 
 /* Rodapé: colunas com larguras previsíveis, marca sem deformação e contatos sem overflow. */
@@ -1044,4 +1052,10 @@ body{max-width:100%}
   .ft-brand p{max-width:42ch}
   .ft-bot{justify-content:center;gap:10px;padding-top:18px;padding-bottom:calc(100px + env(safe-area-inset-bottom,0px));text-align:center}
   .ft-bot span:first-child,.ft-bot span:last-child{flex:1 1 100%;text-align:center}
+}
+
+
+/* A imagem do segundo slide é uma arte vertical 1003×2048. Nunca esticar ou recortar. */
+@media(max-width:700px){
+  #heroMobile .hm-slide[data-hm="1"] img{width:100%;height:100%;object-fit:contain;object-position:center}
 }

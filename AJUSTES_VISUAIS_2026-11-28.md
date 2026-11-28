@@ -22,3 +22,11 @@
 As artes dos banners foram recebidas como imagens WebP achatadas, sem camadas editáveis. Por isso, os elementos gráficos internos (textos, produtos, logo impressa na arte e ilustrações) não foram deslocados individualmente. Foram preservados os arquivos originais, corrigidos o enquadramento e as áreas interativas do site. Para reposicionar cada elemento interno pixel a pixel, é necessário o arquivo-fonte editável de cada banner (PSD, AI, Canva ou equivalente) e o manual oficial da marca, caso exista em documento separado.
 
 A identidade visual documentada no README do projeto foi mantida: paleta, tipografia e linguagem visual existentes. Nenhuma lógica de pedidos, autenticação, catálogo ou integração foi intencionalmente alterada.
+
+
+## Correção adicional — segundo banner mobile (28/11/2026)
+
+- O segundo slide agora referencia o único arquivo válido de alta resolução `assets/hero-m2-880.webp` (1003×2048); removida a referência inexistente `hero-m2-440.webp` e removida a cópia com nome duplicado `assets/assetshero-m2-440.webp`.
+- A proporção original da arte é preservada no segundo slide, sem `object-fit: cover` ou deformação.
+- As áreas clicáveis do Instagram, Como Chegar, WhatsApp e CTA foram reposicionadas somente no segundo slide, em três colunas iguais e sobre as respectivas regiões visuais.
+- Service Worker atualizado para `esquina-mix-v39`; o teste PWA verifica cache, resposta HTTP, decodificação, proporção e alinhamento das áreas interativas.
