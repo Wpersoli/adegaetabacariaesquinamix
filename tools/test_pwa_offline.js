@@ -73,6 +73,10 @@ const check = (cond, msg) => { cond ? (ok++, console.log('   ✓ ' + msg)) : (ba
   check(heroAudit.artLinks.length === 3 && heroAudit.artLinks.every(href => href === '#cardapio'), 'cada arte mantém link direto para o catálogo');
   check(heroAudit.imgs.every(i => i.width > 0 && i.height > 0 && Math.abs(i.width/i.height - 440/896) < 0.004), 'as três artes carregam e preservam a mesma proporção vertical');
   check(heroAudit.footer, 'rodapé HTML único compartilhado por todos os slides');
+  const cropAudit = await page.locator('#heroMobile .hm-slide').first().evaluate(el => { const r=el.getBoundingClientRect(); return r.width ? r.width/r.height : 0; });
+  check(Math.abs(cropAudit - 440/580) < 0.015, 'arte mobile recorta antes do rodapé incorporado e não duplica ícones');
+  const footerNames = await page.locator('#heroMobile .hm-footer__link, #heroMobile .hm-footer__cta').evaluateAll(els => els.every(el => !el.hasAttribute('aria-label')));
+  check(footerNames, 'links do rodapé usam o texto visível como nome acessível');
   check(heroAudit.instagram === 'https://www.instagram.com/esquinamix2025/', 'link do Instagram aponta para o perfil oficial');
   check(heroAudit.route === '#encontre', 'link Como Chegar aponta para o mapa interno');
   check(!!heroAudit.whatsapp && heroAudit.whatsapp.startsWith('https://wa.me/5511917221039'), 'link WhatsApp aponta para o número comercial');
