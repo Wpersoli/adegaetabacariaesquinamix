@@ -704,8 +704,8 @@ document.addEventListener('pointerleave',function(){bt.style.setProperty('--k','
 
 /* Hero → "Como chegar": rola até o cartão do mapa (#encontre .loc2__card) dentro do próprio site e aciona a rota em tempo real */
 (function(){
-  var a=document.querySelector('[data-hero-rota]');if(!a)return;
-  a.addEventListener('click',function(e){
+  var rotas=document.querySelectorAll('[data-hero-rota]');if(!rotas.length)return;
+  [].forEach.call(rotas,function(a){a.addEventListener('click',function(e){
     var card=document.querySelector('#encontre .loc2__card')||document.getElementById('encontre');if(!card)return;
     e.preventDefault();
     var calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches,
@@ -716,7 +716,7 @@ document.addEventListener('pointerleave',function(){bt.style.setProperty('--k','
     if(history.replaceState)history.replaceState(null,'','#encontre');
     /* após a rolagem, pede a localização (se ainda não estiver em andamento) para traçar a rota no mapa embutido */
     setTimeout(function(){var b=document.getElementById('routeBtn');if(b&&!b.disabled)b.click()},calm?150:900);
-  });
+  })});
 })();
 
 /* Prateleiras do cardápio: arrastar com o mouse, deslizar no toque, setas no desktop e indicação de "tem mais" nas bordas */
