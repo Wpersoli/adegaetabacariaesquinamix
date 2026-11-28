@@ -82,7 +82,7 @@ const check = (cond, msg) => { cond ? (ok++, console.log('   ✓ ' + msg)) : (ba
   check(!!heroAudit.whatsapp && heroAudit.whatsapp.startsWith('https://wa.me/5511917221039'), 'link WhatsApp aponta para o número comercial');
   check(heroAudit.catalog === '#cardapio', 'CTA abre o catálogo');
   check(heroAudit.columns.every((r,i,a) => !!r && Math.abs(r.width-1/3) < 0.015 && (i===0 || Math.abs(r.left-(a[i-1].left+a[i-1].width)) < 0.015)), 'três colunas de contato têm largura e alinhamento uniformes');
-  check(!!heroAudit.cta && heroAudit.cta.width > 0.94 && heroAudit.cta.top > 0.68, 'CTA magenta ocupa a faixa inferior compartilhada');
+  check(!!heroAudit.cta && heroAudit.cta.width > 0.94 && heroAudit.cta.top > 0.62 && heroAudit.cta.top < 0.82, 'CTA magenta ocupa a faixa inferior compartilhada');
   for (const width of [320, 360, 390, 430, 480]) {
     await page.setViewportSize({ width, height: 844 });
     const layout = await page.evaluate(() => {
