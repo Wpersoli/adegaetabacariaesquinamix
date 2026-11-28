@@ -983,3 +983,65 @@ body{max-width:100%}
 .sug--float{position:fixed;z-index:400;margin:0;padding:6px;border:2px solid var(--pink);
   box-shadow:0 14px 36px rgba(0,0,0,.6);max-height:min(360px,60vh);max-height:min(360px,60dvh);
   overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+
+
+/* ===== Hero mobile (≤700px): 3 banners retrato em carrossel + áreas clicáveis em % da própria arte (440x896) ===== */
+.hm{display:none}
+@media(max-width:700px){
+  .hero{display:none!important}
+  .hm{display:block;position:relative;background:#07050c;line-height:0;overflow:hidden}
+  .hm-track{display:flex;max-width:480px;margin:0 auto;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .hm-track::-webkit-scrollbar{display:none}
+  .hm-track:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+  .hm-slide{position:relative;flex:0 0 100%;aspect-ratio:440/896;scroll-snap-align:center;scroll-snap-stop:always;background:#07050c}
+  .hm-slide picture,.hm-slide img{display:block;width:100%;height:100%}
+  .hm-slide img{object-fit:cover;-webkit-user-drag:none;user-select:none}
+  .hm-hit{position:absolute;display:block;z-index:2;border-radius:10px;-webkit-tap-highlight-color:rgba(245,184,46,.28);touch-action:pan-x pan-y}
+  .hm-hit:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+  .hm-hit--all{inset:0;z-index:1;border-radius:0}
+  .hm-hit--ig{left:0;top:69%;width:35%;height:13.2%}
+  .hm-hit--rota{left:35%;top:69%;width:30.8%;height:13.2%}
+  .hm-hit--zap{left:65.8%;top:69%;width:34.2%;height:13.2%}
+  .hm-hit--btn{left:1.2%;top:88.4%;width:97.6%;height:10.4%}
+  .hm-dots{display:flex;justify-content:center;align-items:center;gap:8px;padding:10px 0;line-height:1}
+  .hm-dot{width:9px;height:9px;padding:0;border-radius:999px;background:rgba(255,255,255,.38);transition:background .3s,width .3s;touch-action:manipulation}
+  .hm-dot.is-active{width:22px;background:var(--gold)}
+}
+@media(prefers-reduced-motion:reduce){.hm-dot{transition:none}}
+
+
+/* ===== Refinamento visual de precisão — banners mobile e rodapé ===== */
+/* As artes-fonte são 440×896 e 880×1792 (mesma proporção 1:2,036). Não cortar nem esticar. */
+@media(max-width:700px){
+  #heroMobile .hm-track{width:100%;max-width:480px;margin-inline:auto}
+  #heroMobile .hm-slide{aspect-ratio:440/896;overflow:hidden}
+  #heroMobile .hm-slide picture,
+  #heroMobile .hm-slide img{width:100%;height:100%}
+  #heroMobile .hm-slide img{object-fit:contain;object-position:50% 50%}
+  /* Áreas clicáveis alinhadas às faixas reais das artes verticais. */
+  #heroMobile .hm-hit--ig{left:0;top:68.9%;width:35%;height:13.4%}
+  #heroMobile .hm-hit--rota{left:35%;top:68.9%;width:30.8%;height:13.4%}
+  #heroMobile .hm-hit--zap{left:65.8%;top:68.9%;width:34.2%;height:13.4%}
+  #heroMobile .hm-hit--btn{left:1.2%;top:88.1%;width:97.6%;height:10.3%}
+  #heroMobile .hm-dots{gap:9px;padding:9px 0 11px}
+}
+
+/* Rodapé: colunas com larguras previsíveis, marca sem deformação e contatos sem overflow. */
+.ft{align-items:start;grid-template-columns:minmax(220px,1.25fr) minmax(120px,.8fr) minmax(140px,.9fr) minmax(250px,1.2fr);column-gap:clamp(22px,3vw,40px)}
+.ft-brand img{display:block;width:88px;height:88px;max-width:100%;object-fit:contain;object-position:left center}
+.ft>div{min-width:0}
+.ft>div:last-child p{min-width:0;overflow-wrap:anywhere}
+.ft-bot{align-items:center}
+.ft-bot span:first-child{flex:1 1 260px}
+.ft-bot span:last-child{flex:1 1 340px;text-align:right}
+.soc{align-items:center;gap:10px}
+.soc a{flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center}
+@media(max-width:900px){
+  .ft{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px;row-gap:30px}
+}
+@media(max-width:600px){
+  .ft{grid-template-columns:minmax(0,1fr);gap:26px;padding:36px 0 28px}
+  .ft-brand p{max-width:42ch}
+  .ft-bot{justify-content:center;gap:10px;padding-top:18px;padding-bottom:calc(100px + env(safe-area-inset-bottom,0px));text-align:center}
+  .ft-bot span:first-child,.ft-bot span:last-child{flex:1 1 100%;text-align:center}
+}
