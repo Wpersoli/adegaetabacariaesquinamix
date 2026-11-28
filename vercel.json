@@ -3,6 +3,30 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/assets/hero-cardapio-1920.webp",
+      "destination": "/assets/hero-desktop.webp"
+    },
+    {
+      "source": "/assets/hero-cardapio-2880.webp",
+      "destination": "/assets/hero-desktop.webp"
+    },
+    {
+      "source": "/assets/hero-bebida-1920.webp",
+      "destination": "/assets/hero-promo-desktop.webp"
+    },
+    {
+      "source": "/assets/hero-bebida-2880.webp",
+      "destination": "/assets/hero-promo-desktop.webp"
+    },
+    {
+      "source": "/assets/hero-drinks-1920.webp",
+      "destination": "/assets/hero-drinks-desktop.webp"
+    },
+    {
+      "source": "/assets/hero-drinks-2880.webp",
+      "destination": "/assets/hero-drinks-desktop.webp"
+    },
+    {
       "source": "/favicon.ico",
       "destination": "/assets/favicon.ico"
     }
