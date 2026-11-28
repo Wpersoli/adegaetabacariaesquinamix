@@ -69,7 +69,7 @@ button{font:inherit;cursor:pointer;border:0;color:inherit;background:none}
 .hero-hotspot--ig,.hero-hotspot--rota,.hero-hotspot--zap,.hero-hotspot--gelo,.hero-hotspot--bebidas,.hero-hotspot--tabaco,.hero-hotspot--loja,.hero-hotspot--whats,.hero-hotspot--drinks-prod,.hero-hotspot--drinks-ico{-webkit-tap-highlight-color:transparent}
 .hero-hotspot--ig,.hero-hotspot--rota,.hero-hotspot--zap,.hero-hotspot--gelo,.hero-hotspot--bebidas,.hero-hotspot--tabaco,.hero-hotspot--whats{border-radius:10px}
 /* slide 0: no celular vale a arte vertical com o link inteiro para o cardápio; os links da faixa só existem no desktop/tablet */
-@media(max-width:700px){.hero-hotspot--ig,.hero-hotspot--rota,.hero-hotspot--zap{display:none}}
+/* Os três atalhos do rodapé permanecem ativos em desktop e mobile. A arte mantém a mesma proporção em todas as telas. */
 /* slides inativos não recebem foco de teclado (links do banner) */
 .hero-slide{visibility:hidden;transition:opacity 1.1s ease,visibility 0s 1.1s}
 .hero-slide.is-active{visibility:visible;transition-delay:0s}
@@ -99,9 +99,9 @@ footer{text-align:center;padding:40px 16px;background:#0b0713;color:#bdb2d6;font
 .ticker{flex-direction:column;gap:2px;font-size:10px;text-align:center}
 .hero-cta{left:50%;transform:translateX(-50%);animation:none;bottom:14px;white-space:nowrap}
 .actions{gap:14px}
-.hero{aspect-ratio:800/1200}
+.hero{aspect-ratio:1920/666}
 
-/* Mobile: mantém somente a imagem original do primeiro slide. */
+/* Mobile: mantém o banner oficial horizontal, com a mesma faixa de atalhos clicáveis. */
 #heroSlider .hero-slide[data-slide="1"],
 #heroSlider .hero-slide[data-slide="2"]{
   display:none !important;

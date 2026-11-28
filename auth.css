@@ -14,7 +14,7 @@ html.au-lock{overflow:hidden}
   position:fixed;inset:0;z-index:120;display:grid;place-items:center;
   padding:16px;background:rgba(7,5,12,.82);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
-  overscroll-behavior:contain;animation:auFade .2s ease both;
+  overscroll-behavior:contain;
 }
 .au[hidden]{display:none}
 .au [hidden]{display:none!important}
@@ -31,7 +31,7 @@ html.au-lock{overflow:hidden}
   animation:auUp .28s cubic-bezier(.2,.8,.2,1) both;
 }
 @keyframes auFade{from{opacity:0}to{opacity:1}}
-@keyframes auUp{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes auUp{from{transform:translateY(14px) scale(.98)}to{transform:none}}
 
 /* mobile: painel colado na base, rolagem interna, respeita a area segura */
 @media(max-width:560px){
@@ -43,7 +43,7 @@ html.au-lock{overflow:hidden}
     animation-name:auSheet;
   }
 }
-@keyframes auSheet{from{opacity:.4;transform:translateY(40px)}to{opacity:1;transform:none}}
+@keyframes auSheet{from{transform:translateY(40px)}to{transform:none}}
 
 /* cabecalho */
 .au__head{display:flex;align-items:center;gap:12px;padding-right:48px;margin-bottom:16px}
