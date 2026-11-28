@@ -22,6 +22,7 @@ const check = (cond, msg) => { cond ? (ok++, console.log('   ✓ ' + msg)) : (ba
     const sw = await fetch('/sw.js').then(r => r.text());
     const version = (sw.match(/var VERSAO='([^']+)'/) || [])[1];
     if (!version) throw new Error('Versão do cache não encontrada em sw.js');
+    if (sw.includes('assets/hero-m2-440.webp')) throw new Error('Pré-cache ainda referencia o arquivo inexistente hero-m2-440.webp');
     const c = await caches.open(version);
     const product = await c.match(new URL('/produtos.html', location.origin).href);
     const hero = await c.match(new URL('/assets/hero-promo-desktop.webp', location.origin).href);
