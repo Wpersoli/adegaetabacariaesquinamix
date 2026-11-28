@@ -660,6 +660,26 @@ render();sync();
 })();
 
 
+/* Hero mobile: carrossel de 3 banners (deslizar, pontos, troca automática a cada 8s só quando visível e sem interação) */
+(function(){
+  var tr=document.getElementById('hmTrack'),box=document.getElementById('hmDots');if(!tr||!box)return;
+  var dots=[].slice.call(box.querySelectorAll('.hm-dot')),n=dots.length,cur=0,timer=0,hold=false,seen=false,
+      mq=window.matchMedia('(max-width:700px)'),calm=window.matchMedia('(prefers-reduced-motion:reduce)');
+  function paint(i){if(i===cur)return;cur=i;dots.forEach(function(d,k){var on=k===i;d.classList.toggle('is-active',on);if(on)d.setAttribute('aria-current','true');else d.removeAttribute('aria-current')})}
+  function idx(){var w=tr.clientWidth||1;return Math.max(0,Math.min(n-1,Math.round(tr.scrollLeft/w)))}
+  function go(i,smooth){tr.scrollTo({left:i*tr.clientWidth,behavior:smooth&&!calm.matches?'smooth':'auto'})}
+  function stop(){if(timer){clearInterval(timer);timer=0}}
+  function start(){stop();if(calm.matches||!mq.matches||hold||!seen||document.hidden)return;timer=setInterval(function(){go((cur+1)%n,true)},8000)}
+  tr.addEventListener('scroll',function(){paint(idx())},{passive:true});
+  dots.forEach(function(d){d.addEventListener('click',function(){go(+d.dataset.hmGo,true);start()})});
+  ['touchstart','pointerdown','focusin','mouseenter'].forEach(function(ev){tr.addEventListener(ev,function(){hold=true;stop()},{passive:true})});
+  ['touchend','touchcancel','focusout','mouseleave'].forEach(function(ev){tr.addEventListener(ev,function(){setTimeout(function(){hold=false;start()},4000)},{passive:true})});
+  document.addEventListener('visibilitychange',start);
+  if(mq.addEventListener)mq.addEventListener('change',function(){if(mq.matches)start();else stop()});
+  window.addEventListener('resize',function(){go(cur,false)});
+  if('IntersectionObserver' in window){new IntersectionObserver(function(en){seen=en[0].isIntersecting;start()},{threshold:.35}).observe(tr)}
+})();
+
 /* Neon da marca: intensidade e brilho reagem à proximidade do mouse (só apresentação) */
 (function(){
 'use strict';
