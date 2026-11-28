@@ -59,6 +59,7 @@ const check = (cond, msg) => { cond ? (ok++, console.log('   ✓ ' + msg)) : (ba
     };
     return {
       slideCount: slides.length, imgs,
+      artLinks: slides.map(slide => slide.querySelector(".hm-art-link")?.getAttribute("href")),
       footer: !!footer,
       instagram: footer && footer.querySelector('.hm-footer__link[href*="instagram.com"]')?.getAttribute('href'),
       route: footer && footer.querySelector('[data-hero-rota]')?.getAttribute('href'),
@@ -69,6 +70,7 @@ const check = (cond, msg) => { cond ? (ok++, console.log('   ✓ ' + msg)) : (ba
     };
   });
   check(heroAudit.slideCount === 3, 'carrossel mobile mantém os três slides');
+  check(heroAudit.artLinks.length === 3 && heroAudit.artLinks.every(href => href === '#cardapio'), 'cada arte mantém link direto para o catálogo');
   check(heroAudit.imgs.every(i => i.width > 0 && i.height > 0 && Math.abs(i.width/i.height - 440/896) < 0.004), 'as três artes carregam e preservam a mesma proporção vertical');
   check(heroAudit.footer, 'rodapé HTML único compartilhado por todos os slides');
   check(heroAudit.instagram === 'https://www.instagram.com/esquinamix2025/', 'link do Instagram aponta para o perfil oficial');
