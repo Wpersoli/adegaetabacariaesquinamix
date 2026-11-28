@@ -985,54 +985,37 @@ body{max-width:100%}
   overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 
 
-/* ===== Hero mobile (≤700px): 3 banners retrato em carrossel + áreas clicáveis em % da própria arte (440x896) ===== */
+/* ===== Hero mobile: arte superior + rodapé HTML compartilhado e pixel-uniforme ===== */
 .hm{display:none}
 @media(max-width:700px){
   .hero{display:none!important}
-  .hm{display:block;position:relative;background:#07050c;line-height:0;overflow:hidden}
-  .hm-track{display:flex;max-width:480px;margin:0 auto;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .hm{display:block;position:relative;background:#050505;line-height:1;overflow:hidden}
+  .hm-track{display:flex;width:100%;max-width:480px;margin:0 auto;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .hm-track::-webkit-scrollbar{display:none}
   .hm-track:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
-  .hm-slide{position:relative;flex:0 0 100%;aspect-ratio:440/896;scroll-snap-align:center;scroll-snap-stop:always;background:#07050c}
-  .hm-slide picture,.hm-slide img{display:block;width:100%;height:100%}
-  .hm-slide img{object-fit:cover;-webkit-user-drag:none;user-select:none}
-  .hm-hit{position:absolute;display:block;z-index:2;border-radius:10px;-webkit-tap-highlight-color:rgba(245,184,46,.28);touch-action:pan-x pan-y}
-  .hm-hit:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
-  .hm-hit--all{inset:0;z-index:1;border-radius:0}
-  .hm-hit--ig{left:0;top:69%;width:35%;height:13.2%}
-  .hm-hit--rota{left:35%;top:69%;width:30.8%;height:13.2%}
-  .hm-hit--zap{left:65.8%;top:69%;width:34.2%;height:13.2%}
-  .hm-hit--btn{left:1.2%;top:88.4%;width:97.6%;height:10.4%}
-  .hm-dots{display:flex;justify-content:center;align-items:center;gap:8px;padding:10px 0;line-height:1}
+  .hm-slide{position:relative;flex:0 0 100%;aspect-ratio:440/615;overflow:hidden;scroll-snap-align:center;scroll-snap-stop:always;background:#07050c}
+  .hm-slide img{display:block;width:100%;height:100%;object-fit:cover;object-position:top center;-webkit-user-drag:none;user-select:none}
+  .hm-footer{width:100%;max-width:480px;margin:0 auto;aspect-ratio:440/281;display:grid;grid-template-rows:1.34fr .62fr .9fr;background:#050505;color:#fff;overflow:hidden;padding:0 8px 8px}
+  .hm-footer__links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));min-height:0}
+  .hm-footer__link{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:5px 3px 3px;color:#fff;text-align:center;text-decoration:none;overflow:hidden}
+  .hm-footer__link+.hm-footer__link{border-left:3px solid #f5e900}
+  .hm-footer__icon{display:block;width:clamp(31px,10vw,44px);height:clamp(31px,10vw,44px);flex:0 0 auto;margin-bottom:2px}
+  .hm-footer__icon--map{width:clamp(38px,12vw,52px);height:clamp(34px,10.5vw,46px)}
+  .hm-footer__eyebrow{display:block;font-size:clamp(9px,2.55vw,12px);font-weight:900;line-height:1.02;white-space:nowrap}
+  .hm-footer__link strong{display:block;color:#ffe500;font-size:clamp(13px,3.65vw,17px);font-weight:1000;line-height:1.02;white-space:nowrap}
+  .hm-footer__link small{display:block;max-width:100%;font-size:clamp(8px,2.35vw,11px);font-weight:800;line-height:1.05;white-space:nowrap;letter-spacing:-.025em}
+  .hm-footer__tagline{position:relative;display:flex;align-items:center;justify-content:center;gap:.22em;margin:0;padding:2px 3px 9px;border-top:1px solid rgba(255,255,255,.8);font-size:clamp(11px,3.05vw,14px);font-style:italic;font-weight:900;line-height:1.12;text-align:center;white-space:nowrap}
+  .hm-footer__tagline strong{color:#ffe500}
+  .hm-footer__tagline:after{content:"";position:absolute;left:9%;right:9%;bottom:3px;height:4px;border-radius:50%;background:#ed078d;transform:rotate(-1deg);box-shadow:0 2px 0 #ed078d}
+  .hm-footer__cta{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;margin:4px 0 0;padding:6px 8px;border-radius:14px;background:#e90091;color:#fff;text-align:center;text-decoration:none;box-shadow:0 0 0 1px rgba(255,255,255,.08) inset}
+  .hm-footer__cta strong{display:block;font-size:clamp(14px,4.1vw,19px);font-weight:1000;line-height:1.05;white-space:nowrap}
+  .hm-footer__cta small{display:block;font-size:clamp(9px,2.55vw,12px);font-weight:800;line-height:1.05;white-space:nowrap}
+  .hm-footer a:focus-visible{outline:3px solid #fff;outline-offset:-4px;border-radius:10px}
+  .hm-dots{display:flex;justify-content:center;align-items:center;gap:9px;padding:9px 0 11px;line-height:1}
   .hm-dot{width:9px;height:9px;padding:0;border-radius:999px;background:rgba(255,255,255,.38);transition:background .3s,width .3s;touch-action:manipulation}
   .hm-dot.is-active{width:22px;background:var(--gold)}
 }
 @media(prefers-reduced-motion:reduce){.hm-dot{transition:none}}
-
-
-/* ===== Refinamento visual de precisão — banners mobile e rodapé ===== */
-/* As artes-fonte são 440×896 e 880×1792 (mesma proporção 1:2,036). Não cortar nem esticar. */
-@media(max-width:700px){
-  #heroMobile .hm-track{width:100%;max-width:480px;margin-inline:auto}
-  #heroMobile .hm-slide{aspect-ratio:440/896;overflow:hidden}
-  #heroMobile .hm-slide picture,
-  #heroMobile .hm-slide img{width:100%;height:100%}
-  #heroMobile .hm-slide img{object-fit:contain;object-position:50% 50%}
-  /* Áreas clicáveis alinhadas às faixas reais das artes verticais. */
-  #heroMobile .hm-hit--ig{left:0;top:68.9%;width:35%;height:13.4%}
-  #heroMobile .hm-hit--rota{left:35%;top:68.9%;width:30.8%;height:13.4%}
-  #heroMobile .hm-hit--zap{left:65.8%;top:68.9%;width:34.2%;height:13.4%}
-  #heroMobile .hm-hit--btn{left:1.2%;top:88.1%;width:97.6%;height:10.3%}
-  #heroMobile .hm-dots{gap:9px;padding:9px 0 11px}
-
-  /* Slide 2: arte-fonte 1003×2048; hotspots alinhados à faixa real do rodapé. */
-  #heroMobile .hm-slide[data-hm="1"]{aspect-ratio:1003/2048}
-  #heroMobile .hm-slide[data-hm="1"] img{object-fit:contain;object-position:center}
-  #heroMobile .hm-slide[data-hm="1"] .hm-hit--ig{left:0;top:57.2%;width:33.33%;height:11.5%}
-  #heroMobile .hm-slide[data-hm="1"] .hm-hit--rota{left:33.33%;top:57.2%;width:33.34%;height:11.5%}
-  #heroMobile .hm-slide[data-hm="1"] .hm-hit--zap{left:66.67%;top:57.2%;width:33.33%;height:11.5%}
-  #heroMobile .hm-slide[data-hm="1"] .hm-hit--btn{left:1.5%;top:74.8%;width:97%;height:8.1%}
-}
 
 /* Rodapé: colunas com larguras previsíveis, marca sem deformação e contatos sem overflow. */
 .ft{align-items:start;grid-template-columns:minmax(220px,1.25fr) minmax(120px,.8fr) minmax(140px,.9fr) minmax(250px,1.2fr);column-gap:clamp(22px,3vw,40px)}
@@ -1055,7 +1038,3 @@ body{max-width:100%}
 }
 
 
-/* A imagem do segundo slide é uma arte vertical 1003×2048. Nunca esticar ou recortar. */
-@media(max-width:700px){
-  #heroMobile .hm-slide[data-hm="1"] img{width:100%;height:100%;object-fit:contain;object-position:center}
-}
