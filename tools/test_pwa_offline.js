@@ -77,6 +77,24 @@ const check = (cond, msg) => { cond ? (ok++, console.log('   ✓ ' + msg)) : (ba
   check(heroAudit.catalog === '#cardapio', 'CTA abre o catálogo');
   check(heroAudit.columns.every((r,i,a) => !!r && Math.abs(r.width-1/3) < 0.015 && (i===0 || Math.abs(r.left-(a[i-1].left+a[i-1].width)) < 0.015)), 'três colunas de contato têm largura e alinhamento uniformes');
   check(!!heroAudit.cta && heroAudit.cta.width > 0.94 && heroAudit.cta.top > 0.68, 'CTA magenta ocupa a faixa inferior compartilhada');
+  for (const width of [320, 360, 390, 430, 480]) {
+    await page.setViewportSize({ width, height: 844 });
+    const layout = await page.evaluate(() => {
+      const footer = document.querySelector('#heroMobile .hm-footer');
+      const links = Array.from(footer.querySelectorAll('.hm-footer__link'));
+      const cta = footer.querySelector('.hm-footer__cta');
+      const fr = footer.getBoundingClientRect();
+      return {
+        pageWidth: document.documentElement.scrollWidth,
+        viewport: innerWidth,
+        footerInside: fr.left >= -1 && fr.right <= innerWidth + 1,
+        columns: links.map(a => a.getBoundingClientRect().width),
+        ctaInside: cta.scrollWidth <= cta.clientWidth + 2
+      };
+    });
+    check(layout.pageWidth <= width + 1 && layout.viewport === width && layout.footerInside, width + 'px rodapé centralizado sem overflow horizontal');
+    check(layout.columns.every(v => Math.abs(v-layout.columns[0]) < 1) && layout.ctaInside, width + 'px colunas iguais e CTA sem corte de texto');
+  }
   await context.setOffline(true);
   let response = null, navigationError = '';
   try { response = await page.goto(BASE + '/produtos', { waitUntil: 'domcontentloaded', timeout: 10000 }); }
